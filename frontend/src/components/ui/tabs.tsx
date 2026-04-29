@@ -18,7 +18,11 @@ export const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "relative flex w-full items-stretch gap-1 overflow-x-auto border-b-2 -mb-px scroll-smooth",
+      // overflow-y-hidden is intentional: in CSS, setting overflow-x:auto on its
+      // own implicitly switches overflow-y to "auto" too, which causes a stray
+      // vertical scrollbar on long tab strips (Customer has 10 tabs, Product 9).
+      // Pinning Y to hidden means the strip ONLY ever scrolls left/right.
+      "relative flex w-full items-stretch gap-1 overflow-x-auto overflow-y-hidden border-b-2 -mb-px scroll-smooth",
       "scrollbar-thin",
       className,
     )}

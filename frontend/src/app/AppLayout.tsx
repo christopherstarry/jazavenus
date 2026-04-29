@@ -254,7 +254,7 @@ function SidebarBody({ user, activeSectionId }: { user: CurrentUser | null; acti
         </NavLink>
       </div>
 
-      <nav className="flex flex-col gap-4 flex-1 overflow-y-auto p-3 sm:p-4" aria-label="Main navigation">
+      <nav className="flex flex-col gap-4 flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4" aria-label="Main navigation">
         {/* Dashboard always visible at the top */}
         {dashboard && (
           <ul className="flex flex-col gap-1">

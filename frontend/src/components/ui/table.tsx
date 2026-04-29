@@ -10,7 +10,11 @@ import { cn } from "@/lib/utils";
 */
 
 export const Table = ({ className, ...props }: React.HTMLAttributes<HTMLTableElement>) => (
-  <div className="relative w-full overflow-auto rounded-[var(--radius)] border-2 border-border">
+  // overflow-x-auto only: lets WIDE tables scroll left/right inside the card,
+  // while the page itself handles vertical scrolling normally. Using "auto"
+  // alone (or "overflow-auto") would let CSS implicitly turn the other axis
+  // into "auto" too and add a stray scrollbar.
+  <div className="relative w-full overflow-x-auto overflow-y-visible rounded-[var(--radius)] border-2 border-border">
     <table className={cn("w-full caption-bottom text-base", className)} {...props} />
   </div>
 );
