@@ -45,6 +45,8 @@ export interface ModuleNode {
   childLayout?: ChildLayout;
   /** Custom React component for this leaf. Falls back to a "Coming soon" placeholder. */
   Component?: ComponentType;
+  /** Hide the parent's own tab in TabsLayout even when it has a Component. */
+  hideSelfTab?: boolean;
   children?: ModuleNode[];
 }
 
@@ -104,6 +106,16 @@ import { InvoicesPage } from "@/features/invoices/InvoicesPage";
 import { SettingsPanel } from "@/features/settings/SettingsPanel";
 import { ChangePasswordPage } from "@/features/auth/ChangePasswordPage";
 import { EmployeePage } from "@/features/employees/EmployeePage";
+import { ClassOutletPage } from "@/features/customers/ClassOutletPage";
+import { GroupOutletPage } from "@/features/customers/GroupOutletPage";
+import { MarketTypePage } from "@/features/customers/MarketTypePage";
+import { ChannelOutletPage } from "@/features/customers/ChannelOutletPage";
+import { OutletTypePage } from "@/features/customers/OutletTypePage";
+import { SalesmanPage } from "@/features/customers/SalesmanPage";
+import { SalesAreaPage } from "@/features/customers/SalesAreaPage";
+import { LocationOutletPage } from "@/features/customers/LocationOutletPage";
+import { CollectorPage } from "@/features/customers/CollectorPage";
+import { MasterCustomerPage } from "@/features/customers/MasterCustomerPage";
 
 /* ── The actual tree ─────────────────────────────────────────────────────── */
 
@@ -172,19 +184,29 @@ export const TREE: ModuleNode[] = [
         description: "Customers and their outlet classifications",
         divider: true,
         childLayout: "tabs",
+        hideSelfTab: true,
         Component: CustomersPage, // default tab content for /master/customer
         children: [
-          { id: "master.customer.class-outlet",    path: "/master/customer/class-outlet",    label: "Table of Class Outlet" },
-          { id: "master.customer.group-outlet",    path: "/master/customer/group-outlet",    label: "Table Group Outlet" },
-          { id: "master.customer.location-outlet", path: "/master/customer/location-outlet", label: "Table of Location Outlet" },
-          { id: "master.customer.market-type",     path: "/master/customer/market-type",     label: "Table of Market Type" },
-          { id: "master.customer.channel-outlet",  path: "/master/customer/channel-outlet",  label: "Table of Channel Outlet" },
-          { id: "master.customer.outlet-type",     path: "/master/customer/outlet-type",     label: "Table of Outlet Type" },
-          { id: "master.customer.salesman",        path: "/master/customer/salesman",        label: "Table of Salesman" },
-          { id: "master.customer.collector",       path: "/master/customer/collector",       label: "Table of Collector" },
-          { id: "master.customer.sales-area",      path: "/master/customer/sales-area",      label: "Table of Sales Area" },
+          { id: "master.customer.class-outlet",    path: "/master/customer/class-outlet",    label: "Table of Class Outlet",
+            Component: ClassOutletPage },
+          { id: "master.customer.group-outlet",    path: "/master/customer/group-outlet",    label: "Table Group Outlet",
+            Component: GroupOutletPage },
+          { id: "master.customer.location-outlet", path: "/master/customer/location-outlet", label: "Table of Location Outlet",
+            Component: LocationOutletPage },
+          { id: "master.customer.market-type",     path: "/master/customer/market-type",     label: "Table of Market Type",
+            Component: MarketTypePage },
+          { id: "master.customer.channel-outlet",  path: "/master/customer/channel-outlet",  label: "Table of Channel Outlet",
+            Component: ChannelOutletPage },
+          { id: "master.customer.outlet-type",     path: "/master/customer/outlet-type",     label: "Table of Outlet Type",
+            Component: OutletTypePage },
+          { id: "master.customer.salesman",        path: "/master/customer/salesman",        label: "Table of Salesman",
+            Component: SalesmanPage },
+          { id: "master.customer.collector",       path: "/master/customer/collector",       label: "Table of Collector",
+            Component: CollectorPage },
+          { id: "master.customer.sales-area",      path: "/master/customer/sales-area",      label: "Table of Sales Area",
+            Component: SalesAreaPage },
           { id: "master.customer.master-customer", path: "/master/customer/master-customer", label: "Master Customer (X)",
-            Component: CustomersPage },
+            Component: MasterCustomerPage },
         ],
       },
 

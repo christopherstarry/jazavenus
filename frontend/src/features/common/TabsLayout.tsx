@@ -29,7 +29,7 @@ export function TabsLayout({ node }: { node: ModuleNode }) {
   // has its own component (its label uses the parent's plain name).
   type Tab = { value: string; label: string; node: ModuleNode };
   const tabs: Tab[] = [];
-  if (node.Component) {
+  if (node.Component && !node.hideSelfTab) {
     tabs.push({ value: node.path, label: node.label, node });
   }
   for (const c of visible) {
