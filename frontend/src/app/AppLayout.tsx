@@ -76,47 +76,50 @@ export function AppLayout() {
 
       <main className="flex-1 min-w-0 flex flex-col">
         <header className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b-2">
-          <div className="px-3 sm:px-5 md:px-8 py-3 sm:py-4 max-w-7xl mx-auto flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="lg:hidden shrink-0"
-              onClick={() => setMobileOpen(true)}
-              aria-label="Open menu"
-            >
-              <Menu className="h-6 w-6" />
-            </Button>
+          <div className="px-3 sm:px-5 md:px-8 max-w-7xl mx-auto">
+            {/* Breadcrumbs sit on their own quiet row above the title.
+                On the dashboard there is no useful trail, so we skip this row
+                entirely (Breadcrumbs returns null and the wrapper isn't rendered). */}
+            {current && current.path !== "/" && (
+              <div className="pt-2 sm:pt-3">
+                <Breadcrumbs trail={trail} />
+              </div>
+            )}
 
-            <div className="flex-1 min-w-0">
-              <Breadcrumbs trail={trail} className="mb-0.5" />
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight truncate">
+            {/* Main title row — single line, so the hamburger, title, date, and
+                avatar all sit on the same baseline cleanly. */}
+            <div className="py-3 sm:py-4 flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden shrink-0"
+                onClick={() => setMobileOpen(true)}
+                aria-label="Open menu"
+              >
+                <Menu className="h-6 w-6" />
+              </Button>
+
+              <h1 className="flex-1 min-w-0 text-xl sm:text-2xl md:text-3xl font-bold tracking-tight truncate">
                 {current?.label ?? "Jaza Venus"}
               </h1>
-              {/* Skip the header description on the dashboard — the body already
-                  shows a personal greeting and the Quick Action tiles for redirection. */}
-              {current?.description && current.path !== "/" && (
-                <p className="text-sm md:text-base text-muted-foreground mt-0.5 truncate hidden sm:block">
-                  {current.description}
-                </p>
+
+              <div className="text-right shrink-0 hidden md:block">
+                <div className="text-xs uppercase tracking-wide text-muted-foreground">Today</div>
+                <div className="text-sm md:text-base font-semibold whitespace-nowrap">
+                  <span className="lg:hidden">{todayShort}</span>
+                  <span className="hidden lg:inline">{today}</span>
+                </div>
+              </div>
+
+              {user && (
+                <UserMenu
+                  user={user}
+                  onSettings={() => navigate("/settings")}
+                  onChangePassword={() => navigate("/system/change-password")}
+                  onLogout={() => void logout()}
+                />
               )}
             </div>
-
-            <div className="text-right shrink-0 hidden md:block">
-              <div className="text-xs uppercase tracking-wide text-muted-foreground">Today</div>
-              <div className="text-sm md:text-base font-semibold whitespace-nowrap">
-                <span className="lg:hidden">{todayShort}</span>
-                <span className="hidden lg:inline">{today}</span>
-              </div>
-            </div>
-
-            {user && (
-              <UserMenu
-                user={user}
-                onSettings={() => navigate("/settings")}
-                onChangePassword={() => navigate("/system/change-password")}
-                onLogout={() => void logout()}
-              />
-            )}
           </div>
         </header>
 
