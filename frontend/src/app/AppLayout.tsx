@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
 import { useAuth, hasRole, type CurrentUser } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -7,12 +7,11 @@ import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import {
-  LogOut, Settings, Menu, ChevronDown, Clock, KeyRound,
+  LogOut, Settings, Menu, ChevronDown, KeyRound,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TREE, findModuleByPath, trailFor, type ModuleNode } from "@/app/modules";
-import { recordModuleVisit, useRecentModules } from "@/lib/recent-nav";
 
 /* "Maria Da Silva" → "MD". Falls back to email's first 2 letters. */
 function getInitials(user: CurrentUser): string {
@@ -37,12 +36,6 @@ export function AppLayout() {
 
   /* Auto-close the mobile drawer when the user picks an item. */
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);
-
-  /* Track every visited module so the sidebar's Recent list stays useful. */
-  useEffect(() => {
-    const m = findModuleByPath(location.pathname);
-    if (m) recordModuleVisit(m.id);
-  }, [location.pathname]);
 
   /* Pressing '/' jumps to the search input on the current page if there is one. */
   useEffect(() => {
@@ -99,7 +92,9 @@ export function AppLayout() {
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight truncate">
                 {current?.label ?? "Jaza Venus"}
               </h1>
-              {current?.description && (
+              {/* Skip the header description on the dashboard — the body already
+                  shows a personal greeting and the Quick Action tiles for redirection. */}
+              {current?.description && current.path !== "/" && (
                 <p className="text-sm md:text-base text-muted-foreground mt-0.5 truncate hidden sm:block">
                   {current.description}
                 </p>
@@ -221,29 +216,14 @@ function UserMenuItem({
  * ───────────────────────────────────────────────────────────────────────── */
 
 function SidebarBody({ user, activeSectionId }: { user: CurrentUser | null; activeSectionId?: string }) {
-  const recentIds = useRecentModules();
-
-  /* Build a flat lookup once per render so Recent can resolve ids → nodes. */
-  const lookup = useMemo(() => {
-    const map = new Map<string, ModuleNode>();
-    const visit = (n: ModuleNode) => {
-      map.set(n.id, n);
-      n.children?.forEach(visit);
-    };
-    TREE.forEach(visit);
-    return map;
-  }, []);
-
-  /* Top-level sections that should appear in the sidebar (skip dashboard + settings; both are reachable elsewhere). */
+  /* Sidebar order:
+   *   1. Dashboard (top)
+   *   2. The day-to-day work areas (Master, Purchase, Sales, A/R, Inventory, Report, Tax)
+   *   3. System (very bottom — admin/utility area, not part of the daily flow)
+   *   "settings" is reachable from the user menu only, so we skip it here. */
   const dashboard = TREE.find((n) => n.id === "dashboard");
-  const sections = TREE.filter((n) => n.path !== "/" && n.id !== "settings");
-
-  /* Recent: filter out the current page and resolve to nodes. */
-  const recent = recentIds
-    .map((id) => lookup.get(id))
-    .filter((n): n is ModuleNode => !!n && n.path !== "/")
-    .filter((n) => !n.superAdminOnly || hasRole(user, "SuperAdmin"))
-    .slice(0, 4);
+  const system    = TREE.find((n) => n.id === "system");
+  const main      = TREE.filter((n) => n.path !== "/" && n.id !== "settings" && n.id !== "system");
 
   return (
     <>
@@ -270,37 +250,9 @@ function SidebarBody({ user, activeSectionId }: { user: CurrentUser | null; acti
           </ul>
         )}
 
-        {/* Recent — only show if the user has been around at least once */}
-        {recent.length > 0 && (
-          <div>
-            <div className="px-3 mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              <Clock className="h-3.5 w-3.5" aria-hidden />
-              Recent
-            </div>
-            <ul className="flex flex-col gap-1">
-              {recent.map((r) => (
-                <li key={r.id}>
-                  <NavLink
-                    to={r.path}
-                    className={({ isActive }) =>
-                      cn(
-                        "block rounded-[var(--radius)] px-3 py-2 text-base min-h-[2.5rem]",
-                        "truncate transition-colors",
-                        isActive ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-accent",
-                      )
-                    }
-                  >
-                    {r.label}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Main sections */}
+        {/* Main day-to-day sections */}
         <ul className="flex flex-col gap-1">
-          {sections
+          {main
             .filter((s) => !s.superAdminOnly || hasRole(user, "SuperAdmin"))
             .map((section) => (
               <SidebarSection
@@ -311,6 +263,17 @@ function SidebarBody({ user, activeSectionId }: { user: CurrentUser | null; acti
               />
             ))}
         </ul>
+
+        {/* System pinned to the bottom — admin/utility tools */}
+        {system && (!system.superAdminOnly || hasRole(user, "SuperAdmin")) && (
+          <ul className="mt-auto flex flex-col gap-1 pt-3 border-t-2 border-border/60">
+            <SidebarSection
+              section={system}
+              user={user}
+              isActive={activeSectionId === "system"}
+            />
+          </ul>
+        )}
       </nav>
     </>
   );

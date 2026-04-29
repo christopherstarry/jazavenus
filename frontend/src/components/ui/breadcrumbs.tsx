@@ -20,6 +20,10 @@ export function Breadcrumbs({ trail, className }: { trail: ModuleNode[]; classNa
 
   const middle = trail.slice(0, -1).filter((n) => n.path !== "/");
 
+  /* If we're already at the dashboard (root) there is nothing to breadcrumb to —
+   * showing a lone home icon just looks like a stray button, so render nothing. */
+  if (middle.length === 0 && last.path === "/") return null;
+
   return (
     <nav aria-label="Breadcrumb" className={cn("min-w-0", className)}>
       <ol className="flex items-center gap-1 text-sm sm:text-base text-muted-foreground">
