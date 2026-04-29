@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const DIVISION_LABEL = "JAZA VENUS DISTRIBUTION BANDUNG";
 
@@ -42,97 +42,115 @@ export function MasterCustomerPage() {
   const totalBalance = useMemo(() => balance, [balance]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full min-w-0 max-w-full">
       <div className="rounded-md border-2 bg-card px-4 py-3 text-base sm:text-lg font-bold tracking-wide text-center uppercase">
         Division&nbsp;: {DIVISION_LABEL}
       </div>
 
-      <Card>
-        <CardContent className="pt-4 pb-0">
-          <fieldset className="border-2 border-border rounded-[var(--radius)] p-4 sm:p-5 space-y-4">
-            <legend className="text-base sm:text-lg font-bold px-1">Master Customer</legend>
+      <Card className="w-full min-w-0 max-w-full overflow-hidden">
+        <CardContent className="pt-4 pb-4 min-w-0 px-3 sm:px-6">
+          <fieldset className="border-2 border-border rounded-[var(--radius)] min-w-0 max-w-full p-3 sm:p-5 space-y-4">
+            <legend className="text-base sm:text-lg font-bold px-1 max-w-[calc(100%-0.75rem)]">Master Customer</legend>
 
-            <div className="grid gap-4 lg:grid-cols-12">
-              <div className="lg:col-span-7 space-y-3">
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="space-y-2">
+            <Tabs defaultValue="main" className="w-full min-w-0 max-w-full pt-1">
+              <TabsList className="w-full max-w-full min-w-0 justify-start gap-1 flex-nowrap h-auto p-1 bg-muted/20 overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch] mb-0 shadow-none rounded-md">
+                <TabsTrigger value="main" className="shrink-0 text-xs px-2 py-2.5 whitespace-nowrap sm:text-sm sm:px-3 sm:py-3">
+                  Main Information
+                </TabsTrigger>
+                <TabsTrigger value="secondary" className="shrink-0 text-xs px-2 py-2.5 whitespace-nowrap sm:text-sm sm:px-3 sm:py-3">
+                  Secondary Information
+                </TabsTrigger>
+                <TabsTrigger value="address" className="shrink-0 text-xs px-2 py-2.5 whitespace-nowrap sm:text-sm sm:px-3 sm:py-3">
+                  Customer Address
+                </TabsTrigger>
+                <TabsTrigger value="cust-brand" className="shrink-0 text-xs px-2 py-2.5 whitespace-nowrap sm:text-sm sm:px-3 sm:py-3">
+                  Cust / Brand
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            <div className="grid gap-4 grid-cols-1 lg:grid-cols-12 mt-4 min-w-0">
+              <div className="lg:col-span-7 min-w-0 space-y-3">
+                <div className="grid gap-3 grid-cols-1 lg:grid-cols-2 min-w-0">
+                  <div className="space-y-2 min-w-0">
                     <Label htmlFor="cust-code">Customer Code *</Label>
-                    <Input id="cust-code" value={customerCode} onChange={(e) => setCustomerCode(e.target.value)} />
+                    <Input id="cust-code" value={customerCode} onChange={(e) => setCustomerCode(e.target.value)} className="w-full max-w-full min-w-0" />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-2 min-w-0">
                     <Label htmlFor="cust-name">Customer Name</Label>
-                    <Input id="cust-name" value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
+                    <Input id="cust-name" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="w-full max-w-full min-w-0" />
                   </div>
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="space-y-2">
+                <div className="grid gap-3 grid-cols-1 lg:grid-cols-2 min-w-0">
+                  <div className="space-y-2 min-w-0">
                     <Label htmlFor="cust-credit">Credit Limit</Label>
-                    <Input id="cust-credit" value={creditLimit} onChange={(e) => setCreditLimit(e.target.value)} />
+                    <Input id="cust-credit" value={creditLimit} onChange={(e) => setCreditLimit(e.target.value)} className="w-full max-w-full min-w-0 tabular-nums" />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-2 min-w-0">
                     <Label htmlFor="cust-balance">Balance</Label>
-                    <Input id="cust-balance" value={balance} onChange={(e) => setBalance(e.target.value)} />
+                    <Input id="cust-balance" value={balance} onChange={(e) => setBalance(e.target.value)} className="w-full max-w-full min-w-0 tabular-nums" />
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 min-w-0">
                   <Label htmlFor="cust-address">Address</Label>
-                  <Input id="cust-address" value={address} onChange={(e) => setAddress(e.target.value)} />
+                  <Input id="cust-address" value={address} onChange={(e) => setAddress(e.target.value)} className="w-full max-w-full min-w-0" />
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="space-y-2">
+                <div className="grid gap-3 grid-cols-1 lg:grid-cols-2 min-w-0">
+                  <div className="space-y-2 min-w-0">
                     <Label htmlFor="cust-city">City</Label>
-                    <Input id="cust-city" value={city} onChange={(e) => setCity(e.target.value)} />
+                    <Input id="cust-city" value={city} onChange={(e) => setCity(e.target.value)} className="w-full max-w-full min-w-0" />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-2 min-w-0">
                     <Label htmlFor="cust-area-section">Area Code *</Label>
-                    <div className="flex gap-2 max-w-xl">
+                    <div className="flex gap-2 w-full min-w-0 items-stretch">
                       <Input
                         id="cust-area-section"
                         value={areaCode}
                         onChange={(e) => setAreaCode(e.target.value)}
                         placeholder="Area code"
                         autoComplete="off"
+                        className="min-w-0 flex-1 max-w-full"
                       />
-                      <Button type="button" variant="outline" className="h-11">
+                      <Button type="button" variant="outline" className="h-11 shrink-0 px-3" aria-label="Lookup area">
                         ...
                       </Button>
                     </div>
                   </div>
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="space-y-2">
+                <div className="grid gap-3 grid-cols-1 lg:grid-cols-2 min-w-0">
+                  <div className="space-y-2 min-w-0">
                     <Label htmlFor="cust-phone1">Phone 1</Label>
-                    <Input id="cust-phone1" value={phone1} onChange={(e) => setPhone1(e.target.value)} />
+                    <Input id="cust-phone1" value={phone1} onChange={(e) => setPhone1(e.target.value)} className="w-full max-w-full min-w-0" />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-2 min-w-0">
                     <Label htmlFor="cust-phone2">Phone 2</Label>
-                    <Input id="cust-phone2" value={phone2} onChange={(e) => setPhone2(e.target.value)} />
+                    <Input id="cust-phone2" value={phone2} onChange={(e) => setPhone2(e.target.value)} className="w-full max-w-full min-w-0" />
                   </div>
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="space-y-2">
+                <div className="grid gap-3 grid-cols-1 lg:grid-cols-2 min-w-0">
+                  <div className="space-y-2 min-w-0">
                     <Label htmlFor="cust-fax">Fax</Label>
-                    <Input id="cust-fax" value={fax} onChange={(e) => setFax(e.target.value)} />
+                    <Input id="cust-fax" value={fax} onChange={(e) => setFax(e.target.value)} className="w-full max-w-full min-w-0" />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-2 min-w-0">
                     <Label htmlFor="cust-email">Email</Label>
-                    <Input id="cust-email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                    <Input id="cust-email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full max-w-full min-w-0" />
                   </div>
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="space-y-2">
+                <div className="grid gap-3 grid-cols-1 lg:grid-cols-2 min-w-0">
+                  <div className="space-y-2 min-w-0">
                     <Label htmlFor="cust-contact">Contact Person</Label>
-                    <Input id="cust-contact" value={contactPerson} onChange={(e) => setContactPerson(e.target.value)} />
+                    <Input id="cust-contact" value={contactPerson} onChange={(e) => setContactPerson(e.target.value)} className="w-full max-w-full min-w-0" />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-2 min-w-0">
                     <Label htmlFor="cust-price-code">Price Code</Label>
-                    <Input id="cust-price-code" value={priceCode} onChange={(e) => setPriceCode(e.target.value)} />
+                    <Input id="cust-price-code" value={priceCode} onChange={(e) => setPriceCode(e.target.value)} className="w-full max-w-full min-w-0" />
                   </div>
                 </div>
 
@@ -150,16 +168,16 @@ export function MasterCustomerPage() {
                 </div>
               </div>
 
-              <div className="lg:col-span-5 space-y-4">
-                <div className="rounded-md border-2 border-border p-3 space-y-2">
+              <div className="lg:col-span-5 min-w-0 space-y-4">
+                <div className="rounded-md border-2 border-border p-3 space-y-2 min-w-0">
                   <div className="text-sm font-semibold">Summary</div>
-                  <div className="flex justify-between gap-3">
-                    <span className="text-sm text-muted-foreground">Total Spend Credit</span>
-                    <span className="text-sm font-semibold tabular-nums">{totalSpendCredit}</span>
+                  <div className="flex flex-col gap-1 min-w-0 sm:flex-row sm:justify-between sm:items-baseline sm:gap-3">
+                    <span className="text-sm text-muted-foreground shrink-0">Total Spend Credit</span>
+                    <span className="text-sm font-semibold tabular-nums text-right break-all min-w-0">{totalSpendCredit}</span>
                   </div>
-                  <div className="flex justify-between gap-3">
-                    <span className="text-sm text-muted-foreground">Total Balance</span>
-                    <span className="text-sm font-semibold tabular-nums">{totalBalance}</span>
+                  <div className="flex flex-col gap-1 min-w-0 sm:flex-row sm:justify-between sm:items-baseline sm:gap-3">
+                    <span className="text-sm text-muted-foreground shrink-0">Total Balance</span>
+                    <span className="text-sm font-semibold tabular-nums text-right break-all min-w-0">{totalBalance}</span>
                   </div>
                 </div>
 
@@ -207,34 +225,6 @@ export function MasterCustomerPage() {
               </div>
             </div>
 
-            <Tabs defaultValue="main" className="pt-2">
-              <TabsList className="w-full justify-start gap-1 flex-wrap h-auto p-1 bg-muted/20">
-                <TabsTrigger value="main" className="text-sm px-4 py-3">
-                  Main Information
-                </TabsTrigger>
-                <TabsTrigger value="secondary" className="text-sm px-4 py-3">
-                  Secondary Information
-                </TabsTrigger>
-                <TabsTrigger value="address" className="text-sm px-4 py-3">
-                  Customer Address
-                </TabsTrigger>
-                <TabsTrigger value="cust-brand" className="text-sm px-4 py-3">
-                  Cust / Brand
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="main" className="pt-4">
-                <div className="text-sm text-muted-foreground">Main information fields are shown above (POC).</div>
-              </TabsContent>
-              <TabsContent value="secondary" className="pt-4">
-                <div className="text-sm text-muted-foreground">Secondary information wiring comes after backend.</div>
-              </TabsContent>
-              <TabsContent value="address" className="pt-4">
-                <div className="text-sm text-muted-foreground">Customer address section comes after backend.</div>
-              </TabsContent>
-              <TabsContent value="cust-brand" className="pt-4">
-                <div className="text-sm text-muted-foreground">Customer / brand selection comes after backend.</div>
-              </TabsContent>
-            </Tabs>
           </fieldset>
         </CardContent>
       </Card>

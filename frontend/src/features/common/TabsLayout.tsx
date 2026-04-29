@@ -46,7 +46,7 @@ export function TabsLayout({ node }: { node: ModuleNode }) {
   const activeNode = tabs.find((t) => t.value === active)?.node ?? node;
 
   return (
-    <Tabs value={active} onValueChange={(v) => navigate(v)} className="space-y-1">
+    <Tabs value={active} onValueChange={(v) => navigate(v)} className="w-full min-w-0 max-w-full space-y-1">
       <TabsList aria-label={`${node.label} sections`}>
         {tabs.map((t) => (
           <TabsTrigger key={t.value} value={t.value}>
@@ -54,7 +54,8 @@ export function TabsLayout({ node }: { node: ModuleNode }) {
           </TabsTrigger>
         ))}
       </TabsList>
-      <TabsContent value={active} forceMount>
+      {/* min-w-0: critical on mobile — nested grids/inputs otherwise keep min-width:auto and spill past viewport */}
+      <TabsContent value={active} forceMount className="w-full min-w-0 max-w-full">
         {activeNode.Component
           ? <activeNode.Component />
           : <ModulePlaceholder node={activeNode} />}
