@@ -12,6 +12,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TREE, findModuleByPath, trailFor, type ModuleNode } from "@/app/modules";
+import { ScrollToTop } from "@/app/ScrollToTop";
 
 /* "Maria Da Silva" → "MD". Falls back to email's first 2 letters. */
 function getInitials(user: CurrentUser): string {
@@ -60,6 +61,8 @@ export function AppLayout() {
 
   return (
     <div className="min-h-screen bg-muted/30 lg:flex">
+      <ScrollToTop />
+
       {/* Desktop sidebar — visible at lg+ (1024px+) */}
       <aside className="hidden lg:flex lg:w-72 xl:w-80 shrink-0 border-r-2 bg-card flex-col">
         {sidebar}
