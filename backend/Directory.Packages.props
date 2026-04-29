@@ -1,0 +1,71 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- ASP.NET Core / EF Core (10.x LTS) -->
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.0" />
+    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.2.0" />
+
+    <!-- Validation, mapping, mediation -->
+    <PackageVersion Include="FluentValidation" Version="11.10.0" />
+    <PackageVersion Include="FluentValidation.AspNetCore" Version="11.3.0" />
+    <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="11.10.0" />
+    <PackageVersion Include="Mapster" Version="7.4.0" />
+    <PackageVersion Include="Mapster.DependencyInjection" Version="1.0.1" />
+
+    <!-- Logging -->
+    <PackageVersion Include="Serilog.AspNetCore" Version="8.0.3" />
+    <PackageVersion Include="Serilog.Sinks.Seq" Version="9.0.0" />
+    <PackageVersion Include="Serilog.Enrichers.Environment" Version="3.0.1" />
+    <PackageVersion Include="Serilog.Enrichers.Process" Version="3.0.0" />
+    <PackageVersion Include="Serilog.Enrichers.Thread" Version="4.0.0" />
+
+    <!-- Background jobs -->
+    <PackageVersion Include="Hangfire.AspNetCore" Version="1.8.18" />
+    <PackageVersion Include="Hangfire.SqlServer" Version="1.8.18" />
+
+    <!-- Rate limiting (built into ASP.NET Core 7+) -->
+    <!-- Antiforgery / Data protection are built in -->
+
+    <!-- API docs -->
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.0.18" />
+
+    <!-- Health checks -->
+    <PackageVersion Include="AspNetCore.HealthChecks.SqlServer" Version="9.0.0" />
+    <PackageVersion Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
+
+    <!-- Excel + PDF -->
+    <PackageVersion Include="ClosedXML" Version="0.105.0" />
+    <PackageVersion Include="QuestPDF" Version="2024.10.3" />
+
+    <!-- Testing -->
+    <PackageVersion Include="xunit" Version="2.9.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageVersion Include="FluentAssertions" Version="6.12.2" />
+    <PackageVersion Include="Testcontainers.MsSql" Version="4.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.0" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.2" />
+
+    <!-- Misc -->
+    <PackageVersion Include="Otp.NET" Version="1.4.1" />
+    <PackageVersion Include="QRCoder" Version="1.6.0" />
+
+    <!-- Transitive vulnerability pin (Hangfire 1.8.18 pulls a vulnerable 9.0.0 otherwise) -->
+    <PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.7" />
+  </ItemGroup>
+</Project>

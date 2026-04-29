@@ -1,0 +1,64 @@
+# .NET
+**/bin/
+**/obj/
+**/out/
+*.user
+*.suo
+.vs/
+.vscode/
+.idea/
+*.swp
+
+# EF Core
+**/Migrations/*.Designer.cs
+
+# Node
+node_modules/
+dist/
+build/
+.next/
+.turbo/
+.cache/
+
+# Vite
+*.local
+
+# Logs
+logs/
+*.log
+
+# Secrets - NEVER commit
+*.env
+.env*
+!.env.example
+appsettings.Local.json
+appsettings.*.Local.json
+secrets.json
+**/secrets/
+
+# Coverage
+coverage/
+*.cover
+*.coverage
+TestResults/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Database backups (keep them OUT of git)
+*.bak
+*.bacpac
+*.mdf
+*.ldf
+
+# QuestPDF temp
+*.pdf
+
+# Rider/IntelliJ
+*.iml
+.idea/
+
+# User-specific
+*.received.*

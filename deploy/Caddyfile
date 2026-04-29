@@ -1,0 +1,30 @@
+{
+  email {env.ACME_EMAIL}
+}
+
+{$DOMAIN} {
+  encode gzip zstd
+
+  # Security headers (defence in depth — API also sets these)
+  header {
+    Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+    X-Content-Type-Options "nosniff"
+    X-Frame-Options "DENY"
+    Referrer-Policy "strict-origin-when-cross-origin"
+    Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    -Server
+  }
+
+  # Static SPA files (built with `npm run build`)
+  root * /srv/spa
+  try_files {path} /index.html
+  file_server
+
+  # API + health are forwarded to the .NET container
+  handle_path /api/* {
+    reverse_proxy api:8080
+  }
+  handle_path /health {
+    reverse_proxy api:8080
+  }
+}

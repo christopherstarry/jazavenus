@@ -1,0 +1,29 @@
+name: jaza-dev
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: jaza-sqlserver-dev
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "ChangeMe!Dev2026"
+      MSSQL_PID: "Developer"
+    ports:
+      - "127.0.0.1:1433:1433"
+    volumes:
+      - jaza-sqldata-dev:/var/opt/mssql
+    restart: unless-stopped
+
+  seq:
+    image: datalust/seq:latest
+    container_name: jaza-seq-dev
+    environment:
+      ACCEPT_EULA: "Y"
+    ports:
+      - "127.0.0.1:5341:80"
+    volumes:
+      - jaza-seq-dev:/data
+    restart: unless-stopped
+
+volumes:
+  jaza-sqldata-dev:
+  jaza-seq-dev:

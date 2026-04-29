@@ -1,0 +1,41 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{ts,tsx,js,jsx,json,jsonc,yml,yaml,md,html,css,scss}]
+indent_size = 2
+
+[*.{cs,csproj,sln,props,targets}]
+indent_size = 4
+
+[*.cs]
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+# Suppressed analyzer rules: pedantic / not relevant to this codebase
+dotnet_diagnostic.CA2007.severity = none   # ConfigureAwait is not needed in ASP.NET Core
+dotnet_diagnostic.IDE0058.severity = none  # Expression value never used
+dotnet_diagnostic.CA1848.severity = none   # LoggerMessage delegates - overkill for our log volume
+dotnet_diagnostic.CA1725.severity = none   # Parameter name match - cosmetic
+dotnet_diagnostic.CA1707.severity = none   # Underscores in identifiers
+dotnet_diagnostic.CA1716.severity = none   # Reserved word as parameter name
+dotnet_diagnostic.CA1303.severity = none   # Localised strings - we have one locale
+dotnet_diagnostic.CA1860.severity = none   # Avoid Any() over Count
+dotnet_diagnostic.CA2227.severity = none   # Collection settable property - DTOs use it
+dotnet_diagnostic.CA1869.severity = none   # Cache JsonSerializerOptions
+dotnet_diagnostic.CA1873.severity = none   # Argument may be expensive in logging
+dotnet_diagnostic.CA1822.severity = none   # Member can be static
+dotnet_diagnostic.CA1305.severity = none   # IFormatProvider - we use invariant by convention
+dotnet_diagnostic.CA1304.severity = none   # CultureInfo - same
+dotnet_diagnostic.CA1311.severity = none   # ToUpper/ToLower with culture
+dotnet_diagnostic.CA2208.severity = none   # ArgumentException constructor
+dotnet_diagnostic.ASPDEPR005.severity = none  # KnownNetworks deprecation - migrate later
+
+[*.md]
+trim_trailing_whitespace = false
