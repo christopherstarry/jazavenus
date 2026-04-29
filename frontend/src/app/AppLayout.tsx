@@ -57,40 +57,39 @@ export function AppLayout() {
     month: "short", day: "numeric",
   });
 
-  const sidebar = <SidebarBody user={user} activeSectionId={trail[0]?.id} />;
+  /** Nav items only — branding lives in the desktop header grid so bottom borders align across columns. */
+  const sidebarNav = (
+    <SidebarNavigation user={user} activeSectionId={trail[0]?.id} />
+  );
+
+  /** Full drawer chrome (brand + nav) — used in the mobile sheet only. */
+  const sidebarDrawer = (
+    <SidebarDrawerBody user={user} activeSectionId={trail[0]?.id} />
+  );
 
   return (
-    <div className="min-h-screen bg-muted/30 lg:flex">
+    <div className="min-h-screen bg-muted/30 flex flex-col">
       <ScrollToTop />
 
-      {/* Desktop sidebar — visible at lg+ (1024px+) */}
-      <aside className="hidden lg:flex lg:w-72 xl:w-80 shrink-0 border-r-2 bg-card flex-col">
-        {sidebar}
-      </aside>
+      {/*
+        Desktop (lg+): one full-width sticky row — [ branding | breadcrumbs + title ] — with a single
+        bottom border. The first column matches the sidebar width below (18rem / 20rem).
 
-      {/* Mobile drawer — slide-in from the left */}
-      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="left" className="p-0">
-          <SheetTitle className="sr-only">Navigation menu</SheetTitle>
-          <SheetDescription className="sr-only">Browse the app sections.</SheetDescription>
-          {sidebar}
-        </SheetContent>
-      </Sheet>
+        Mobile: branding is hidden here; logo lives in the drawer. Title row stacks as one column.
+      */}
+      <header className="sticky top-0 z-20 shrink-0 bg-background/95 backdrop-blur border-b-2 lg:grid lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[20rem_minmax(0,1fr)]">
+        <div className="hidden lg:flex lg:items-center border-r-2 border-border bg-card px-5 sm:px-6 py-3 sm:py-4">
+          <SidebarBranding />
+        </div>
 
-      <main className="flex-1 min-w-0 flex flex-col">
-        <header className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b-2">
-          <div className="px-3 sm:px-5 md:px-8 max-w-7xl mx-auto">
-            {/* Breadcrumbs sit on their own quiet row above the title.
-                On the dashboard there is no useful trail, so we skip this row
-                entirely (Breadcrumbs returns null and the wrapper isn't rendered). */}
+        <div className="min-w-0">
+          <div className="px-3 sm:px-5 md:px-8 max-w-7xl mx-auto w-full">
             {current && current.path !== "/" && (
               <div className="pt-2 sm:pt-3">
                 <Breadcrumbs trail={trail} />
               </div>
             )}
 
-            {/* Main title row — single line, so the hamburger, title, date, and
-                avatar all sit on the same baseline cleanly. */}
             <div className="py-3 sm:py-4 flex items-center gap-3">
               <Button
                 variant="ghost"
@@ -124,12 +123,29 @@ export function AppLayout() {
               )}
             </div>
           </div>
-        </header>
-
-        <div className="p-3 sm:p-5 md:p-8 max-w-7xl mx-auto w-full flex-1">
-          <Outlet />
         </div>
-      </main>
+      </header>
+
+      <div className="flex flex-1 min-h-0 min-w-0 lg:flex-row">
+        {/* Desktop sidebar — nav only; aligns under header brand column */}
+        <aside className="hidden lg:flex lg:w-72 xl:w-80 shrink-0 border-r-2 bg-card flex-col min-h-0">
+          {sidebarNav}
+        </aside>
+
+        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+          <SheetContent side="left" className="p-0">
+            <SheetTitle className="sr-only">Navigation menu</SheetTitle>
+            <SheetDescription className="sr-only">Browse the app sections.</SheetDescription>
+            {sidebarDrawer}
+          </SheetContent>
+        </Sheet>
+
+        <main className="flex-1 min-w-0 flex flex-col min-h-0">
+          <div className="p-3 sm:p-5 md:p-8 max-w-7xl mx-auto w-full flex-1">
+            <Outlet />
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
@@ -221,7 +237,17 @@ function UserMenuItem({
  * Sidebar
  * ───────────────────────────────────────────────────────────────────────── */
 
-function SidebarBody({ user, activeSectionId }: { user: CurrentUser | null; activeSectionId?: string }) {
+function SidebarBranding() {
+  return (
+    <NavLink to="/" className="block focus-visible:outline-none focus-visible:underline">
+      <div className="text-2xl font-bold tracking-tight">Jaza Venus</div>
+      <div className="text-sm text-muted-foreground">Warehouse Management</div>
+    </NavLink>
+  );
+}
+
+/** Nav list only — used in desktop `aside` and inside the mobile drawer. */
+function SidebarNavigation({ user, activeSectionId }: { user: CurrentUser | null; activeSectionId?: string }) {
   /* Sidebar order:
    *   1. Dashboard (top)
    *   2. The day-to-day work areas (Master, Purchase, Sales, A/R, Inventory, Report, Tax)
@@ -232,15 +258,7 @@ function SidebarBody({ user, activeSectionId }: { user: CurrentUser | null; acti
   const main      = TREE.filter((n) => n.path !== "/" && n.id !== "settings" && n.id !== "system");
 
   return (
-    <>
-      <div className="px-5 sm:px-6 py-5 sm:py-6 border-b-2">
-        <NavLink to="/" className="block focus-visible:outline-none focus-visible:underline">
-          <div className="text-2xl font-bold tracking-tight">Jaza Venus</div>
-          <div className="text-sm text-muted-foreground">Warehouse Management</div>
-        </NavLink>
-      </div>
-
-      <nav className="flex flex-col gap-4 flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4" aria-label="Main navigation">
+    <nav className="flex flex-col gap-4 flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4 min-h-0" aria-label="Main navigation">
         {/* Dashboard always visible at the top */}
         {dashboard && (
           <ul className="flex flex-col gap-1">
@@ -280,8 +298,19 @@ function SidebarBody({ user, activeSectionId }: { user: CurrentUser | null; acti
             />
           </ul>
         )}
-      </nav>
-    </>
+    </nav>
+  );
+}
+
+/** Mobile sheet: brand strip + nav (each has its own border; desktop uses unified header for brand). */
+function SidebarDrawerBody({ user, activeSectionId }: { user: CurrentUser | null; activeSectionId?: string }) {
+  return (
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="shrink-0 border-b-2 px-5 py-5 sm:px-6 sm:py-6">
+        <SidebarBranding />
+      </div>
+      <SidebarNavigation user={user} activeSectionId={activeSectionId} />
+    </div>
   );
 }
 
