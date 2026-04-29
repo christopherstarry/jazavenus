@@ -23,6 +23,9 @@ build/
 # Vite
 *.local
 
+# TypeScript build cache
+*.tsbuildinfo
+
 # Logs
 logs/
 *.log

@@ -24,7 +24,7 @@ function statusBadge(s: number) {
 export function InvoicesPage() {
   return (
     <CrudPage<Row>
-      title="Invoices"
+      title="Invoicing Process"
       description="Bills sent to customers. The PDF can be downloaded with the button on the right."
       endpoint="invoices"
       searchable={false}

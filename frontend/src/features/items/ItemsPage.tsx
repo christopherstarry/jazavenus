@@ -14,7 +14,7 @@ interface ItemRow {
 export function ItemsPage() {
   return (
     <CrudPage<ItemRow>
-      title="Items"
+      title="Master Product"
       description="Every product you sell or store. Each item has a unique code (SKU)."
       endpoint="master/items"
       searchPlaceholder="Search by SKU, name, or barcode…"
@@ -37,11 +37,11 @@ export function ItemsPage() {
       }
       empty={{
         icon: Boxes,
-        title: "No items yet",
-        description: "Items are the products you store and sell. Add your first one to get started, or import a list from Excel.",
+        title: "No products yet",
+        description: "Products are the items you store and sell. Add your first one to get started, or import a list from Excel.",
         action: (
           <div className="flex gap-3">
-            <Button><Plus className="h-5 w-5 mr-2" /> Add your first item</Button>
+            <Button><Plus className="h-5 w-5 mr-2" /> Add your first product</Button>
             <Button variant="outline"><Download className="h-5 w-5 mr-2" /> Import from Excel</Button>
           </div>
         ),

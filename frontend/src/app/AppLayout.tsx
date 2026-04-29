@@ -1,65 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
 import { useAuth, hasRole, type CurrentUser } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import {
-  Boxes, FileText, Home, LogOut, PackageSearch, Truck, Users, Settings, ClipboardList,
-  ArrowLeftRight, BarChart3, Menu,
+  LogOut, Settings, Menu, ChevronDown, Clock, KeyRound,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TREE, findModuleByPath, trailFor, type ModuleNode } from "@/app/modules";
+import { recordModuleVisit, useRecentModules } from "@/lib/recent-nav";
 
-interface NavItem {
-  to: string;
-  label: string;
-  icon: LucideIcon;
-  description: string;
-  superAdminOnly?: boolean;
-}
-
-const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
-  {
-    title: "Overview",
-    items: [
-      { to: "/", label: "Dashboard", icon: Home, description: "Daily summary at a glance" },
-    ],
-  },
-  {
-    title: "Master data",
-    items: [
-      { to: "/items",     label: "Items",     icon: Boxes,         description: "Products you sell or store" },
-      { to: "/suppliers", label: "Suppliers", icon: PackageSearch, description: "Companies you buy from" },
-      { to: "/customers", label: "Customers", icon: Users,         description: "Companies you sell to" },
-    ],
-  },
-  {
-    title: "Daily work",
-    items: [
-      { to: "/inbound",  label: "Goods coming in", icon: Truck,         description: "Receive stock (GRN)" },
-      { to: "/outbound", label: "Goods going out", icon: ArrowLeftRight,description: "Send stock to customers (DO)" },
-      { to: "/invoices", label: "Invoices",        icon: FileText,      description: "Bills and payments" },
-      { to: "/stock",    label: "Stock on hand",   icon: ClipboardList, description: "What you have right now" },
-    ],
-  },
-  {
-    title: "Reports",
-    items: [
-      { to: "/reports", label: "Reports", icon: BarChart3, description: "Numbers and trends" },
-    ],
-  },
-];
-
-function findCurrent(pathname: string): NavItem | undefined {
-  const all = NAV_GROUPS.flatMap((g) => g.items);
-  return all
-    .filter((i) => pathname === i.to || (i.to !== "/" && pathname.startsWith(i.to)))
-    .sort((a, b) => b.to.length - a.to.length)[0];
-}
-
-/** "Maria Da Silva" → "MD". Falls back to email's first 2 letters. */
+/* "Maria Da Silva" → "MD". Falls back to email's first 2 letters. */
 function getInitials(user: CurrentUser): string {
   const fromName = user.fullName
     .split(/\s+/)
@@ -76,12 +31,20 @@ export function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const current = findCurrent(location.pathname);
+
+  const trail = trailFor(location.pathname);
+  const current = trail[trail.length - 1] ?? findModuleByPath(location.pathname);
 
   /* Auto-close the mobile drawer when the user picks an item. */
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);
 
-  /* Global '/' jumps to search if there is one on the current page. */
+  /* Track every visited module so the sidebar's Recent list stays useful. */
+  useEffect(() => {
+    const m = findModuleByPath(location.pathname);
+    if (m) recordModuleVisit(m.id);
+  }, [location.pathname]);
+
+  /* Pressing '/' jumps to the search input on the current page if there is one. */
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === "/" && !(e.target instanceof HTMLInputElement) && !(e.target instanceof HTMLTextAreaElement)) {
@@ -100,7 +63,7 @@ export function AppLayout() {
     month: "short", day: "numeric",
   });
 
-  const sidebar = <SidebarBody user={user} />;
+  const sidebar = <SidebarBody user={user} activeSectionId={trail[0]?.id} />;
 
   return (
     <div className="min-h-screen bg-muted/30 lg:flex">
@@ -132,6 +95,7 @@ export function AppLayout() {
             </Button>
 
             <div className="flex-1 min-w-0">
+              <Breadcrumbs trail={trail} className="mb-0.5" />
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight truncate">
                 {current?.label ?? "Jaza Venus"}
               </h1>
@@ -154,6 +118,7 @@ export function AppLayout() {
               <UserMenu
                 user={user}
                 onSettings={() => navigate("/settings")}
+                onChangePassword={() => navigate("/system/change-password")}
                 onLogout={() => void logout()}
               />
             )}
@@ -168,10 +133,18 @@ export function AppLayout() {
   );
 }
 
-/** Compact icon-only avatar in the header that opens a popover with profile details + actions. */
+/* ─────────────────────────────────────────────────────────────────────────────
+ * User menu (top-right avatar)
+ * ───────────────────────────────────────────────────────────────────────── */
+
 function UserMenu({
-  user, onSettings, onLogout,
-}: { user: CurrentUser; onSettings: () => void; onLogout: () => void }) {
+  user, onSettings, onChangePassword, onLogout,
+}: {
+  user: CurrentUser;
+  onSettings: () => void;
+  onChangePassword: () => void;
+  onLogout: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const initials = getInitials(user);
 
@@ -214,8 +187,9 @@ function UserMenu({
           </div>
         </div>
         <div className="p-2">
-          <UserMenuItem icon={Settings}        label="Settings"  onClick={() => { setOpen(false); onSettings(); }} />
-          <UserMenuItem icon={LogOut}          label="Sign out"  onClick={() => { setOpen(false); onLogout(); }} tone="destructive" />
+          <UserMenuItem icon={KeyRound} label="Change password" onClick={() => { setOpen(false); onChangePassword(); }} />
+          <UserMenuItem icon={Settings} label="Settings"        onClick={() => { setOpen(false); onSettings(); }} />
+          <UserMenuItem icon={LogOut}   label="Sign out"        onClick={() => { setOpen(false); onLogout(); }} tone="destructive" />
         </div>
       </PopoverContent>
     </Popover>
@@ -242,58 +216,222 @@ function UserMenuItem({
   );
 }
 
-/** The sidebar contents — used both inside the desktop <aside> and the mobile drawer.
- *  Nav-only now: profile and Settings/Sign out moved to the header user menu, which keeps
- *  the sidebar compact at any text size. */
-function SidebarBody({ user }: { user: CurrentUser | null }) {
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Sidebar
+ * ───────────────────────────────────────────────────────────────────────── */
+
+function SidebarBody({ user, activeSectionId }: { user: CurrentUser | null; activeSectionId?: string }) {
+  const recentIds = useRecentModules();
+
+  /* Build a flat lookup once per render so Recent can resolve ids → nodes. */
+  const lookup = useMemo(() => {
+    const map = new Map<string, ModuleNode>();
+    const visit = (n: ModuleNode) => {
+      map.set(n.id, n);
+      n.children?.forEach(visit);
+    };
+    TREE.forEach(visit);
+    return map;
+  }, []);
+
+  /* Top-level sections that should appear in the sidebar (skip dashboard + settings; both are reachable elsewhere). */
+  const dashboard = TREE.find((n) => n.id === "dashboard");
+  const sections = TREE.filter((n) => n.path !== "/" && n.id !== "settings");
+
+  /* Recent: filter out the current page and resolve to nodes. */
+  const recent = recentIds
+    .map((id) => lookup.get(id))
+    .filter((n): n is ModuleNode => !!n && n.path !== "/")
+    .filter((n) => !n.superAdminOnly || hasRole(user, "SuperAdmin"))
+    .slice(0, 4);
+
   return (
     <>
       <div className="px-5 sm:px-6 py-5 sm:py-6 border-b-2">
-        <div className="text-2xl font-bold tracking-tight">Jaza Venus</div>
-        <div className="text-sm text-muted-foreground">Warehouse Management</div>
+        <NavLink to="/" className="block focus-visible:outline-none focus-visible:underline">
+          <div className="text-2xl font-bold tracking-tight">Jaza Venus</div>
+          <div className="text-sm text-muted-foreground">Warehouse Management</div>
+        </NavLink>
       </div>
 
-      <nav className="flex flex-col gap-5 flex-1 overflow-y-auto p-3 sm:p-4" aria-label="Main navigation">
-        {NAV_GROUPS.map((group) => (
-          <div key={group.title}>
-            <div className="px-3 mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              {group.title}
+      <nav className="flex flex-col gap-4 flex-1 overflow-y-auto p-3 sm:p-4" aria-label="Main navigation">
+        {/* Dashboard always visible at the top */}
+        {dashboard && (
+          <ul className="flex flex-col gap-1">
+            <li>
+              <SectionHeader
+                node={dashboard}
+                active={activeSectionId === "dashboard"}
+                hasChildren={false}
+                expanded={false}
+                onToggle={() => {}}
+              />
+            </li>
+          </ul>
+        )}
+
+        {/* Recent — only show if the user has been around at least once */}
+        {recent.length > 0 && (
+          <div>
+            <div className="px-3 mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              <Clock className="h-3.5 w-3.5" aria-hidden />
+              Recent
             </div>
             <ul className="flex flex-col gap-1">
-              {group.items
-                .filter((i) => !i.superAdminOnly || hasRole(user, "SuperAdmin"))
-                .map(({ to, label, icon: Icon, description }) => (
-                  <li key={to}>
-                    <NavLink
-                      to={to}
-                      end={to === "/"}
-                      className={({ isActive }) =>
-                        cn(
-                          "flex items-start gap-3 rounded-[var(--radius)] px-3 py-3 transition-colors min-h-[3.25rem]",
-                          isActive
-                            ? "bg-primary text-primary-foreground shadow-sm"
-                            : "text-foreground hover:bg-accent"
-                        )
-                      }
-                    >
-                      {({ isActive }) => (
-                        <>
-                          <Icon className="h-6 w-6 mt-0.5 shrink-0" aria-hidden />
-                          <div className="min-w-0">
-                            <div className="font-semibold text-base leading-tight">{label}</div>
-                            <div className={cn("text-sm leading-tight mt-0.5", isActive ? "text-primary-foreground/85" : "text-muted-foreground")}>
-                              {description}
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </NavLink>
-                  </li>
-                ))}
+              {recent.map((r) => (
+                <li key={r.id}>
+                  <NavLink
+                    to={r.path}
+                    className={({ isActive }) =>
+                      cn(
+                        "block rounded-[var(--radius)] px-3 py-2 text-base min-h-[2.5rem]",
+                        "truncate transition-colors",
+                        isActive ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-accent",
+                      )
+                    }
+                  >
+                    {r.label}
+                  </NavLink>
+                </li>
+              ))}
             </ul>
           </div>
-        ))}
+        )}
+
+        {/* Main sections */}
+        <ul className="flex flex-col gap-1">
+          {sections
+            .filter((s) => !s.superAdminOnly || hasRole(user, "SuperAdmin"))
+            .map((section) => (
+              <SidebarSection
+                key={section.id}
+                section={section}
+                user={user}
+                isActive={activeSectionId === section.id}
+              />
+            ))}
+        </ul>
       </nav>
     </>
+  );
+}
+
+/** A top-level section in the sidebar — collapsible, auto-expands when active. */
+function SidebarSection({
+  section, user, isActive,
+}: { section: ModuleNode; user: CurrentUser | null; isActive: boolean }) {
+  const [manuallyExpanded, setManuallyExpanded] = useState<boolean | null>(null);
+  const expanded = manuallyExpanded ?? isActive;
+
+  /* When you navigate INTO a section, auto-expand. (User can still collapse manually.) */
+  useEffect(() => {
+    if (isActive) setManuallyExpanded(null);
+  }, [isActive]);
+
+  const visibleChildren = (section.children ?? []).filter(
+    (c) => !c.superAdminOnly || hasRole(user, "SuperAdmin"),
+  );
+  const hasChildren = visibleChildren.length > 0;
+
+  return (
+    <li>
+      <SectionHeader
+        node={section}
+        active={isActive}
+        hasChildren={hasChildren}
+        expanded={expanded}
+        onToggle={() => setManuallyExpanded(!expanded)}
+      />
+      {hasChildren && expanded && (
+        <ul className="mt-1 pl-2 ml-3 border-l-2 border-border flex flex-col gap-0.5">
+          {visibleChildren.map((child, idx) => (
+            <li key={child.id}>
+              {child.divider && idx > 0 && (
+                <div role="separator" className="my-2 mx-2 border-t border-dashed border-border" />
+              )}
+              <NavLink
+                to={child.path}
+                end={!child.children || child.children.length === 0 || child.childLayout === "tabs"}
+                className={({ isActive }) =>
+                  cn(
+                    "block rounded-[var(--radius)] px-3 py-2.5 text-base min-h-[2.75rem]",
+                    "leading-snug transition-colors",
+                    isActive
+                      ? "bg-primary text-primary-foreground font-semibold"
+                      : "text-foreground hover:bg-accent",
+                  )
+                }
+              >
+                {child.label}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+}
+
+/** A section header row (icon + label + chevron). Doubles as the dashboard tile. */
+function SectionHeader({
+  node, active, hasChildren, expanded, onToggle,
+}: {
+  node: ModuleNode;
+  active: boolean;
+  hasChildren: boolean;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  const Icon = node.icon;
+
+  /* If this section has no children we render a NavLink that just navigates;
+     otherwise we render a row with two buttons: NavLink to /section and a
+     toggle button to expand/collapse. */
+  if (!hasChildren) {
+    return (
+      <NavLink
+        to={node.path}
+        end={node.path === "/"}
+        className={({ isActive }) =>
+          cn(
+            "flex items-center gap-3 rounded-[var(--radius)] px-3 py-3 min-h-[3rem] transition-colors",
+            isActive ? "bg-primary text-primary-foreground shadow-sm" : "text-foreground hover:bg-accent",
+          )
+        }
+      >
+        {Icon && <Icon className="h-5 w-5 shrink-0" aria-hidden />}
+        <span className="font-semibold text-base truncate">{node.label}</span>
+      </NavLink>
+    );
+  }
+
+  return (
+    <div
+      className={cn(
+        "flex items-center rounded-[var(--radius)] transition-colors",
+        active ? "bg-primary/10" : "hover:bg-accent",
+      )}
+    >
+      <NavLink
+        to={node.path}
+        className={cn(
+          "flex flex-1 items-center gap-3 px-3 py-3 min-h-[3rem] rounded-[var(--radius)] focus-visible:outline-none focus-visible:bg-accent",
+        )}
+      >
+        {Icon && <Icon className={cn("h-5 w-5 shrink-0", active && "text-primary")} aria-hidden />}
+        <span className={cn("font-semibold text-base truncate", active && "text-primary")}>
+          {node.label}
+        </span>
+      </NavLink>
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-label={expanded ? `Collapse ${node.label}` : `Expand ${node.label}`}
+        aria-expanded={expanded}
+        className="inline-flex h-10 w-10 items-center justify-center rounded-md text-muted-foreground hover:bg-accent/80 hover:text-foreground focus-visible:outline-none focus-visible:bg-accent"
+      >
+        <ChevronDown className={cn("h-5 w-5 transition-transform", expanded && "rotate-180")} />
+      </button>
+    </div>
   );
 }

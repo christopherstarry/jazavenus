@@ -19,7 +19,7 @@ function statusBadge(s: number) {
 export function GrnsPage() {
   return (
     <CrudPage<Row>
-      title="Goods coming in"
+      title="Receiving Entry"
       description="Each row is a delivery from a supplier. Posting a record updates your stock on hand."
       endpoint="inbound/grns"
       searchable={false}

@@ -50,10 +50,10 @@ export function DashboardPage() {
       <section aria-labelledby="quick-actions">
         <h3 id="quick-actions" className="sr-only">Quick actions</h3>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <QuickAction to="/inbound"  icon={Truck}         title="Receive goods"   subtitle="Record stock coming in" />
-          <QuickAction to="/outbound" icon={ArrowLeftRight} title="Send goods"     subtitle="Deliver to a customer" />
-          <QuickAction to="/invoices" icon={FileText}      title="Create invoice"  subtitle="Bill a customer" />
-          <QuickAction to="/items"    icon={Boxes}         title="Add an item"     subtitle="New product in master data" />
+          <QuickAction to="/purchase/receiving-entry"           icon={Truck}          title="Receiving Entry"     subtitle="Record stock coming in" />
+          <QuickAction to="/inventory/outgoing-transaction-bbk" icon={ArrowLeftRight} title="Outgoing (BBK)"      subtitle="Issue stock out" />
+          <QuickAction to="/sales/invoicing-process"            icon={FileText}       title="Invoicing Process"   subtitle="Bill a customer" />
+          <QuickAction to="/master/product"                     icon={Boxes}          title="Master Product"      subtitle="Manage products" />
         </div>
       </section>
 

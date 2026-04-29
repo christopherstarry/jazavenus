@@ -8,8 +8,8 @@ interface Row { id: string; code: string; name: string; email: string | null; ph
 export function SuppliersPage() {
   return (
     <CrudPage<Row>
-      title="Suppliers"
-      description="Companies you buy goods from. Add a supplier before you can record an incoming shipment."
+      title="Principle"
+      description="Principal companies you buy goods from. Add a principle before you can record an incoming shipment."
       endpoint="master/suppliers"
       searchPlaceholder="Search by code, name, or city…"
       columns={[

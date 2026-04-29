@@ -12,7 +12,7 @@ interface Row {
 export function CustomersPage() {
   return (
     <CrudPage<Row>
-      title="Customers"
+      title="Master Customer"
       description="Companies you sell to. Their credit limit decides how much they can owe you at one time."
       endpoint="master/customers"
       searchPlaceholder="Search by code, name, or city…"

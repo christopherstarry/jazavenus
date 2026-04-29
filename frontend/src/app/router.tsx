@@ -1,17 +1,10 @@
-import { createBrowserRouter, Navigate, Outlet } from "react-router";
-import { ArrowLeftRight, BarChart3, ClipboardList } from "lucide-react";
+import { createBrowserRouter, Navigate, Outlet, type RouteObject } from "react-router";
 import { AppLayout } from "@/app/AppLayout";
 import { LoginPage } from "@/features/auth/LoginPage";
-import { DashboardPage } from "@/features/dashboard/DashboardPage";
-import { ItemsPage } from "@/features/items/ItemsPage";
-import { SuppliersPage } from "@/features/suppliers/SuppliersPage";
-import { CustomersPage } from "@/features/customers/CustomersPage";
-import { GrnsPage } from "@/features/inbound/GrnsPage";
-import { InvoicesPage } from "@/features/invoices/InvoicesPage";
-import { SettingsPanel } from "@/features/settings/SettingsPanel";
-import { PlaceholderPage } from "@/features/common/PlaceholderPage";
+import { ModulePage } from "@/features/common/ModulePage";
 import { Spinner } from "@/components/ui/spinner";
 import { useAuth } from "@/lib/auth";
+import { TREE, type ModuleNode } from "@/app/modules";
 
 function RequireAuth() {
   const { user, loading } = useAuth();
@@ -20,6 +13,32 @@ function RequireAuth() {
   return <Outlet />;
 }
 
+/* Walk the module tree and derive a flat list of <Route>s.
+ *
+ * For "tabs" parents (e.g. /master/customer) we register the parent path
+ * AND a catch-all so any sub-path (e.g. /master/customer/class-outlet)
+ * also lands on the parent's TabsLayout. The TabsLayout then reads the
+ * pathname to pick the active tab. We don't emit individual child
+ * routes for tab children, since those URLs are handled by the parent.
+ *
+ * For everything else, every node — leaf AND parent — gets its own route. */
+function routesFromTree(nodes: ModuleNode[]): RouteObject[] {
+  const out: RouteObject[] = [];
+  const visit = (n: ModuleNode) => {
+    if (n.childLayout === "tabs" && n.children?.length) {
+      out.push({ path: n.path,         element: <ModulePage node={n} /> });
+      out.push({ path: n.path + "/*",  element: <ModulePage node={n} /> });
+      return; // children are tabs; their URLs are caught by the wildcard
+    }
+    out.push({ path: n.path, element: <ModulePage node={n} /> });
+    n.children?.forEach(visit);
+  };
+  nodes.forEach(visit);
+  return out;
+}
+
+const moduleRoutes = routesFromTree(TREE);
+
 export const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
   {
@@ -27,18 +46,7 @@ export const router = createBrowserRouter([
     children: [
       {
         element: <AppLayout />,
-        children: [
-          { path: "/",          element: <DashboardPage /> },
-          { path: "/items",     element: <ItemsPage /> },
-          { path: "/suppliers", element: <SuppliersPage /> },
-          { path: "/customers", element: <CustomersPage /> },
-          { path: "/inbound",   element: <GrnsPage /> },
-          { path: "/outbound",  element: <PlaceholderPage icon={ArrowLeftRight} title="Goods going out" description="Delivery orders to your customers will appear here. Coming soon." /> },
-          { path: "/invoices",  element: <InvoicesPage /> },
-          { path: "/stock",     element: <PlaceholderPage icon={ClipboardList} title="Stock on hand" description="Live inventory levels per warehouse and item. Coming soon." /> },
-          { path: "/reports",   element: <PlaceholderPage icon={BarChart3} title="Reports" description="Stock card, daily movements, low-stock and financial reports. Coming soon." /> },
-          { path: "/settings",  element: <SettingsPanel /> },
-        ],
+        children: moduleRoutes,
       },
     ],
   },
