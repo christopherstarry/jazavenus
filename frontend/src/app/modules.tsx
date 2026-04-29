@@ -103,6 +103,7 @@ import { GrnsPage } from "@/features/inbound/GrnsPage";
 import { InvoicesPage } from "@/features/invoices/InvoicesPage";
 import { SettingsPanel } from "@/features/settings/SettingsPanel";
 import { ChangePasswordPage } from "@/features/auth/ChangePasswordPage";
+import { EmployeePage } from "@/features/employees/EmployeePage";
 
 /* ── The actual tree ─────────────────────────────────────────────────────── */
 
@@ -160,7 +161,8 @@ export const TREE: ModuleNode[] = [
     icon: Database,
     children: [
       { id: "master.employee", path: "/master/employee", label: "Employee",
-        description: "Staff members" },
+        description: "Staff members",
+        Component: EmployeePage },
 
       /* Customer + its tabs */
       {
