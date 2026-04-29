@@ -21,6 +21,7 @@ public sealed class StockController(AppDbContext db, IStockService stock) : Cont
     public async Task<PagedResult<OnHandRow>> OnHand([FromQuery] PagedRequest q,
         [FromQuery] Guid? warehouseId, [FromQuery] Guid? itemId, CancellationToken ct)
     {
+        q = q.Normalized();
         var canSeeCost = User.IsInRole(Roles.SuperAdmin) || User.IsInRole(Roles.Admin);
         var src = db.StockOnHand.AsNoTracking()
             .Include(s => s.Item).Include(s => s.Warehouse).Include(s => s.Location).AsQueryable();

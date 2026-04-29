@@ -25,6 +25,7 @@ public sealed class InboundController(AppDbContext db,
     [HttpGet("purchase-orders")]
     public async Task<PagedResult<PurchaseOrderDto>> ListPOs([FromQuery] PagedRequest q, CancellationToken ct)
     {
+        q = q.Normalized();
         var src = db.PurchaseOrders.AsNoTracking()
             .Include(p => p.Supplier).Include(p => p.Warehouse).Include(p => p.Lines).ThenInclude(l => l.Item)
             .OrderByDescending(p => p.OrderDate);
@@ -86,6 +87,7 @@ public sealed class InboundController(AppDbContext db,
     [HttpGet("grns")]
     public async Task<PagedResult<GoodsReceiptDto>> ListGRNs([FromQuery] PagedRequest q, CancellationToken ct)
     {
+        q = q.Normalized();
         var src = db.GoodsReceiptNotes.AsNoTracking()
             .Include(g => g.Supplier).Include(g => g.Warehouse).Include(g => g.PurchaseOrder)
             .Include(g => g.Lines).ThenInclude(l => l.Item)

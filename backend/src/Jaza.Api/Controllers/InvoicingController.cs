@@ -21,6 +21,7 @@ public sealed class InvoicingController(AppDbContext db,
     [HttpGet]
     public async Task<PagedResult<InvoiceDto>> List([FromQuery] PagedRequest q, CancellationToken ct)
     {
+        q = q.Normalized();
         var src = db.Invoices.AsNoTracking()
             .Include(i => i.Customer).Include(i => i.DeliveryOrder)
             .Include(i => i.Lines).Include(i => i.Payments)

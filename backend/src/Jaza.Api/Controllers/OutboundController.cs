@@ -24,6 +24,7 @@ public sealed class OutboundController(AppDbContext db,
     [HttpGet("sales-orders")]
     public async Task<PagedResult<SalesOrderDto>> ListSOs([FromQuery] PagedRequest q, CancellationToken ct)
     {
+        q = q.Normalized();
         var src = db.SalesOrders.AsNoTracking()
             .Include(s => s.Customer).Include(s => s.Warehouse).Include(s => s.Lines).ThenInclude(l => l.Item)
             .OrderByDescending(s => s.OrderDate);
@@ -83,6 +84,7 @@ public sealed class OutboundController(AppDbContext db,
     [HttpGet("delivery-orders")]
     public async Task<PagedResult<DeliveryOrderDto>> ListDOs([FromQuery] PagedRequest q, CancellationToken ct)
     {
+        q = q.Normalized();
         var src = db.DeliveryOrders.AsNoTracking()
             .Include(d => d.Customer).Include(d => d.Warehouse).Include(d => d.SalesOrder)
             .Include(d => d.Lines).ThenInclude(l => l.Item)

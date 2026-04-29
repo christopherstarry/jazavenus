@@ -1,8 +1,9 @@
 import { useState, type ReactNode, type ComponentType } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Search, ChevronLeft, ChevronRight, Inbox } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { api } from "@/lib/api";
+import { DEFAULT_PAGE_SIZE } from "@/lib/paging";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -31,7 +32,7 @@ export function CrudPage<T extends { id: string }>({
   rightSlot, empty,
 }: CrudPageProps<T>) {
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(20);
+  const [pageSize] = useState(DEFAULT_PAGE_SIZE);
   const [search, setSearch] = useState("");
 
   const q = useQuery({
@@ -40,6 +41,7 @@ export function CrudPage<T extends { id: string }>({
       api
         .get(endpoint, { searchParams: { page, pageSize, ...(search ? { search } : {}) } })
         .json<PagedResult<T>>(),
+    placeholderData: keepPreviousData,
   });
 
   const isEmpty = q.data && q.data.items.length === 0 && !search;

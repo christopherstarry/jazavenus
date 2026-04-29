@@ -95,6 +95,7 @@ public sealed class MasterDataController(AppDbContext db,
     [HttpGet("items")]
     public async Task<PagedResult<ItemDto>> ListItems([FromQuery] PagedRequest q, CancellationToken ct)
     {
+        q = q.Normalized();
         var canSeeCost = User.IsInRole(Roles.SuperAdmin) || User.IsInRole(Roles.Admin);
         IQueryable<Item> src = db.Items.AsNoTracking().Include(x => x.Category).Include(x => x.Unit);
         if (!string.IsNullOrWhiteSpace(q.Search))
@@ -259,6 +260,7 @@ public sealed class MasterDataController(AppDbContext db,
     // ---------- Helpers ----------
     private static async Task<PagedResult<T>> Page<T>(IQueryable<T> src, PagedRequest q, CancellationToken ct)
     {
+        q = q.Normalized();
         var total = await src.CountAsync(ct);
         var items = await src.Skip((q.Page - 1) * q.PageSize).Take(q.PageSize).ToListAsync(ct);
         return new PagedResult<T>(items, total, q.Page, q.PageSize);
