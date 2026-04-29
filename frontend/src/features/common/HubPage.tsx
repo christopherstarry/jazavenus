@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
 import { type ModuleNode } from "@/app/modules";
@@ -6,7 +7,8 @@ import { cn } from "@/lib/utils";
 
 /**
  * Generic landing page for a section. Shows the section's children as
- * a grid of large tiles — chunky targets for older eyes.
+ * a compact grid — sized so an 8-tile section like Master Maintenance
+ * fits in one screen on a normal desktop without scrolling.
  *
  * Used as the default page for any module that has children but no
  * custom Component of its own (e.g. /master, /sales, /report/sales-report).
@@ -26,23 +28,29 @@ export function HubPage({ node }: { node: ModuleNode }) {
   }
 
   return (
-    <div className="space-y-5 sm:space-y-6">
+    <div className="space-y-3 sm:space-y-4">
       {node.description && (
-        <p className="text-base sm:text-lg text-muted-foreground max-w-3xl">
+        <p className="text-base text-muted-foreground max-w-3xl">
           {node.description}
         </p>
       )}
 
-      <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-2 sm:gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {tiles.map((tile, idx) => {
           const showDivider = tile.divider && idx > 0;
           return (
-            <div key={tile.id} className={cn(showDivider && "sm:col-span-2 lg:col-span-3 -mb-2")}>
+            <Fragment key={tile.id}>
               {showDivider && (
-                <div className="hidden sm:block border-t-2 border-dashed mb-3" aria-hidden />
+                /* Divider is its own grid item spanning every column.
+                   This avoids the previous bug where the tile after a
+                   divider was forced to col-span-full and ballooned. */
+                <div
+                  className="col-span-full hidden sm:block border-t border-dashed border-border my-1"
+                  aria-hidden
+                />
               )}
               <Tile tile={tile} />
-            </div>
+            </Fragment>
           );
         })}
       </div>
@@ -56,25 +64,34 @@ function Tile({ tile }: { tile: ModuleNode }) {
     <Link
       to={tile.path}
       className={cn(
-        "group block h-full rounded-[var(--radius)] border-2 bg-card p-5",
+        "group flex items-start gap-3 rounded-[var(--radius)] border-2 bg-card",
+        "px-4 py-3 sm:px-4 sm:py-3",
         "transition-colors hover:border-primary hover:bg-primary/5",
         "focus-visible:border-primary",
       )}
     >
-      <div className="flex items-start justify-between gap-3">
-        {Icon && (
-          <div className="rounded-full bg-primary/10 p-3 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-            <Icon className="h-6 w-6" aria-hidden />
-          </div>
-        )}
-        <ArrowRight className="h-5 w-5 mt-3 text-muted-foreground group-hover:text-primary transition-colors shrink-0" aria-hidden />
-      </div>
-      <div className="mt-3 text-lg font-bold leading-tight">{tile.label}</div>
-      {tile.description && (
-        <div className="mt-1 text-sm sm:text-base text-muted-foreground leading-snug">
-          {tile.description}
+      {Icon && (
+        <div
+          className={cn(
+            "shrink-0 rounded-md bg-primary/10 p-2 text-primary",
+            "group-hover:bg-primary group-hover:text-primary-foreground transition-colors",
+          )}
+        >
+          <Icon className="h-5 w-5" aria-hidden />
         </div>
       )}
+      <div className="min-w-0 flex-1">
+        <div className="text-base font-bold leading-tight">{tile.label}</div>
+        {tile.description && (
+          <div className="mt-0.5 text-sm text-muted-foreground leading-snug line-clamp-2">
+            {tile.description}
+          </div>
+        )}
+      </div>
+      <ArrowRight
+        className="h-5 w-5 mt-0.5 shrink-0 text-muted-foreground group-hover:text-primary transition-colors"
+        aria-hidden
+      />
     </Link>
   );
 }
