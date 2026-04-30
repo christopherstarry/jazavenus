@@ -116,6 +116,10 @@ import { SalesAreaPage } from "#/features/customers/SalesAreaPage";
 import { LocationOutletPage } from "#/features/customers/LocationOutletPage";
 import { CollectorPage } from "#/features/customers/CollectorPage";
 import { MasterCustomerPage } from "#/features/customers/MasterCustomerPage";
+import { TaxNoRegistrationPage } from "#/features/tax/TaxNoRegistrationPage";
+import { TermOfPaymentPage } from "#/features/master/TermOfPaymentPage";
+import { TypeOfCostsPage } from "#/features/master/TypeOfCostsPage";
+import { BankPage } from "#/features/master/BankPage";
 
 /* ── The actual tree ─────────────────────────────────────────────────────── */
 
@@ -213,16 +217,20 @@ export const TREE: ModuleNode[] = [
       /* Finance / setup masters */
       { id: "master.cost-types",      path: "/master/type-of-costs",        label: "Type Of Costs",
         description: "Cost categories",
-        divider: true },
+        divider: true,
+        Component: TypeOfCostsPage },
       { id: "master.principle",       path: "/master/principle",            label: "Principle",
         description: "Principal companies / suppliers",
         Component: SuppliersPage },
       { id: "master.term-of-payment", path: "/master/term-of-payment",      label: "Table of Term Of Payment",
-        description: "Payment terms (net 30, net 60, …)" },
+        description: "Payment terms (net 30, net 60, …)",
+        Component: TermOfPaymentPage },
       { id: "master.bank",            path: "/master/bank",                 label: "Bank",
-        description: "Banks used for payments" },
+        description: "Banks used for payments",
+        Component: BankPage },
       { id: "master.tax-no",          path: "/master/tax-no-registration",  label: "Tax No Registration",
-        description: "Tax registrations" },
+        description: "Tax registrations",
+        Component: TaxNoRegistrationPage },
 
       /* Product + its tabs */
       {
