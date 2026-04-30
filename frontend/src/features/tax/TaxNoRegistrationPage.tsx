@@ -198,47 +198,97 @@ export function TaxNoRegistrationPage() {
       <div className="rounded-md border-2 border-border bg-card p-4 space-y-4">
         <h2 className="text-xl font-bold tracking-tight">:: Table of Tax Number Registration</h2>
 
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-12 xl:gap-x-4 xl:gap-y-3">
-          <div className="space-y-2 xl:col-span-3">
-            <Label htmlFor="tax-reg-no">Registration No.</Label>
-            <div className="flex gap-2">
-              <Input id="tax-reg-no" value={registrationNo} onChange={(e) => setRegistrationNo(e.target.value)} autoComplete="off" className="max-w-[8rem]" />
-              <Button type="button" variant="outline" size="icon" className="shrink-0 h-12 w-12" title="Browse registrations (POC)" onClick={() => applyDemoReg(regIdx + 1)}>
-                <MoreHorizontal className="h-5 w-5" aria-hidden />
-              </Button>
+        <div className="flex flex-col gap-5">
+          {/*
+            Single 4-column grid on large screens so:
+            Reg. Date ↔ Tax No. Used, From Number ↔ Tax No. Available (same vertical track).
+            Below lg, fields stack in source order.
+          */}
+          <div className="grid grid-cols-1 gap-x-4 gap-y-5 lg:grid-cols-4">
+            <div className="space-y-2 min-w-0">
+              <Label htmlFor="tax-reg-no">Registration No.</Label>
+              <div className="flex w-full gap-2">
+                <Input
+                  id="tax-reg-no"
+                  value={registrationNo}
+                  onChange={(e) => setRegistrationNo(e.target.value)}
+                  autoComplete="off"
+                  className="min-w-0 flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="shrink-0 h-12 w-12"
+                  title="Browse registrations (POC)"
+                  onClick={() => applyDemoReg(regIdx + 1)}
+                >
+                  <MoreHorizontal className="h-5 w-5" aria-hidden />
+                </Button>
+              </div>
             </div>
-          </div>
-          <div className="space-y-2 xl:col-span-2">
-            <Label htmlFor="tax-reg-date">Reg. Date</Label>
-            <div className="relative max-w-[12rem]">
-              <Input id="tax-reg-date" type="date" value={regDate.slice(0, 10)} onChange={(e) => setRegDate(e.target.value)} className="pr-10" />
-              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-60" aria-hidden />
+            <div className="space-y-2 min-w-0">
+              <Label htmlFor="tax-reg-date">Reg. Date</Label>
+              <div className="relative w-full">
+                <Input id="tax-reg-date" type="date" value={regDate.slice(0, 10)} onChange={(e) => setRegDate(e.target.value)} className="h-12 w-full pr-10" />
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-60" aria-hidden />
+              </div>
             </div>
-          </div>
-          <div className="space-y-2 xl:col-span-2">
-            <Label htmlFor="tax-from-number">From Number</Label>
-            <Input id="tax-from-number" value={fromNum} onChange={(e) => setFromNum(e.target.value)} inputMode="numeric" />
-          </div>
-          <div className="space-y-2 xl:col-span-2">
-            <Label htmlFor="tax-to-number">To Number</Label>
-            <Input id="tax-to-number" value={toNum} onChange={(e) => setToNum(e.target.value)} inputMode="numeric" />
+            <div className="space-y-2 min-w-0">
+              <Label htmlFor="tax-from-number">From Number</Label>
+              <Input id="tax-from-number" value={fromNum} onChange={(e) => setFromNum(e.target.value)} inputMode="numeric" className="h-12 w-full" />
+            </div>
+            <div className="space-y-2 min-w-0">
+              <Label htmlFor="tax-to-number">To Number</Label>
+              <Input id="tax-to-number" value={toNum} onChange={(e) => setToNum(e.target.value)} inputMode="numeric" className="h-12 w-full" />
+            </div>
+
+            <div className="space-y-2 min-w-0">
+              <Label htmlFor="tax-total" className="text-sm leading-snug">
+                Total Tax No.
+              </Label>
+              <Input
+                id="tax-total"
+                readOnly
+                tabIndex={-1}
+                value={String(totalTaxCalc)}
+                aria-readonly="true"
+                className="h-12 w-full bg-muted tabular-nums text-base"
+              />
+            </div>
+            <div className="space-y-2 min-w-0">
+              <Label htmlFor="tax-used" className="text-sm leading-snug">
+                Tax No. Used
+              </Label>
+              <Input
+                id="tax-used"
+                readOnly
+                tabIndex={-1}
+                value={String(demoTaxUsed)}
+                aria-readonly="true"
+                className="h-12 w-full bg-muted tabular-nums text-base"
+              />
+            </div>
+            <div className="space-y-2 min-w-0">
+              <Label htmlFor="tax-available" className="text-sm leading-snug">
+                Tax No. Available
+              </Label>
+              <Input
+                id="tax-available"
+                readOnly
+                tabIndex={-1}
+                value={String(taxAvailable)}
+                aria-readonly="true"
+                className="h-12 w-full bg-muted tabular-nums text-base"
+              />
+            </div>
+            {/* Spacer keeps row-2 visually under row-1 cols 1–3; column 4 intentionally empty */}
+            <div className="hidden min-w-0 lg:block" aria-hidden />
           </div>
 
-          <div className="space-y-2 xl:col-span-1">
-            <Label htmlFor="tax-total">Total Tax No.</Label>
-            <Input id="tax-total" readOnly tabIndex={-1} value={String(totalTaxCalc)} className="bg-muted tabular-nums" />
-          </div>
-          <div className="space-y-2 xl:col-span-1">
-            <Label htmlFor="tax-used">Tax No. Used</Label>
-            <Input id="tax-used" readOnly tabIndex={-1} value={String(demoTaxUsed)} className="bg-muted tabular-nums" />
-          </div>
-          <div className="space-y-2 xl:col-span-1">
-            <Label htmlFor="tax-available">Tax No. Available</Label>
-            <Input id="tax-available" readOnly tabIndex={-1} value={String(taxAvailable)} className="bg-muted tabular-nums" />
-          </div>
-          <div className="space-y-2 sm:col-span-2 xl:col-span-12">
+          <div className="space-y-2">
             <Label htmlFor="tax-ref">Reference</Label>
-            <Input id="tax-ref" value={reference} onChange={(e) => setReference(e.target.value)} />
+            <Input id="tax-ref" value={reference} onChange={(e) => setReference(e.target.value)} className="h-12" />
           </div>
         </div>
       </div>
