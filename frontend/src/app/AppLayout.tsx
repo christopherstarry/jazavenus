@@ -73,7 +73,7 @@ export function AppLayout() {
   );
 
   return (
-    <div className="min-h-screen bg-muted/30 flex flex-col">
+    <div className="flex h-svh min-h-0 flex-col overflow-hidden bg-muted/30">
       <ScrollToTop />
 
       {/*
@@ -131,9 +131,9 @@ export function AppLayout() {
         </div>
       </header>
 
-      <div className="flex flex-1 min-h-0 min-w-0 lg:flex-row">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden lg:flex-row">
         {/* Desktop sidebar — nav only; aligns under header brand column */}
-        <aside className="hidden lg:flex lg:w-72 xl:w-80 shrink-0 border-r-2 bg-card flex-col min-h-0">
+        <aside className="hidden min-h-0 shrink-0 overflow-hidden border-r-2 bg-card lg:flex lg:w-72 lg:flex-col xl:w-80">
           {sidebarNav}
         </aside>
 
@@ -145,8 +145,12 @@ export function AppLayout() {
           </SheetContent>
         </Sheet>
 
-        <main className="flex-1 min-w-0 flex min-h-0 flex-col overflow-y-auto overscroll-contain">
-          <div className="p-3 sm:p-5 md:p-8 max-w-7xl mx-auto w-full flex-1 min-h-0">
+        <main
+          id="app-main-scroll"
+          data-app-scroll="main"
+          className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable]"
+        >
+          <div className="mx-auto flex min-h-min w-full max-w-7xl flex-1 flex-col p-3 sm:p-5 md:p-8">
             <Outlet />
           </div>
         </main>
