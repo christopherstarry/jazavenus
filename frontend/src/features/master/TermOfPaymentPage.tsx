@@ -46,16 +46,16 @@ function buildPaymentTerms(count: number): PaymentTermRow[] {
 /** Insert a few legacy-shaped entries (still within 0–99 POC range). */
 function withLegacySamples(base: PaymentTermRow[]): PaymentTermRow[] {
   const next = [...base];
-  const set = (days: number, code: string, label: string) => {
+  const set = (code: string, label: string) => {
     const idx = next.findIndex((r) => r.termCode === code);
     if (idx >= 0) next[idx] = { termCode: code, description: label };
   };
-  set(0, "00", "0 Hari");
-  set(7, "07", "7 Hari");
-  set(12, "12", "12 Hari");
-  set(14, "14", "14 Hari");
-  set(21, "21", "21 Hari");
-  set(28, "28", "28 Hari");
+  set("00", "0 Hari");
+  set("07", "7 Hari");
+  set("12", "12 Hari");
+  set("14", "14 Hari");
+  set("21", "21 Hari");
+  set("28", "28 Hari");
   return next;
 }
 
