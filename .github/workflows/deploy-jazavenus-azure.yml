@@ -1,4 +1,8 @@
 # POC: publishes the ASP.NET app + React bundle to Azure App Service.
+#
+# Automatic deploys are OFF: production frontend is on Vercel. Re-enable `push` below
+# when you want merges to main to deploy this monolith to App Service again.
+#
 # Prerequisites (Azure Portal):
 #   • Create App Service Plan + Linux Web App named EXACTLY: jazavenus (name is globally unique)
 #   • Runtime stack: .NET current / match backend Directory.Build.props (net10.x)
@@ -12,8 +16,6 @@ name: deploy-jazavenus-azure
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
 
 concurrency:
   group: azure-jazavenus-${{ github.ref }}
