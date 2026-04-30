@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "#/components/ui/tabs";
 import { type ModuleNode } from "#/app/modules";
@@ -8,8 +9,9 @@ import { ModulePlaceholder } from "./ModulePlaceholder";
  * Renders a parent page whose children should appear as horizontal tabs
  * (e.g. Customer → Class Outlet, Group, Location, … Master Customer).
  *
- * - The parent's own component (if any) is shown on its plain path
- *   (the FIRST tab). E.g. /master/customer renders CustomersPage.
+ * - The parent's own component (if any) is shown on its plain path as the FIRST
+ *   tab, unless hideSelfTab (e.g. Product: only subtabs like Brand, Master Product).
+ *   Redirect tabsDefaultRedirect when user lands exactly on parent path without a leaf.
  * - Each child path swaps the active tab; we keep the URL in sync so
  *   breadcrumbs and refreshes work.
  *
@@ -24,6 +26,22 @@ export function TabsLayout({ node }: { node: ModuleNode }) {
   const visible = (node.children ?? []).filter(
     (c) => !c.superAdminOnly || hasRole(user, "SuperAdmin"),
   );
+
+  const pathname = location.pathname.replace(/\/$/, "") || "/";
+
+  useEffect(() => {
+    if (!node.hideSelfTab || !node.tabsDefaultRedirect) return;
+
+    const base = node.path.replace(/\/$/, "") || node.path;
+
+    if (pathname !== base) return;
+
+    const target = node.tabsDefaultRedirect.replace(/\/$/, "") || "";
+
+    if (!target || pathname === target) return;
+
+    navigate(target, { replace: true });
+  }, [navigate, node.hideSelfTab, node.path, node.tabsDefaultRedirect, pathname]);
 
   // Build the list of tabs. The parent itself is the first tab when it
   // has its own component (its label uses the parent's plain name).
