@@ -1,8 +1,8 @@
-import { useSettings, type TextSize, type Theme } from "@/lib/settings";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Kbd } from "@/components/ui/kbd";
+import { useSettings, type TextSize, type Theme } from "#/lib/settings";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card";
+import { Kbd } from "#/components/ui/kbd";
 import { Moon, Sun, Monitor, Type } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "#/lib/utils";
 
 const TEXT_OPTIONS: { value: TextSize; label: string; sample: string }[] = [
   { value: "small",   label: "Small",        sample: "15px" },

@@ -28,4 +28,18 @@
     <PackageReference Include="ClosedXML" />
     <PackageReference Include="QuestPDF" />
   </ItemGroup>
+
+  <!-- Vite SPA → wwwroot on `dotnet publish` (skip with -p:SkipSpaPublish=true if Node not installed). -->
+  <PropertyGroup>
+    <SkipSpaPublish Condition="'$(SkipSpaPublish)' == ''">false</SkipSpaPublish>
+    <SpaFrontendDir>$([System.IO.Path]::GetFullPath($([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '..\..\..\frontend'))))</SpaFrontendDir>
+    <SpaWwwrootDir>$([System.IO.Path]::GetFullPath($([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', 'wwwroot'))))</SpaWwwrootDir>
+  </PropertyGroup>
+  <Target Name="PublishSpaToWwwroot" BeforeTargets="BeforePublish" Condition="'$(SkipSpaPublish)' != 'true'">
+    <Message Importance="High" Text="Publishing SPA → $(SpaWwwrootDir)" />
+    <Exec WorkingDirectory="$(SpaFrontendDir)" Command="npm ci" />
+    <Exec WorkingDirectory="$(SpaFrontendDir)"
+          EnvironmentVariables="JAZA_VITE_OUTDIR=$(SpaWwwrootDir)"
+          Command="npm run build" />
+  </Target>
 </Project>

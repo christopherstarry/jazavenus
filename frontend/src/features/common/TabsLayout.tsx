@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "react-router";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { type ModuleNode } from "@/app/modules";
-import { useAuth, hasRole } from "@/lib/auth";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "#/components/ui/tabs";
+import { type ModuleNode } from "#/app/modules";
+import { useAuth, hasRole } from "#/lib/auth";
 import { ModulePlaceholder } from "./ModulePlaceholder";
 
 /**

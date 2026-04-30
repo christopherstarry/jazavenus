@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "#/components/ui/button";
+import { Input } from "#/components/ui/input";
+import { Label } from "#/components/ui/label";
 import { CustomerLookupDialog } from "./CustomerLookupDialog";
+import { expandLookupDemoRows } from "#/lib/lookupDemoBulk";
 
 const DIVISION_LABEL = "JAZA VENUS DISTRIBUTION BANDUNG";
 
@@ -12,8 +13,7 @@ type SalesmanRow = {
   salesmanName: string;
 };
 
-// POC dataset (from screenshot; can be refined once you confirm exact list).
-const SALESMAN_POC: readonly SalesmanRow[] = [
+const SALESMAN_SEED = [
   { salesmanCode: "0831156028", salesmanName: "HERIYANTO" },
   { salesmanCode: "24", salesmanName: "ABDU PARAGIMB" },
   { salesmanCode: "30", salesmanName: "ACEP NURBHA" },
@@ -23,6 +23,11 @@ const SALESMAN_POC: readonly SalesmanRow[] = [
   { salesmanCode: "50", salesmanName: "AGUS-COMERY" },
   { salesmanCode: "21", salesmanName: "ALDI AMY" },
 ] as const;
+
+const SALESMAN_POC: SalesmanRow[] = expandLookupDemoRows(SALESMAN_SEED, 50, (_, row) => ({
+  salesmanCode: String(row + 9_900),
+  salesmanName: `POC REP ${String(row + 1).padStart(2, "0")} — SAMPLE NAME`,
+}));
 
 export function SalesmanPage() {
   const [salesmanCode, setSalesmanCode] = useState("0831156028");

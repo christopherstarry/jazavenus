@@ -5,12 +5,19 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+} from "#/components/ui/dialog";
+import { Button } from "#/components/ui/button";
+import { Input } from "#/components/ui/input";
+import { Label } from "#/components/ui/label";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
+import { cn } from "#/lib/utils";
+import {
+  LOOKUP_DEFAULT_PAGE_SIZE,
+  LOOKUP_DIALOG_CONTENT_CLASS,
+  LOOKUP_DIALOG_SCROLL_BODY_CLASS,
+  LookupDialogResultScroll,
+  LookupPaginationBar,
+} from "#/components/ui/lookup-dialog-chrome";
 
 type MatchKey = "contains" | "equals" | "startsWith";
 type FieldKey = string;
@@ -60,6 +67,8 @@ export function CustomerLookupDialog<T>({
   const [filterText, setFilterText] = useState("");
   const [appliedQuery, setAppliedQuery] = useState("");
   const [selectedIdx, setSelectedIdx] = useState(0);
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(LOOKUP_DEFAULT_PAGE_SIZE);
 
   useEffect(() => {
     if (!open) return;
@@ -69,11 +78,14 @@ export function CustomerLookupDialog<T>({
     setMatch("contains");
     setAutoSearch(true);
     setSelectedIdx(0);
+    setPage(0);
   }, [open, initialHint, defaultFieldId]);
 
   useEffect(() => {
     if (!open || !autoSearch) return;
     setAppliedQuery(filterText);
+    setPage(0);
+    setSelectedIdx(0);
   }, [filterText, autoSearch, open]);
 
   const activeField = useMemo(
@@ -101,12 +113,34 @@ export function CustomerLookupDialog<T>({
   }, [rows, appliedQuery, match, activeField]);
 
   useEffect(() => {
+    if (!open) return;
+    setPage(0);
+    setSelectedIdx(0);
+  }, [match, fieldId, open]);
+
+  useEffect(() => {
+    const pc = Math.max(1, Math.ceil(filtered.length / pageSize));
+    setPage((p) => Math.min(p, pc - 1));
+  }, [filtered.length, pageSize]);
+
+  useEffect(() => {
+    if (filtered.length === 0) return;
+    const start = page * pageSize;
+    const endEx = Math.min(filtered.length, start + pageSize);
+    setSelectedIdx((i) => {
+      if (i >= start && i < endEx) return i;
+      return Math.min(start, filtered.length - 1);
+    });
+  }, [page, pageSize, filtered.length]);
+
+  useEffect(() => {
     if (selectedIdx >= filtered.length) setSelectedIdx(Math.max(0, filtered.length - 1));
   }, [filtered.length, selectedIdx]);
 
   const handleFind = () => {
     setAppliedQuery(filterText);
     setSelectedIdx(0);
+    setPage(0);
   };
 
   const handleApply = () => {
@@ -116,15 +150,19 @@ export function CustomerLookupDialog<T>({
     onOpenChange(false);
   };
 
+  const sliceStart = page * pageSize;
+  const pagedRows = filtered.slice(sliceStart, sliceStart + pageSize);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[min(100vw-1.5rem,42rem)] p-4 sm:p-5 gap-0 border-2 max-h-[min(92vh,38rem)] flex flex-col overflow-hidden">
+      <DialogContent className={LOOKUP_DIALOG_CONTENT_CLASS}>
         <DialogHeader className="shrink-0 pr-10 pb-2">
           <DialogTitle className="text-base font-bold sr-only">{title}</DialogTitle>
           <p className="text-base font-bold">{title}</p>
         </DialogHeader>
 
-        <div className="shrink-0 rounded-md border-2 bg-muted/30 px-4 py-3 space-y-2">
+        <div className={LOOKUP_DIALOG_SCROLL_BODY_CLASS}>
+        <div className="rounded-md border-2 bg-muted/30 px-4 py-3 space-y-2">
           <div className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Criteria</div>
           <div className="flex flex-wrap items-end gap-3 sm:gap-4">
             <div className="space-y-1.5 min-w-[8.5rem]">
@@ -182,70 +220,86 @@ export function CustomerLookupDialog<T>({
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 flex flex-col border-2 rounded-md overflow-hidden mt-3 border-border">
-          <div className="overflow-auto max-h-[min(52vh,18rem)]">
-            <Table>
-              <TableHeader>
+        <LookupDialogResultScroll
+          footer={
+            filtered.length > 0 ? (
+              <LookupPaginationBar
+                total={filtered.length}
+                page={page}
+                pageSize={pageSize}
+                onPageChange={setPage}
+                onPageSizeChange={(sz) => {
+                  setPageSize(sz);
+                  setPage(0);
+                }}
+              />
+            ) : null
+          }
+        >
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {columns.map((c) => (
+                  <TableHead key={c.header}>{c.header}</TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filtered.length === 0 ? (
                 <TableRow>
-                  {columns.map((c) => (
-                    <TableHead key={c.header}>{c.header}</TableHead>
-                  ))}
+                  <TableCell colSpan={columns.length} className="text-center text-muted-foreground py-6">
+                    No rows match. Change criteria or search text.
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={columns.length} className="text-center text-muted-foreground py-6">
-                      No rows match. Change criteria or search text.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filtered.map((row, idx) => {
-                    const stableKey = columns.map((c) => c.getValue(row)).join("|");
-                    return (
-                      <TableRow
-                        key={stableKey}
-                        data-state={selectedIdx === idx ? "selected" : undefined}
-                        role="button"
-                        tabIndex={0}
-                        className={cn("cursor-pointer", selectedIdx === idx && "bg-accent")}
-                        onClick={() => setSelectedIdx(idx)}
-                        onDoubleClick={() => {
-                          onSelect(row);
-                          onOpenChange(false);
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            setSelectedIdx(idx);
-                          }
-                        }}
-                      >
-                        {columns.map((c) => (
-                          <TableCell
-                            key={c.header}
-                            className={cn(
-                              c.className,
-                              c.align === "center" && "text-center",
-                              c.align === "right" && "text-right",
-                              c.align === "left" && "text-left",
-                            )}
-                          >
-                            {c.getValue(row)}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
-          </div>
+              ) : (
+                pagedRows.map((row, idx) => {
+                  const stableKey = columns.map((c) => c.getValue(row)).join("|");
+                  const absoluteIdx = sliceStart + idx;
+                  return (
+                    <TableRow
+                      key={stableKey}
+                      data-state={selectedIdx === absoluteIdx ? "selected" : undefined}
+                      role="button"
+                      tabIndex={0}
+                      className={cn("cursor-pointer", selectedIdx === absoluteIdx && "bg-accent")}
+                      onClick={() => setSelectedIdx(absoluteIdx)}
+                      onDoubleClick={() => {
+                        onSelect(row);
+                        onOpenChange(false);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setSelectedIdx(absoluteIdx);
+                        }
+                      }}
+                    >
+                      {columns.map((c) => (
+                        <TableCell
+                          key={c.header}
+                          className={cn(
+                            c.className,
+                            c.align === "center" && "text-center",
+                            c.align === "right" && "text-right",
+                            c.align === "left" && "text-left",
+                          )}
+                        >
+                          {c.getValue(row)}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </LookupDialogResultScroll>
+
         </div>
 
-        <DialogFooter className="shrink-0 gap-3 sm:justify-between sm:items-center flex-col sm:flex-row pt-4 border-t-2 mt-3">
+        <DialogFooter className="shrink-0 gap-3 sm:justify-between sm:items-center flex-col sm:flex-row pt-4 border-t-2 border-border">
           <p className="text-sm text-muted-foreground mr-auto">
-            {filtered.length} row{filtered.length === 1 ? "" : "s"}
+            {filtered.length} row{filtered.length === 1 ? "" : "s"} total
           </p>
           <div className="flex flex-wrap gap-3 w-full sm:w-auto justify-end">
             <Button type="button" variant="outline" size="lg" className="min-w-[8rem]" onClick={() => onOpenChange(false)}>

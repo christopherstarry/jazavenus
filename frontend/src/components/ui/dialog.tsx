@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "#/lib/utils";
 
 export const Dialog = DialogPrimitive.Root;
 export const DialogTrigger = DialogPrimitive.Trigger;
@@ -15,7 +15,8 @@ export const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-1/2 top-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 border-2 bg-card p-6 shadow-xl rounded-[var(--radius)]",
+        /* flex-col so consumer `flex-1 min-h-0 overflow-auto` children work; `grid` breaks that */
+        "fixed left-1/2 top-1/2 z-50 flex w-full max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col gap-4 border-2 bg-card p-6 shadow-xl rounded-[var(--radius)]",
         className
       )}
       {...props}

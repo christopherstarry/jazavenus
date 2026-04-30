@@ -5,15 +5,22 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+} from "#/components/ui/dialog";
+import { Button } from "#/components/ui/button";
+import { Input } from "#/components/ui/input";
+import { Label } from "#/components/ui/label";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
+import { cn } from "#/lib/utils";
+import {
+  LOOKUP_DEFAULT_PAGE_SIZE,
+  LOOKUP_DIALOG_CONTENT_CLASS,
+  LOOKUP_DIALOG_SCROLL_BODY_CLASS,
+  LookupDialogResultScroll,
+  LookupPaginationBar,
+} from "#/components/ui/lookup-dialog-chrome";
+import { expandLookupDemoRows } from "#/lib/lookupDemoBulk";
 
-/** Static POC payload — matches the legacy VB lookup list (from user screenshot). */
-export const EMPLOYEE_LOOKUP_POC = [
+const EMPLOYEE_LOOKUP_SEED = [
   { employeeName: "adminpas", employeeCode: "admin" },
   { employeeName: "DEDE GUMILAR", employeeCode: "DEDE G" },
   { employeeName: "dian mayasari", employeeCode: "dian" },
@@ -27,6 +34,15 @@ export const EMPLOYEE_LOOKUP_POC = [
   { employeeName: "wiwin", employeeCode: "wiwin" },
   { employeeName: "yuda", employeeCode: "yuda" },
 ] as const;
+
+/** ~50 static rows — legacy names + generated POC lines for QA / pagination testing */
+export const EMPLOYEE_LOOKUP_POC: readonly {
+  employeeName: string;
+  employeeCode: string;
+}[] = expandLookupDemoRows(EMPLOYEE_LOOKUP_SEED, 50, (_gap, row) => ({
+  employeeName: `Sample Staff ${String(row + 1).padStart(2, "0")}`,
+  employeeCode: `USR${String(row + 1).padStart(3, "0")}`,
+}));
 
 type FieldKey = "employeeName" | "employeeCode";
 type MatchKey = "contains" | "equals" | "startsWith";
@@ -55,6 +71,8 @@ export function EmployeeLookupDialog({
   const [filterText, setFilterText] = useState("");
 
   const [selectedIdx, setSelectedIdx] = useState(0);
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(LOOKUP_DEFAULT_PAGE_SIZE);
 
   /* When opening, seed both fields from parent name hint. */
   useEffect(() => {
@@ -62,6 +80,7 @@ export function EmployeeLookupDialog({
       const h = initialHint.trim();
       setFilterText(h);
       setSelectedIdx(0);
+      setPage(0);
     }
   }, [open, initialHint]);
 
@@ -89,7 +108,24 @@ export function EmployeeLookupDialog({
   useEffect(() => {
     if (!open) return;
     setSelectedIdx(0);
+    setPage(0);
   }, [filterText, field, match, open]);
+
+  useEffect(() => {
+    const pc = Math.max(1, Math.ceil(rows.length / pageSize));
+    setPage((p) => Math.min(p, pc - 1));
+  }, [rows.length, pageSize]);
+
+  /* Keep highlighted row on the current page when paging. */
+  useEffect(() => {
+    if (rows.length === 0) return;
+    const start = page * pageSize;
+    const endEx = Math.min(rows.length, start + pageSize);
+    setSelectedIdx((i) => {
+      if (i >= start && i < endEx) return i;
+      return Math.min(start, rows.length - 1);
+    });
+  }, [page, pageSize, rows.length]);
 
   /* Keep selection in range when filtering shrinks the list */
   useEffect(() => {
@@ -102,10 +138,13 @@ export function EmployeeLookupDialog({
     onOpenChange(false);
   };
 
+  const sliceStart = page * pageSize;
+  const pagedRows = rows.slice(sliceStart, sliceStart + pageSize);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-w-[min(100vw-1.5rem,42rem)] p-4 sm:p-5 gap-0 border-2 max-h-[min(92vh,40rem)] flex flex-col overflow-hidden [&>button]:top-3 [&>button]:right-3"
+        className={LOOKUP_DIALOG_CONTENT_CLASS}
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader className="shrink-0 pr-10 pb-2">
@@ -113,8 +152,9 @@ export function EmployeeLookupDialog({
           <p className="text-base font-bold">Employee lookup</p>
         </DialogHeader>
 
+        <div className={LOOKUP_DIALOG_SCROLL_BODY_CLASS}>
         {/* Criteria strip — mirrors legacy */}
-        <div className="shrink-0 rounded-md border-2 bg-muted/30 px-4 py-3 space-y-3">
+        <div className="rounded-md border-2 bg-muted/30 px-4 py-3 space-y-3">
           <div className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Criteria</div>
           <div className="flex flex-wrap items-end gap-3 sm:gap-4">
             <div className="space-y-1.5 min-w-[8.5rem]">
@@ -171,61 +211,75 @@ export function EmployeeLookupDialog({
           </div>
         </div>
 
-        {/* Result table — height-capped so the dialog never leaves a giant empty gap */}
-        <div className="min-h-0 flex-1 flex flex-col border-2 rounded-md overflow-hidden mt-3 border-border">
-          <div className="overflow-auto max-h-[min(52vh,18rem)] sm:max-h-[min(52vh,20rem)]">
-            <Table>
-              <TableHeader>
+        <LookupDialogResultScroll
+          footer={
+            rows.length > 0 ? (
+              <LookupPaginationBar
+                total={rows.length}
+                page={page}
+                pageSize={pageSize}
+                onPageChange={setPage}
+                onPageSizeChange={(sz) => {
+                  setPageSize(sz);
+                  setPage(0);
+                }}
+              />
+            ) : null
+          }
+        >
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Employee Name</TableHead>
+                <TableHead>Employee Code</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.length === 0 ? (
                 <TableRow>
-                  <TableHead>Employee Name</TableHead>
-                  <TableHead>Employee Code</TableHead>
+                  <TableCell colSpan={2} className="text-center text-muted-foreground py-6">
+                    No rows match. Change criteria or search text.
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rows.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={2} className="text-center text-muted-foreground py-6">
-                      No rows match. Change criteria or search text.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  rows.map((row, idx) => {
-                    const stableKey = `${row.employeeName}\0${row.employeeCode}`;
-                    return (
-                      <TableRow
-                        key={stableKey}
-                        data-state={selectedIdx === idx ? "selected" : undefined}
-                        role="button"
-                        tabIndex={0}
-                        className={cn(
-                          "cursor-pointer",
-                          selectedIdx === idx && "bg-accent",
-                        )}
-                        onClick={() => setSelectedIdx(idx)}
-                        onDoubleClick={() => {
-                          onSelect({ employeeName: row.employeeName, employeeCode: row.employeeCode });
-                          onOpenChange(false);
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            setSelectedIdx(idx);
-                          }
-                        }}
-                      >
-                        <TableCell className="font-medium py-4">{row.employeeName}</TableCell>
-                        <TableCell className="tabular-nums py-4">{row.employeeCode}</TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
-          </div>
+              ) : (
+                pagedRows.map((row, idx) => {
+                  const stableKey = `${row.employeeName}\0${row.employeeCode}`;
+                  const absoluteIdx = sliceStart + idx;
+                  return (
+                    <TableRow
+                      key={stableKey}
+                      data-state={selectedIdx === absoluteIdx ? "selected" : undefined}
+                      role="button"
+                      tabIndex={0}
+                      className={cn(
+                        "cursor-pointer",
+                        selectedIdx === absoluteIdx && "bg-accent",
+                      )}
+                      onClick={() => setSelectedIdx(absoluteIdx)}
+                      onDoubleClick={() => {
+                        onSelect({ employeeName: row.employeeName, employeeCode: row.employeeCode });
+                        onOpenChange(false);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setSelectedIdx(absoluteIdx);
+                        }
+                      }}
+                    >
+                      <TableCell className="font-medium py-4">{row.employeeName}</TableCell>
+                      <TableCell className="tabular-nums py-4">{row.employeeCode}</TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </LookupDialogResultScroll>
         </div>
 
-        <DialogFooter className="shrink-0 gap-3 sm:justify-between sm:items-center flex-col sm:flex-row pt-4 border-t-2 mt-3">
-          <p className="text-sm text-muted-foreground mr-auto">{rows.length} row{rows.length === 1 ? "" : "s"}</p>
+        <DialogFooter className="shrink-0 gap-3 sm:justify-between sm:items-center flex-col sm:flex-row pt-4 border-t-2 border-border">
+          <p className="text-sm text-muted-foreground mr-auto">{rows.length} row{rows.length === 1 ? "" : "s"} total</p>
           <div className="flex flex-wrap gap-3 w-full sm:w-auto justify-end">
             <Button type="button" variant="outline" size="lg" className="min-w-[8rem]" onClick={() => onOpenChange(false)}>
               Cancel

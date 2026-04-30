@@ -56,7 +56,10 @@ desktop.ini
 *.mdf
 *.ldf
 
-# QuestPDF temp
+# API wwwroot SPA build output (Vite publishes here on dotnet publish)
+backend/src/Jaza.Api/wwwroot/**
+!backend/src/Jaza.Api/wwwroot/.gitkeep
+
 *.pdf
 
 # Rider/IntelliJ

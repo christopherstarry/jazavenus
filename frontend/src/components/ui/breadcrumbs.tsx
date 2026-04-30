@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import { ChevronRight, Home } from "lucide-react";
-import { type ModuleNode } from "@/app/modules";
-import { cn } from "@/lib/utils";
+import { type ModuleNode } from "#/app/modules";
+import { cn } from "#/lib/utils";
 
 /**
  * Header breadcrumbs — always shows where you are with one-click jumps to any

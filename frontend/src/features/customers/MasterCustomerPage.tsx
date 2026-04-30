@@ -1,14 +1,14 @@
 import { useMemo, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Input } from "#/components/ui/input";
+import { Label } from "#/components/ui/label";
+import { Button } from "#/components/ui/button";
+import { Card, CardContent } from "#/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "#/components/ui/tabs";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+} from "#/components/ui/table";
+import { cn } from "#/lib/utils";
 
 const DIVISION_LABEL = "JAZA VENUS DISTRIBUTION BANDUNG";
 

@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "#/components/ui/button";
+import { Input } from "#/components/ui/input";
+import { Label } from "#/components/ui/label";
 import { CustomerLookupDialog } from "./CustomerLookupDialog";
+import { expandLookupDemoRows } from "#/lib/lookupDemoBulk";
 
 const DIVISION_LABEL = "JAZA VENUS DISTRIBUTION BANDUNG";
 
@@ -12,12 +13,16 @@ type ChannelOutletRow = {
   description: string;
 };
 
-// POC static data (from screenshot popup).
-const CHANNEL_OUTLET_POC: readonly ChannelOutletRow[] = [
+const CHANNEL_OUTLET_SEED = [
   { distributionType: "02", description: "LOKASI TOKO BUKAN DI JALAN UTAMA" },
   { distributionType: "03", description: "LOKASI TOKO DI DALAM PASAR" },
   { distributionType: "01", description: "LOKASI TOKO DI JALAN UTAMA" },
 ] as const;
+
+const CHANNEL_OUTLET_POC: ChannelOutletRow[] = expandLookupDemoRows(CHANNEL_OUTLET_SEED, 50, (_, row) => ({
+  distributionType: String((row % 89) + 10),
+  description: `DEMO LOCATION ${String(row + 1).padStart(2, "0")} — pagination QA outlet`,
+}));
 
 export function ChannelOutletPage() {
   const [distributionType, setDistributionType] = useState("01");

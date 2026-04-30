@@ -135,6 +135,8 @@ else
 }
 
 app.UseJazaSecurityHeaders();
+app.UseDefaultFiles();
+app.UseStaticFiles();
 app.UseRouting();
 app.UseRateLimiter();
 app.UseCors();
@@ -143,6 +145,8 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHealthChecks("/health");
+
+app.MapFallbackToFile("index.html");
 
 await DbInitializer.InitializeAsync(app.Services);
 

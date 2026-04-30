@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "#/lib/utils";
 
 /*
   Table is the most-used widget for warehouse staff (think Excel mindset).

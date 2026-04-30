@@ -3,11 +3,11 @@ import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { api } from "@/lib/api";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { api } from "#/lib/api";
+import { Button } from "#/components/ui/button";
+import { Input } from "#/components/ui/input";
+import { Label } from "#/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card";
 import { AlertCircle, CheckCircle2, Eye, EyeOff, KeyRound } from "lucide-react";
 import { HTTPError } from "ky";
 

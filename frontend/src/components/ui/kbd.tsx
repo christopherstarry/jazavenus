@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "#/lib/utils";
 
 /* For documenting keyboard shortcuts: <Kbd>Ctrl</Kbd> + <Kbd>S</Kbd> */
 export function Kbd({ children, className }: { children: ReactNode; className?: string }) {

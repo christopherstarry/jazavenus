@@ -1,8 +1,25 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { api } from "./api";
+
+const STATIC_SESSION_KEY = "jaza-venus-static-auth-v1";
+
+/** Temporary demo credentials (no API). */
+const STATIC_USERNAME = "admin";
+const STATIC_PASSWORD = "admin";
+
+/** Session user shown after static login succeeds. */
+const STATIC_USER: CurrentUser = {
+  userId: "static-admin",
+  username: STATIC_USERNAME,
+  email: "",
+  fullName: "Admin",
+  roles: ["SuperAdmin"],
+  mfaEnabled: false,
+};
 
 export interface CurrentUser {
   userId: string;
+  /** Sign-in id when not using email (static demo uses this). */
+  username?: string;
   email: string;
   fullName: string;
   roles: string[];
@@ -13,7 +30,7 @@ interface AuthCtx {
   user: CurrentUser | null;
   loading: boolean;
   refresh: () => Promise<void>;
-  login: (email: string, password: string, totpCode?: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -25,10 +42,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refresh = async () => {
     try {
-      const me = await api.get("auth/me").json<CurrentUser>();
-      setUser(me);
-    } catch {
-      setUser(null);
+      if (typeof sessionStorage !== "undefined" && sessionStorage.getItem(STATIC_SESSION_KEY) === "1") {
+        setUser(STATIC_USER);
+      } else {
+        setUser(null);
+      }
     } finally {
       setLoading(false);
     }
@@ -36,13 +54,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => { void refresh(); }, []);
 
-  const login = async (email: string, password: string, totpCode?: string) => {
-    await api.post("auth/login", { json: { email, password, totpCode } }).json();
-    await refresh();
+  const login = async (username: string, password: string) => {
+    if (username.trim() !== STATIC_USERNAME || password !== STATIC_PASSWORD) {
+      throw new Error("Invalid username or password.");
+    }
+    try {
+      sessionStorage.setItem(STATIC_SESSION_KEY, "1");
+    } catch {
+      /* ignore quota / privacy mode */
+    }
+    setUser(STATIC_USER);
   };
 
   const logout = async () => {
-    await api.post("auth/logout");
+    try {
+      sessionStorage.removeItem(STATIC_SESSION_KEY);
+    } catch {
+      /* ignore */
+    }
     setUser(null);
   };
 

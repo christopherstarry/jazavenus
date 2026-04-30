@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
-import { useAuth, hasRole, type CurrentUser } from "@/lib/auth";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { useAuth, hasRole, type CurrentUser } from "#/lib/auth";
+import { Button } from "#/components/ui/button";
+import { Badge } from "#/components/ui/badge";
+import { Sheet, SheetContent, SheetTitle, SheetDescription } from "#/components/ui/sheet";
+import { Popover, PopoverContent, PopoverTrigger } from "#/components/ui/popover";
+import { Breadcrumbs } from "#/components/ui/breadcrumbs";
 import {
   LogOut, Settings, Menu, ChevronDown, KeyRound,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { TREE, findModuleByPath, trailFor, type ModuleNode } from "@/app/modules";
-import { ScrollToTop } from "@/app/ScrollToTop";
+import { cn } from "#/lib/utils";
+import { TREE, findModuleByPath, trailFor, type ModuleNode } from "#/app/modules";
+import { ScrollToTop } from "#/app/ScrollToTop";
 
-/* "Maria Da Silva" → "MD". Falls back to email's first 2 letters. */
+/* "Maria Da Silva" → "MD". Falls back to username or email. */
 function getInitials(user: CurrentUser): string {
   const fromName = user.fullName
     .split(/\s+/)
@@ -23,7 +23,12 @@ function getInitials(user: CurrentUser): string {
     .map((s) => s[0]?.toUpperCase() ?? "")
     .join("");
   if (fromName) return fromName;
+  if (user.username) return user.username.slice(0, 2).toUpperCase();
   return user.email.slice(0, 2).toUpperCase();
+}
+
+function displayAccountSubtitle(user: CurrentUser): string {
+  return user.username?.trim() || user.email.trim() || "—";
 }
 
 export function AppLayout() {
@@ -140,8 +145,8 @@ export function AppLayout() {
           </SheetContent>
         </Sheet>
 
-        <main className="flex-1 min-w-0 flex flex-col min-h-0">
-          <div className="p-3 sm:p-5 md:p-8 max-w-7xl mx-auto w-full flex-1">
+        <main className="flex-1 min-w-0 flex min-h-0 flex-col overflow-y-auto overscroll-contain">
+          <div className="p-3 sm:p-5 md:p-8 max-w-7xl mx-auto w-full flex-1 min-h-0">
             <Outlet />
           </div>
         </main>
@@ -194,7 +199,7 @@ function UserMenu({
             </span>
             <div className="min-w-0">
               <div className="font-semibold text-base truncate">{user.fullName}</div>
-              <div className="text-sm text-muted-foreground truncate">{user.email}</div>
+              <div className="text-sm text-muted-foreground truncate">{displayAccountSubtitle(user)}</div>
             </div>
           </div>
           <div className="mt-3 flex flex-wrap gap-2">

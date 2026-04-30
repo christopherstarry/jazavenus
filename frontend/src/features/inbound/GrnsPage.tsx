@@ -1,7 +1,7 @@
-import { CrudPage } from "@/features/common/CrudPage";
-import { formatDate } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { CrudPage } from "#/features/common/CrudPage";
+import { formatDate } from "#/lib/utils";
+import { Button } from "#/components/ui/button";
+import { Badge } from "#/components/ui/badge";
 import { Plus, Truck } from "lucide-react";
 
 interface Row {

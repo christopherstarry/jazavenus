@@ -1,10 +1,14 @@
 import { createBrowserRouter, Navigate, Outlet, type RouteObject } from "react-router";
-import { AppLayout } from "@/app/AppLayout";
-import { LoginPage } from "@/features/auth/LoginPage";
-import { ModulePage } from "@/features/common/ModulePage";
-import { Spinner } from "@/components/ui/spinner";
-import { useAuth } from "@/lib/auth";
-import { TREE, type ModuleNode } from "@/app/modules";
+import { AppLayout } from "#/app/AppLayout";
+import { LoginPage } from "#/features/auth/LoginPage";
+import { ModulePage } from "#/features/common/ModulePage";
+import { Spinner } from "#/components/ui/spinner";
+import { useAuth } from "#/lib/auth";
+import { TREE, type ModuleNode } from "#/app/modules";
+
+/** Matches Vite `base` for GitHub Pages project sites (/repo/). Undefined when hosted at /. */
+const routerBasename =
+  import.meta.env.BASE_URL === "/" ? undefined : import.meta.env.BASE_URL.replace(/\/$/, "");
 
 function RequireAuth() {
   const { user, loading } = useAuth();
@@ -39,7 +43,7 @@ function routesFromTree(nodes: ModuleNode[]): RouteObject[] {
 
 const moduleRoutes = routesFromTree(TREE);
 
-export const router = createBrowserRouter([
+const routeDefs = [
   { path: "/login", element: <LoginPage /> },
   {
     element: <RequireAuth />,
@@ -51,4 +55,8 @@ export const router = createBrowserRouter([
     ],
   },
   { path: "*", element: <Navigate to="/" replace /> },
-]);
+];
+
+export const router = routerBasename
+  ? createBrowserRouter(routeDefs, { basename: routerBasename })
+  : createBrowserRouter(routeDefs);

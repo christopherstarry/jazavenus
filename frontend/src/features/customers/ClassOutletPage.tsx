@@ -1,26 +1,40 @@
 import { useEffect, useMemo, useState } from "react";
 import { MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "#/components/ui/button";
+import { Input } from "#/components/ui/input";
+import { Label } from "#/components/ui/label";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+} from "#/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
+import { cn } from "#/lib/utils";
+import { expandLookupDemoRows } from "#/lib/lookupDemoBulk";
+import {
+  LOOKUP_DEFAULT_PAGE_SIZE,
+  LOOKUP_DIALOG_CONTENT_CLASS,
+  LOOKUP_DIALOG_SCROLL_BODY_CLASS,
+  LookupDialogResultScroll,
+  LookupPaginationBar,
+} from "#/components/ui/lookup-dialog-chrome";
 
 const DIVISION_LABEL = "JAZA VENUS DISTRIBUTION BANDUNG";
 
-const CLASS_OUTLET_POC = [
+const CLASS_OUTLET_SEED = [
   { groupOutlet: "04", description: "< 250.000" },
   { groupOutlet: "01", description: ">= 1 JT  - < 5 JT" },
   { groupOutlet: "03", description: ">= 250.000 - < 500.000" },
   { groupOutlet: "02", description: ">= 500.000 - < 1 JT" },
 ] as const;
+
+/** Seeded POC + generated lines to exercise pagination (~50 rows). */
+const CLASS_OUTLET_POC = expandLookupDemoRows(CLASS_OUTLET_SEED, 50, (_, row) => ({
+  groupOutlet: `${String((row % 89) + 10).padStart(2, "0")}`,
+  description: `POC Tier ${String(row + 1).padStart(2, "0")} — demo class band QA`,
+}));
 
 export function ClassOutletPage() {
   const [groupOutlet, setGroupOutlet] = useState("");
@@ -96,11 +110,14 @@ function ClassOutletLookupDialog({
 }) {
   const [filterText, setFilterText] = useState("");
   const [selectedIdx, setSelectedIdx] = useState(0);
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(LOOKUP_DEFAULT_PAGE_SIZE);
 
   useEffect(() => {
     if (open) {
       setFilterText("");
       setSelectedIdx(0);
+      setPage(0);
     }
   }, [open]);
 
@@ -111,8 +128,32 @@ function ClassOutletLookupDialog({
   }, [filterText]);
 
   useEffect(() => {
+    if (!open) return;
+    setSelectedIdx(0);
+    setPage(0);
+  }, [filterText, open]);
+
+  useEffect(() => {
+    const pc = Math.max(1, Math.ceil(rows.length / pageSize));
+    setPage((p) => Math.min(p, pc - 1));
+  }, [rows.length, pageSize]);
+
+  useEffect(() => {
+    if (rows.length === 0) return;
+    const start = page * pageSize;
+    const endEx = Math.min(rows.length, start + pageSize);
+    setSelectedIdx((i) => {
+      if (i >= start && i < endEx) return i;
+      return Math.min(start, rows.length - 1);
+    });
+  }, [page, pageSize, rows.length]);
+
+  useEffect(() => {
     if (selectedIdx >= rows.length) setSelectedIdx(Math.max(0, rows.length - 1));
   }, [rows.length, selectedIdx]);
+
+  const sliceStart = page * pageSize;
+  const pagedRows = rows.slice(sliceStart, sliceStart + pageSize);
 
   const applySelection = () => {
     const row = rows[selectedIdx];
@@ -122,13 +163,14 @@ function ClassOutletLookupDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[min(100vw-1.5rem,42rem)] p-4 sm:p-5 gap-0 border-2 max-h-[min(92vh,38rem)] flex flex-col overflow-hidden">
+      <DialogContent className={LOOKUP_DIALOG_CONTENT_CLASS}>
         <DialogHeader className="shrink-0 pb-2 pr-10">
           <DialogTitle className="text-base font-bold sr-only">Class outlet lookup</DialogTitle>
           <p className="text-base font-bold">Table of Class Outlet</p>
         </DialogHeader>
 
-        <div className="shrink-0 rounded-md border-2 bg-muted/30 px-4 py-3 space-y-3">
+        <div className={LOOKUP_DIALOG_SCROLL_BODY_CLASS}>
+        <div className="rounded-md border-2 bg-muted/30 px-4 py-3 space-y-3">
           <div className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Criteria</div>
           <div className="flex flex-wrap items-end gap-3">
             <div className="space-y-1.5 min-w-[9rem]">
@@ -165,42 +207,61 @@ function ClassOutletLookupDialog({
           />
         </div>
 
-        <div className="min-h-0 flex-1 flex flex-col border-2 rounded-md overflow-hidden mt-3 border-border">
-          <div className="overflow-auto max-h-[min(52vh,18rem)]">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Group Outlet</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rows.map((row, idx) => {
-                  const stableKey = `${row.groupOutlet}\0${row.description}`;
-                  return (
-                    <TableRow
-                      key={stableKey}
-                      data-state={selectedIdx === idx ? "selected" : undefined}
-                      role="button"
-                      tabIndex={0}
-                      className={cn("cursor-pointer", selectedIdx === idx && "bg-accent")}
-                      onClick={() => setSelectedIdx(idx)}
-                      onDoubleClick={() => {
-                        onSelect({ groupOutlet: row.groupOutlet, description: row.description });
-                        onOpenChange(false);
-                      }}
-                    >
-                      <TableCell className="py-3">{row.description}</TableCell>
-                      <TableCell className="py-3 tabular-nums">{row.groupOutlet}</TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
+        <LookupDialogResultScroll
+          footer={
+            rows.length > 0 ? (
+              <LookupPaginationBar
+                total={rows.length}
+                page={page}
+                pageSize={pageSize}
+                onPageChange={setPage}
+                onPageSizeChange={(sz) => {
+                  setPageSize(sz);
+                  setPage(0);
+                }}
+              />
+            ) : null
+          }
+        >
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Description</TableHead>
+                <TableHead>Group Outlet</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {pagedRows.map((row, idx) => {
+                const stableKey = `${row.groupOutlet}\0${row.description}`;
+                const absoluteIdx = sliceStart + idx;
+                return (
+                  <TableRow
+                    key={stableKey}
+                    data-state={selectedIdx === absoluteIdx ? "selected" : undefined}
+                    role="button"
+                    tabIndex={0}
+                    className={cn("cursor-pointer", selectedIdx === absoluteIdx && "bg-accent")}
+                    onClick={() => setSelectedIdx(absoluteIdx)}
+                    onDoubleClick={() => {
+                      onSelect({ groupOutlet: row.groupOutlet, description: row.description });
+                      onOpenChange(false);
+                    }}
+                  >
+                    <TableCell className="py-3">{row.description}</TableCell>
+                    <TableCell className="py-3 tabular-nums">{row.groupOutlet}</TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </LookupDialogResultScroll>
+
         </div>
 
-        <DialogFooter className="shrink-0 gap-3 sm:justify-end sm:items-center pt-4 border-t-2 mt-3">
+        <DialogFooter className="shrink-0 gap-3 sm:justify-between sm:items-center flex-col sm:flex-row pt-4 border-t-2 border-border">
+          <p className="text-sm text-muted-foreground mr-auto">
+            {rows.length} row{rows.length === 1 ? "" : "s"} total
+          </p>
           <Button type="button" variant="outline" size="lg" className="min-w-[8rem]" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>

@@ -2,15 +2,15 @@ import { useState, type ReactNode, type ComponentType } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Search, ChevronLeft, ChevronRight, Inbox } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { api } from "@/lib/api";
-import { DEFAULT_PAGE_SIZE } from "@/lib/paging";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
-import { EmptyState } from "@/components/ui/empty-state";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Kbd } from "@/components/ui/kbd";
+import { api } from "#/lib/api";
+import { DEFAULT_PAGE_SIZE } from "#/lib/paging";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card";
+import { Input } from "#/components/ui/input";
+import { Button } from "#/components/ui/button";
+import { Spinner } from "#/components/ui/spinner";
+import { EmptyState } from "#/components/ui/empty-state";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
+import { Kbd } from "#/components/ui/kbd";
 
 export interface PagedResult<T> { items: T[]; totalCount: number; page: number; pageSize: number; totalPages: number; }
 

@@ -1,8 +1,8 @@
 import { Link } from "react-router";
 import { Hammer, ArrowLeft, Home } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { type ModuleNode } from "@/app/modules";
+import { Card, CardContent } from "#/components/ui/card";
+import { Button } from "#/components/ui/button";
+import { type ModuleNode } from "#/app/modules";
 
 /**
  * Friendly "coming soon" placeholder for any module that doesn't have a

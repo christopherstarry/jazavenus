@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "#/lib/utils";
 
 /* Visible (24px) spinner with an accessible label. */
 export function Spinner({ className, label = "Loading…" }: { className?: string; label?: string }) {

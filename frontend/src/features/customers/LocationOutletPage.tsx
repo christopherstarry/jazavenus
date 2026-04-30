@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "#/components/ui/button";
+import { Input } from "#/components/ui/input";
+import { Label } from "#/components/ui/label";
 import { CustomerLookupDialog } from "./CustomerLookupDialog";
+import { expandLookupDemoRows } from "#/lib/lookupDemoBulk";
 
 const DIVISION_LABEL = "JAZA VENUS DISTRIBUTION BANDUNG";
 
@@ -12,12 +13,16 @@ type LocationOutletRow = {
   description: string;
 };
 
-// POC static data (same style as the legacy popup in your screenshot).
-const LOCATION_OUTLET_POC: readonly LocationOutletRow[] = [
+const LOCATION_OUTLET_SEED = [
   { distributionType: "02", description: "LOKASI TOKO BUKAN DI JALAN UTAMA" },
   { distributionType: "03", description: "LOKASI TOKO DI DALAM PASAR" },
   { distributionType: "01", description: "LOKASI TOKO DI JALAN UTAMA" },
 ] as const;
+
+const LOCATION_OUTLET_POC: LocationOutletRow[] = expandLookupDemoRows(LOCATION_OUTLET_SEED, 50, (_, row) => ({
+  distributionType: String((row % 89) + 10),
+  description: `DEMO AREA ${String(row + 1).padStart(2, "0")} — sample outlet location POC`,
+}));
 
 export function LocationOutletPage() {
   const [distributionType, setDistributionType] = useState("01");

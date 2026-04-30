@@ -21,12 +21,12 @@ namespace Jaza.Infrastructure.Persistence;
 /// </summary>
 public static class DbInitializer
 {
-    private sealed record DevSeedUser(string Email, string FullName, string Role, string Password);
+    private sealed record DevSeedUser(string UserName, string Email, string FullName, string Role, string Password);
 
     private static readonly DevSeedUser[] DevSeedUsers =
     [
-        new("super-admin@super-admin.com", "Super Admin (dev)", Roles.SuperAdmin, "Password123!"),
-        new("admin@admin.com",             "Admin (dev)",       Roles.Admin,      "Password123!"),
+        new("super-admin", "super-admin@jaza.local", "Super Admin (dev)", Roles.SuperAdmin, "Password123!"),
+        new("admin",       "admin@jaza.local",       "Admin (dev)",       Roles.Admin,      "Password123!"),
     ];
 
     public static async Task InitializeAsync(IServiceProvider services, CancellationToken ct = default)
@@ -76,9 +76,10 @@ public static class DbInitializer
     private static async Task SeedProductionSuperAdminAsync(
         UserManager<AppUser> users, IConfiguration config, ILogger logger)
     {
+        var seedUserName = config["Seed:SuperAdminUserName"] ?? "super-admin";
         var seedEmail = config["Seed:SuperAdminEmail"] ?? "superadmin@jaza.local";
         var seedPwd = config["Seed:SuperAdminPassword"];
-        if (await users.FindByEmailAsync(seedEmail) is not null) return;
+        if (await users.FindByNameAsync(seedUserName) is not null) return;
 
         var generated = false;
         if (string.IsNullOrWhiteSpace(seedPwd))
@@ -89,7 +90,7 @@ public static class DbInitializer
 
         var user = new AppUser
         {
-            UserName = seedEmail,
+            UserName = seedUserName,
             Email = seedEmail,
             EmailConfirmed = true,
             FullName = "Super Admin",
@@ -100,7 +101,7 @@ public static class DbInitializer
             throw new InvalidOperationException("Failed to seed SuperAdmin: " + string.Join("; ", create.Errors.Select(e => e.Description)));
 
         await users.AddToRoleAsync(user, Roles.SuperAdmin);
-        logger.LogWarning("Seeded SuperAdmin: {Email}", seedEmail);
+        logger.LogWarning("Seeded SuperAdmin userName={UserName} email={Email}", seedUserName, seedEmail);
         if (generated)
         {
             logger.LogWarning("Generated initial SuperAdmin password (rotate immediately): {Password}", seedPwd);

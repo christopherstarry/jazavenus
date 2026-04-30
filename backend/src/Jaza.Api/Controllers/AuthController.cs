@@ -40,10 +40,10 @@ public sealed class AuthController(
     {
         await loginValidator.ValidateAndThrowAsync(req, ct);
 
-        var user = await users.FindByEmailAsync(req.Email);
+        var user = await users.FindByNameAsync(req.Username.Trim());
         if (user is null)
         {
-            await LogAuth("Login.Failed", null, req.Email, "user-not-found");
+            await LogAuth("Login.Failed", null, req.Username, "user-not-found");
             return Unauthorized(new { error = "invalid_credentials" });
         }
 

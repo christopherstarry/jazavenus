@@ -1,4 +1,4 @@
-import { type ModuleNode } from "@/app/modules";
+import { type ModuleNode } from "#/app/modules";
 import { HubPage } from "./HubPage";
 import { TabsLayout } from "./TabsLayout";
 import { ModulePlaceholder } from "./ModulePlaceholder";

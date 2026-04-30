@@ -97,25 +97,25 @@ export function trailFor(pathname: string): ModuleNode[] {
  * the navigation tree above stays purely declarative.
  * ───────────────────────────────────────────────────────────────────────── */
 
-import { DashboardPage } from "@/features/dashboard/DashboardPage";
-import { ItemsPage } from "@/features/items/ItemsPage";
-import { CustomersPage } from "@/features/customers/CustomersPage";
-import { SuppliersPage } from "@/features/suppliers/SuppliersPage";
-import { GrnsPage } from "@/features/inbound/GrnsPage";
-import { InvoicesPage } from "@/features/invoices/InvoicesPage";
-import { SettingsPanel } from "@/features/settings/SettingsPanel";
-import { ChangePasswordPage } from "@/features/auth/ChangePasswordPage";
-import { EmployeePage } from "@/features/employees/EmployeePage";
-import { ClassOutletPage } from "@/features/customers/ClassOutletPage";
-import { GroupOutletPage } from "@/features/customers/GroupOutletPage";
-import { MarketTypePage } from "@/features/customers/MarketTypePage";
-import { ChannelOutletPage } from "@/features/customers/ChannelOutletPage";
-import { OutletTypePage } from "@/features/customers/OutletTypePage";
-import { SalesmanPage } from "@/features/customers/SalesmanPage";
-import { SalesAreaPage } from "@/features/customers/SalesAreaPage";
-import { LocationOutletPage } from "@/features/customers/LocationOutletPage";
-import { CollectorPage } from "@/features/customers/CollectorPage";
-import { MasterCustomerPage } from "@/features/customers/MasterCustomerPage";
+import { DashboardPage } from "#/features/dashboard/DashboardPage";
+import { ItemsPage } from "#/features/items/ItemsPage";
+import { CustomersPage } from "#/features/customers/CustomersPage";
+import { SuppliersPage } from "#/features/suppliers/SuppliersPage";
+import { GrnsPage } from "#/features/inbound/GrnsPage";
+import { InvoicesPage } from "#/features/invoices/InvoicesPage";
+import { SettingsPanel } from "#/features/settings/SettingsPanel";
+import { ChangePasswordPage } from "#/features/auth/ChangePasswordPage";
+import { EmployeePage } from "#/features/employees/EmployeePage";
+import { ClassOutletPage } from "#/features/customers/ClassOutletPage";
+import { GroupOutletPage } from "#/features/customers/GroupOutletPage";
+import { MarketTypePage } from "#/features/customers/MarketTypePage";
+import { ChannelOutletPage } from "#/features/customers/ChannelOutletPage";
+import { OutletTypePage } from "#/features/customers/OutletTypePage";
+import { SalesmanPage } from "#/features/customers/SalesmanPage";
+import { SalesAreaPage } from "#/features/customers/SalesAreaPage";
+import { LocationOutletPage } from "#/features/customers/LocationOutletPage";
+import { CollectorPage } from "#/features/customers/CollectorPage";
+import { MasterCustomerPage } from "#/features/customers/MasterCustomerPage";
 
 /* ── The actual tree ─────────────────────────────────────────────────────── */
 

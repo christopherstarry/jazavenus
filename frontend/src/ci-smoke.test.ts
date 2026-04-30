@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from "@/lib/paging";
+import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from "#/lib/paging";
 
 /**
  * Ultra-light smoke test so CI proves the Vitest harness ran.

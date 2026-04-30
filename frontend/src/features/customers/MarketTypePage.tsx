@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "#/components/ui/button";
+import { Input } from "#/components/ui/input";
+import { Label } from "#/components/ui/label";
 import { CustomerLookupDialog } from "./CustomerLookupDialog";
+import { expandLookupDemoRows } from "#/lib/lookupDemoBulk";
 
 const DIVISION_LABEL = "JAZA VENUS DISTRIBUTION BANDUNG";
 
@@ -12,13 +13,17 @@ type MarketTypeRow = {
   description: string;
 };
 
-// POC static data (from screenshot popup + main field).
-const MARKET_TYPE_POC: readonly MarketTypeRow[] = [
+const MARKET_TYPE_SEED = [
   { marketType: "01", description: "MODERN TRADE" },
   { marketType: "02", description: "GENERAL TRADE" },
   { marketType: "03", description: "OTHERS TRADE" },
   { marketType: "04", description: "SALON" },
 ] as const;
+
+const MARKET_TYPE_POC: MarketTypeRow[] = expandLookupDemoRows(MARKET_TYPE_SEED, 50, (_, row) => ({
+  marketType: `${(row % 89) + 10}`,
+  description: `MARKET SAMPLE ${String(row + 1).padStart(2, "0")} — POC channel row`,
+}));
 
 export function MarketTypePage() {
   const [marketType, setMarketType] = useState("01");

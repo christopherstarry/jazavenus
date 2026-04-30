@@ -1,7 +1,7 @@
-import { CrudPage } from "@/features/common/CrudPage";
-import { formatDate, formatNumber } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { CrudPage } from "#/features/common/CrudPage";
+import { formatDate, formatNumber } from "#/lib/utils";
+import { Button } from "#/components/ui/button";
+import { Badge } from "#/components/ui/badge";
 import { FileDown, Plus, FileText } from "lucide-react";
 
 interface Row {

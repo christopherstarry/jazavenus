@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "#/components/ui/button";
+import { Input } from "#/components/ui/input";
+import { Label } from "#/components/ui/label";
 import { CustomerLookupDialog } from "./CustomerLookupDialog";
+import { expandLookupDemoRows } from "#/lib/lookupDemoBulk";
 
 const DIVISION_LABEL = "JAZA VENUS DISTRIBUTION BANDUNG";
 
@@ -12,14 +13,18 @@ type SalesAreaRow = {
   description: string;
 };
 
-// POC dataset from screenshot popup (approx; refine later).
-const SALES_AREA_POC: readonly SalesAreaRow[] = [
+const SALES_AREA_SEED = [
   { salesAreaCode: "01", description: "BANDUNG TIMUR" },
   { salesAreaCode: "02", description: "BANDUNG UTARA" },
   { salesAreaCode: "03", description: "BANDUNG BARAT" },
   { salesAreaCode: "04", description: "BANDUNG SELATAN" },
   { salesAreaCode: "05", description: "CIAWI" },
 ] as const;
+
+const SALES_AREA_POC: SalesAreaRow[] = expandLookupDemoRows(SALES_AREA_SEED, 50, (_, row) => ({
+  salesAreaCode: String((row % 94) + 6).padStart(2, "0"),
+  description: `DEMO ZONE ${String(row + 1).padStart(2, "0")} — POC sales geography`,
+}));
 
 export function SalesAreaPage() {
   const [salesAreaCode, setSalesAreaCode] = useState("01");

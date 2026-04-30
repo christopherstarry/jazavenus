@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace Jaza.Application.Auth;
 
-public sealed record LoginRequest(string Email, string Password, string? TotpCode);
+public sealed record LoginRequest(string Username, string Password, string? TotpCode);
 public sealed record LoginResponse(Guid UserId, string Email, string FullName,
     IReadOnlyList<string> Roles, bool MfaEnabled, bool MustChangePassword);
 
@@ -20,7 +20,7 @@ public sealed class LoginValidator : AbstractValidator<LoginRequest>
 {
     public LoginValidator()
     {
-        RuleFor(x => x.Email).NotEmpty().EmailAddress();
+        RuleFor(x => x.Username).NotEmpty().MaximumLength(256);
         RuleFor(x => x.Password).NotEmpty();
     }
 }

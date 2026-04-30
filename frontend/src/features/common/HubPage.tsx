@@ -1,9 +1,9 @@
 import { Fragment } from "react";
 import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
-import { type ModuleNode } from "@/app/modules";
-import { useAuth, hasRole } from "@/lib/auth";
-import { cn } from "@/lib/utils";
+import { type ModuleNode } from "#/app/modules";
+import { useAuth, hasRole } from "#/lib/auth";
+import { cn } from "#/lib/utils";
 
 /**
  * Generic landing page for a section. Shows the section's children as

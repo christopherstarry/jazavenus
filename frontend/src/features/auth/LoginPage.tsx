@@ -3,17 +3,16 @@ import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useAuth } from "@/lib/auth";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "#/lib/auth";
+import { Button } from "#/components/ui/button";
+import { Input } from "#/components/ui/input";
+import { Label } from "#/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card";
 import { LockKeyhole, Eye, EyeOff, AlertCircle } from "lucide-react";
 
 const schema = z.object({
-  email: z.string().email("Please enter a valid email address."),
+  username: z.string().min(1, "Please enter your username."),
   password: z.string().min(1, "Please enter your password."),
-  totpCode: z.string().optional(),
 });
 type FormValues = z.infer<typeof schema>;
 
@@ -21,7 +20,6 @@ export function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [serverError, setServerError] = useState<string | null>(null);
-  const [needMfa, setNeedMfa] = useState(false);
   const [showPwd, setShowPwd] = useState(false);
 
   const { register, handleSubmit, formState } = useForm<FormValues>({ resolver: zodResolver(schema) });
@@ -29,17 +27,12 @@ export function LoginPage() {
   const onSubmit = async (v: FormValues) => {
     setServerError(null);
     try {
-      await login(v.email, v.password, v.totpCode || undefined);
+      await login(v.username, v.password);
       navigate("/", { replace: true });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Sign in failed.";
-      if (msg.toLowerCase().includes("mfa") || msg.toLowerCase().includes("totp")) {
-        setNeedMfa(true);
-        setServerError("Enter the 6-digit code from your authenticator app.");
-      } else if (msg.toLowerCase().includes("invalid") || msg.toLowerCase().includes("password")) {
-        setServerError("That email and password don't match. Please try again.");
-      } else if (msg.toLowerCase().includes("locked")) {
-        setServerError("This account is locked. Contact your super admin to unlock it.");
+      if (msg.toLowerCase().includes("invalid")) {
+        setServerError("That username and password don't match. Please try again.");
       } else {
         setServerError(msg);
       }
@@ -63,20 +56,20 @@ export function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
             <div className="space-y-2">
-              <Label htmlFor="email" required>Email</Label>
+              <Label htmlFor="username" required>Username</Label>
               <Input
-                id="email"
-                type="email"
+                id="username"
+                type="text"
                 autoComplete="username"
-                placeholder="you@company.com"
+                placeholder="Username"
                 autoFocus
-                aria-invalid={!!formState.errors.email}
-                aria-describedby={formState.errors.email ? "email-err" : undefined}
-                {...register("email")}
+                aria-invalid={!!formState.errors.username}
+                aria-describedby={formState.errors.username ? "username-err" : undefined}
+                {...register("username")}
               />
-              {formState.errors.email && (
-                <p id="email-err" className="text-sm text-destructive flex items-center gap-1.5">
-                  <AlertCircle className="h-4 w-4" /> {formState.errors.email.message}
+              {formState.errors.username && (
+                <p id="username-err" className="text-sm text-destructive flex items-center gap-1.5">
+                  <AlertCircle className="h-4 w-4" /> {formState.errors.username.message}
                 </p>
               )}
             </div>
@@ -96,7 +89,7 @@ export function LoginPage() {
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPwd((v) => !v)}
+                  onClick={() => setShowPwd((x) => !x)}
                   aria-label={showPwd ? "Hide password" : "Show password"}
                   className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
@@ -109,23 +102,6 @@ export function LoginPage() {
                 </p>
               )}
             </div>
-
-            {needMfa && (
-              <div className="space-y-2">
-                <Label htmlFor="totpCode" required>Authenticator code</Label>
-                <Input
-                  id="totpCode"
-                  inputMode="numeric"
-                  maxLength={8}
-                  placeholder="6-digit code"
-                  autoComplete="one-time-code"
-                  className="text-center text-2xl tracking-[0.5em] font-mono"
-                  autoFocus
-                  {...register("totpCode")}
-                />
-                <p className="text-sm text-muted-foreground">Open your authenticator app (Google Authenticator, Microsoft Authenticator, Authy) and enter the code shown for Jaza Venus.</p>
-              </div>
-            )}
 
             {serverError && (
               <div role="alert" className="flex items-start gap-2 text-base text-destructive bg-destructive/10 border-2 border-destructive/30 rounded-[var(--radius)] p-3">

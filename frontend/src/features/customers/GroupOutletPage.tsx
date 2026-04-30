@@ -1,17 +1,25 @@
 import { useEffect, useMemo, useState } from "react";
 import { MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "#/components/ui/button";
+import { Input } from "#/components/ui/input";
+import { Label } from "#/components/ui/label";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+} from "#/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
+import { cn } from "#/lib/utils";
+import { expandLookupDemoRows } from "#/lib/lookupDemoBulk";
+import {
+  LOOKUP_DEFAULT_PAGE_SIZE,
+  LOOKUP_DIALOG_CONTENT_CLASS,
+  LOOKUP_DIALOG_SCROLL_BODY_CLASS,
+  LookupDialogResultScroll,
+  LookupPaginationBar,
+} from "#/components/ui/lookup-dialog-chrome";
 
 const DIVISION_LABEL = "JAZA VENUS DISTRIBUTION BANDUNG";
 
@@ -20,8 +28,7 @@ type GroupOutletRow = {
   description: string;
 };
 
-// POC static data (based on the screenshot list). Adjust later once backend exists.
-const GROUP_OUTLET_POC: GroupOutletRow[] = [
+const GROUP_OUTLET_SEED = [
   { groupOutletType: "A", description: "YOGYA GROUP" },
   { groupOutletType: "B", description: "BORMA GROUP" },
   { groupOutletType: "E", description: "CARET GROUP" },
@@ -32,6 +39,14 @@ const GROUP_OUTLET_POC: GroupOutletRow[] = [
   { groupOutletType: "I", description: "SELAMAT GROUP" },
   { groupOutletType: "F", description: "SUNDE GROUP" },
 ] as const;
+
+const GROUP_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+/** Seeded list + generated rows (~50) for pagination testing */
+const GROUP_OUTLET_POC: GroupOutletRow[] = expandLookupDemoRows(GROUP_OUTLET_SEED, 50, (_, row) => ({
+  groupOutletType: GROUP_LETTERS.charAt((row + 9) % 26),
+  description: `DEMO OUTLET GROUP ${String(row + 1).padStart(2, "0")} — QA sample`,
+}));
 
 export function GroupOutletPage() {
   const [groupOutletType, setGroupOutletType] = useState("");
@@ -114,17 +129,22 @@ function GroupOutletLookupDialog({
   const [filterText, setFilterText] = useState("");
   const [appliedQuery, setAppliedQuery] = useState("");
   const [selectedIdx, setSelectedIdx] = useState(0);
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(LOOKUP_DEFAULT_PAGE_SIZE);
 
   useEffect(() => {
     if (!open) return;
     setFilterText("");
     setAppliedQuery("");
     setSelectedIdx(0);
+    setPage(0);
   }, [open]);
 
   useEffect(() => {
     if (!open || !autoSearch) return;
     setAppliedQuery(filterText);
+    setPage(0);
+    setSelectedIdx(0);
   }, [filterText, autoSearch, open]);
 
   const rows = useMemo(() => {
@@ -148,13 +168,38 @@ function GroupOutletLookupDialog({
     );
   }, [appliedQuery, match, field]);
 
+  /* New field/match = new result set */
+  useEffect(() => {
+    setPage(0);
+    setSelectedIdx(0);
+  }, [field, match]);
+
+  useEffect(() => {
+    const pc = Math.max(1, Math.ceil(rows.length / pageSize));
+    setPage((p) => Math.min(p, pc - 1));
+  }, [rows.length, pageSize]);
+
+  useEffect(() => {
+    if (rows.length === 0) return;
+    const start = page * pageSize;
+    const endEx = Math.min(rows.length, start + pageSize);
+    setSelectedIdx((i) => {
+      if (i >= start && i < endEx) return i;
+      return Math.min(start, rows.length - 1);
+    });
+  }, [page, pageSize, rows.length]);
+
   useEffect(() => {
     if (selectedIdx >= rows.length) setSelectedIdx(Math.max(0, rows.length - 1));
   }, [rows.length, selectedIdx]);
 
+  const sliceStart = page * pageSize;
+  const pagedRows = rows.slice(sliceStart, sliceStart + pageSize);
+
   const handleFind = () => {
     setAppliedQuery(filterText);
     setSelectedIdx(0);
+    setPage(0);
   };
 
   const handleApply = () => {
@@ -165,13 +210,14 @@ function GroupOutletLookupDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[min(100vw-1.5rem,42rem)] p-4 sm:p-5 gap-0 border-2 max-h-[min(92vh,38rem)] flex flex-col overflow-hidden">
+      <DialogContent className={LOOKUP_DIALOG_CONTENT_CLASS}>
         <DialogHeader className="shrink-0 pr-10 pb-2">
           <DialogTitle className="text-base font-bold sr-only">Group outlet lookup</DialogTitle>
           <p className="text-base font-bold">Table Group Outlet</p>
         </DialogHeader>
 
-        <div className="shrink-0 rounded-md border-2 bg-muted/30 px-3 py-2.5 space-y-2">
+        <div className={LOOKUP_DIALOG_SCROLL_BODY_CLASS}>
+        <div className="rounded-md border-2 bg-muted/30 px-3 py-2.5 space-y-2">
           <div className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Criteria</div>
           <div className="flex flex-wrap items-end gap-2 sm:gap-3">
             <div className="space-y-1 min-w-[8.5rem]">
@@ -235,55 +281,71 @@ function GroupOutletLookupDialog({
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 flex flex-col border-2 rounded-md overflow-hidden mt-3 border-border">
-          <div className="overflow-auto max-h-[min(52vh,18rem)]">
-            <Table>
-              <TableHeader>
+        <LookupDialogResultScroll
+          footer={
+            rows.length > 0 ? (
+              <LookupPaginationBar
+                total={rows.length}
+                page={page}
+                pageSize={pageSize}
+                onPageChange={setPage}
+                onPageSizeChange={(sz) => {
+                  setPageSize(sz);
+                  setPage(0);
+                }}
+              />
+            ) : null
+          }
+        >
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Description</TableHead>
+                <TableHead>Group Outlet Type</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.length === 0 ? (
                 <TableRow>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Group Outlet Type</TableHead>
+                  <TableCell colSpan={2} className="text-center text-muted-foreground py-6">
+                    No rows match. Change criteria or search text.
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rows.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={2} className="text-center text-muted-foreground py-6">
-                      No rows match. Change criteria or search text.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  rows.map((row, idx) => {
-                    const stableKey = `${row.groupOutletType}\0${row.description}`;
-                    return (
-                      <TableRow
-                        key={stableKey}
-                        data-state={selectedIdx === idx ? "selected" : undefined}
-                        role="button"
-                        tabIndex={0}
-                        className={cn(
-                          "cursor-pointer",
-                          selectedIdx === idx && "bg-accent",
-                        )}
-                        onClick={() => setSelectedIdx(idx)}
-                        onDoubleClick={() => {
-                          onSelect(row);
-                          onOpenChange(false);
-                        }}
-                      >
-                        <TableCell className="py-3">{row.description}</TableCell>
-                        <TableCell className="py-3 tabular-nums">{row.groupOutletType}</TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
-          </div>
+              ) : (
+                pagedRows.map((row, idx) => {
+                  const stableKey = `${row.groupOutletType}\0${row.description}`;
+                  const absoluteIdx = sliceStart + idx;
+                  return (
+                    <TableRow
+                      key={stableKey}
+                      data-state={selectedIdx === absoluteIdx ? "selected" : undefined}
+                      role="button"
+                      tabIndex={0}
+                      className={cn(
+                        "cursor-pointer",
+                        selectedIdx === absoluteIdx && "bg-accent",
+                      )}
+                      onClick={() => setSelectedIdx(absoluteIdx)}
+                      onDoubleClick={() => {
+                        onSelect(row);
+                        onOpenChange(false);
+                      }}
+                    >
+                      <TableCell className="py-3">{row.description}</TableCell>
+                      <TableCell className="py-3 tabular-nums">{row.groupOutletType}</TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </LookupDialogResultScroll>
+
         </div>
 
-        <DialogFooter className="shrink-0 gap-3 sm:justify-between sm:items-center flex-col sm:flex-row pt-4 border-t-2 mt-3">
+        <DialogFooter className="shrink-0 gap-3 sm:justify-between sm:items-center flex-col sm:flex-row pt-4 border-t-2 border-border">
           <p className="text-sm text-muted-foreground mr-auto">
-            {rows.length} row{rows.length === 1 ? "" : "s"}
+            {rows.length} row{rows.length === 1 ? "" : "s"} total
           </p>
           <div className="flex flex-wrap gap-3 w-full sm:w-auto justify-end">
             <Button type="button" variant="outline" size="lg" className="min-w-[8rem]" onClick={() => onOpenChange(false)}>

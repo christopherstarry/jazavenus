@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import { HelpCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "#/lib/utils";
 
 export const TooltipProvider = TooltipPrimitive.Provider;
 export const Tooltip = TooltipPrimitive.Root;

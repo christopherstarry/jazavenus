@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "#/components/ui/button";
+import { Input } from "#/components/ui/input";
+import { Label } from "#/components/ui/label";
 import { CustomerLookupDialog } from "./CustomerLookupDialog";
+import { expandLookupDemoRows } from "#/lib/lookupDemoBulk";
 
 const DIVISION_LABEL = "JAZA VENUS DISTRIBUTION BANDUNG";
 
@@ -12,14 +13,18 @@ type OutletTypeRow = {
   description: string;
 };
 
-// POC static data — based on screenshot layout (values can be refined later).
-const OUTLET_TYPE_POC: readonly OutletTypeRow[] = [
+const OUTLET_TYPE_SEED = [
   { outletType: "01", description: "ONLINE SHOP" },
   { outletType: "02", description: "OUTLET HORECA" },
   { outletType: "03", description: "OFFLINE SHOP" },
   { outletType: "04", description: "OUTLET TRADITIONAL" },
   { outletType: "05", description: "OUTLET MODERN" },
 ] as const;
+
+const OUTLET_TYPE_POC: OutletTypeRow[] = expandLookupDemoRows(OUTLET_TYPE_SEED, 50, (_, row) => ({
+  outletType: String((row % 92) + 10).slice(0, 2),
+  description: `DEMO TYPE ${String(row + 1).padStart(2, "0")} — POC outlet classification`,
+}));
 
 export function OutletTypePage() {
   const [outletType, setOutletType] = useState("01");

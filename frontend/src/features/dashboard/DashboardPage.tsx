@@ -1,13 +1,13 @@
 import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router";
-import { api } from "@/lib/api";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Spinner } from "@/components/ui/spinner";
-import { Badge } from "@/components/ui/badge";
-import { Term } from "@/components/ui/tooltip";
-import { hasRole, useAuth } from "@/lib/auth";
-import { formatNumber } from "@/lib/utils";
+import { api } from "#/lib/api";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card";
+import { Spinner } from "#/components/ui/spinner";
+import { Badge } from "#/components/ui/badge";
+import { Term } from "#/components/ui/tooltip";
+import { hasRole, useAuth } from "#/lib/auth";
+import { formatNumber } from "#/lib/utils";
 import {
   ArrowRight, Truck, ArrowLeftRight, FileText, Boxes, AlertTriangle,
   TrendingUp, Wallet, Receipt, CalendarClock,

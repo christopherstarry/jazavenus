@@ -1,6 +1,6 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/lib/utils";
+import { cn } from "#/lib/utils";
 
 /* Status badges that use BOTH colour and a small icon dot — colourblind-safe. */
 const badgeVariants = cva(

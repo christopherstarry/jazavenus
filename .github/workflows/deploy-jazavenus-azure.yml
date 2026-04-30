@@ -1,0 +1,54 @@
+# POC: publishes the ASP.NET app + React bundle to Azure App Service.
+# Prerequisites (Azure Portal):
+#   • Create App Service Plan + Linux Web App named EXACTLY: jazavenus (name is globally unique)
+#   • Runtime stack: .NET current / match backend Directory.Build.props (net10.x)
+#   • Application Settings: ConnectionStrings__Default = your Azure SQL connection string
+#   • Optional: WEBSITE_RUN_FROM_PACKAGE=1 often enabled by GH deploy action defaults
+#
+# Repo secret (Settings → Secrets → Actions): AZURE_WEBAPP_PUBLISH_PROFILE_JAZAVENUS — contents of
+# the Web App Publish Profile downloaded from Portal (Overview → Download publish profile).
+
+name: deploy-jazavenus-azure
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+concurrency:
+  group: azure-jazavenus-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_PUBLISH_DIR: ${{ github.workspace }}/azure-publish-output
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: backend/global.json
+
+      - name: Publish API + Vite SPA
+        working-directory: backend
+        run: dotnet publish src/Jaza.Api/Jaza.Api.csproj -c Release --no-self-contained -o ${{ env.DOTNET_PUBLISH_DIR }}
+
+      - name: Deploy to Azure Web App (jazavenus.azurewebsites.net)
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: jazavenus
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_JAZAVENUS }}
+          package: ${{ env.DOTNET_PUBLISH_DIR }}

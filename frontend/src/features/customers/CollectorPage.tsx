@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "#/components/ui/button";
+import { Input } from "#/components/ui/input";
+import { Label } from "#/components/ui/label";
 import { CustomerLookupDialog } from "./CustomerLookupDialog";
+import { expandLookupDemoRows } from "#/lib/lookupDemoBulk";
 
 const DIVISION_LABEL = "JAZA VENUS DISTRIBUTION BANDUNG";
 
@@ -12,12 +13,16 @@ type CollectorRow = {
   collectorName: string;
 };
 
-// POC dataset — exact values can be refined later.
-const COLLECTOR_POC: readonly CollectorRow[] = [
+const COLLECTOR_SEED = [
   { collectorCode: "01", collectorName: "COLLECTOR A" },
   { collectorCode: "02", collectorName: "COLLECTOR B" },
   { collectorCode: "03", collectorName: "COLLECTOR C" },
 ] as const;
+
+const COLLECTOR_POC: CollectorRow[] = expandLookupDemoRows(COLLECTOR_SEED, 50, (_, row) => ({
+  collectorCode: String(row + 1).padStart(2, "0"),
+  collectorName: `COLLECTOR POC ${String(row + 1).padStart(2, "0")}`,
+}));
 
 export function CollectorPage() {
   const [collectorCode, setCollectorCode] = useState("01");

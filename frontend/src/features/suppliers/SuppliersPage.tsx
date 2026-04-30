@@ -1,6 +1,6 @@
-import { CrudPage } from "@/features/common/CrudPage";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { CrudPage } from "#/features/common/CrudPage";
+import { Button } from "#/components/ui/button";
+import { Badge } from "#/components/ui/badge";
 import { Plus, PackageSearch } from "lucide-react";
 
 interface Row { id: string; code: string; name: string; email: string | null; phone: string | null; city: string | null; isActive: boolean; }
