@@ -16,7 +16,6 @@ import { useNavigate } from "react-router";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "#/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -243,11 +242,208 @@ function applyHeader(r: HeaderRecord, set: (u: (p: HeaderRecord) => HeaderRecord
   set(() => ({ ...r }));
 }
 
-/** Master Product — legacy-style detail form; product list only in ⋯ lookup with pagination (POC). */
+type InventoryRow = {
+  whsCode: string;
+  whsName: string;
+  stockOnHand: number;
+  locked: boolean;
+};
+
+type PriceRow = {
+  priceCode: string;
+  priceDescription: string;
+  priceValue: number;
+  updateDate: string;
+};
+
+type DiscountRow = {
+  discountCode: string;
+  description: string;
+  discountPercent: string;
+};
+
+/** Demo grids keyed by product code — swap when cycling POC records. */
+const INVENTORY_BY_PRODUCT: Record<string, InventoryRow[]> = {
+  "02-7": [
+    { whsCode: "001", whsName: "MAIN WAREHOUSE", stockOnHand: 2, locked: false },
+    { whsCode: "002", whsName: "Gudang Utama Cirebon", stockOnHand: 4, locked: false },
+    { whsCode: "101", whsName: "BRANCH STOCK POINT", stockOnHand: 3, locked: false },
+  ],
+  "CM-001": [
+    { whsCode: "001", whsName: "MAIN WAREHOUSE", stockOnHand: 120, locked: false },
+    { whsCode: "003", whsName: "COLD STORAGE", stockOnHand: 48, locked: true },
+  ],
+  "POC-0015": [{ whsCode: "001", whsName: "MAIN WAREHOUSE", stockOnHand: 0, locked: false }],
+};
+
+const PRICE_BY_PRODUCT: Record<string, PriceRow[]> = {
+  "02-7": [
+    { priceCode: "HETOLD", priceDescription: "Harga HET1 Lama", priceValue: 24861, updateDate: "21-Apr-25" },
+    { priceCode: "HETOLD2", priceDescription: "Harga HET2 Lama", priceValue: 35865, updateDate: "21-Apr-25" },
+    { priceCode: "HPDOLD", priceDescription: "Harga Beli Lama", priceValue: 19800, updateDate: "21-Apr-25" },
+    { priceCode: "HET", priceDescription: "Harga HET1 Baru", priceValue: 26899, updateDate: "21-Apr-25" },
+    { priceCode: "HET2", priceDescription: "Harga HET2 Baru", priceValue: 26500, updateDate: "21-Apr-25" },
+    { priceCode: "RETAIL", priceDescription: "Harga Retail", priceValue: 27900, updateDate: "21-Apr-25" },
+  ],
+  "CM-001": [
+    { priceCode: "HPP", priceDescription: "Harga Beli Baru", priceValue: 5400, updateDate: "2026-04-15" },
+    { priceCode: "HET", priceDescription: "Harga HET1 Baru", priceValue: 6000, updateDate: "2026-04-15" },
+  ],
+  "POC-0015": [{ priceCode: "HET", priceDescription: "Harga HET1 Baru", priceValue: 2200, updateDate: "2026-01-01" }],
+};
+
+const DISCOUNT_BY_PRODUCT: Record<string, DiscountRow[]> = {
+  "02-7": [
+    { discountCode: "A", description: "Discount Standart 1", discountPercent: "0.00" },
+    { discountCode: "B", description: "Discount Standart 2", discountPercent: "0.00" },
+    { discountCode: "C", description: "Discount Permata", discountPercent: "0.00" },
+  ],
+  "CM-001": [
+    { discountCode: "A", description: "Discount Standart 1", discountPercent: "5.00" },
+    { discountCode: "B", description: "Discount Standart 2", discountPercent: "0.00" },
+  ],
+  "POC-0015": [{ discountCode: "A", description: "Discount Standart 1", discountPercent: "0.00" }],
+};
+
+function defaultInventoryForCode(code: string): InventoryRow[] {
+  return INVENTORY_BY_PRODUCT[code] ?? [{ whsCode: "001", whsName: "MAIN WAREHOUSE", stockOnHand: 0, locked: false }];
+}
+
+function defaultPriceForCode(code: string): PriceRow[] {
+  const rows = PRICE_BY_PRODUCT[code];
+  if (rows?.length) return rows;
+  return PRICE_BY_PRODUCT["02-7"] ?? [];
+}
+
+function defaultDiscountForCode(code: string): DiscountRow[] {
+  const rows = DISCOUNT_BY_PRODUCT[code];
+  if (rows?.length) return rows;
+  return DISCOUNT_BY_PRODUCT["02-7"] ?? [];
+}
+
+/** Match legacy grid: discount column shows two decimals (e.g. 0.00). */
+function formatLegacyDiscountPercent(value: string): string {
+  const n = Number.parseFloat(value.replace(/,/g, "."));
+  if (Number.isFinite(n)) return n.toFixed(2);
+  return value;
+}
+
+/** Shared header fields — same on Main, Inventory, Price, and Discount like the legacy ERP screen. */
+function MasterProductIdentityFields({
+  form,
+  setField,
+  locked,
+  setLocked,
+  onOpenLookup,
+}: {
+  form: HeaderRecord;
+  setField: <K extends keyof HeaderRecord>(key: K, value: HeaderRecord[K]) => void;
+  locked: boolean;
+  setLocked: (v: boolean) => void;
+  onOpenLookup: () => void;
+}) {
+  return (
+    <div className="mb-4 space-y-4 border-b border-border pb-4">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0 flex-1 space-y-1">
+          <Label htmlFor="prod-code" className="text-xs">
+            Product Code
+          </Label>
+          <div className="flex w-full max-w-md gap-1.5">
+            <input
+              id="prod-code"
+              value={form.productCode}
+              onChange={(e) => setField("productCode", e.target.value)}
+              className={cn(inputDense, "flex-1 font-mono tabular-nums")}
+              autoComplete="off"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="h-9 w-9 shrink-0"
+              title="Product lookup"
+              onClick={onOpenLookup}
+            >
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+        <div className="flex shrink-0 flex-col gap-2 rounded-md border border-border bg-muted/20 px-3 py-2">
+          <label className="flex cursor-pointer items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={locked}
+              onChange={(e) => setLocked(e.target.checked)}
+              className="h-4 w-4 rounded border-2 border-input accent-primary"
+            />
+            Lock This Product
+          </label>
+        </div>
+      </div>
+
+      <div className="space-y-1">
+        <Label htmlFor="prod-desc" className="text-xs">
+          Description
+        </Label>
+        <input
+          id="prod-desc"
+          value={form.description}
+          onChange={(e) => setField("description", e.target.value)}
+          className={inputDense}
+        />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="space-y-1">
+          <Label htmlFor="alias" className="text-xs">
+            Alias Name
+          </Label>
+          <input
+            id="alias"
+            value={form.aliasName}
+            onChange={(e) => setField("aliasName", e.target.value)}
+            className={inputDense}
+          />
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="barcode" className="text-xs">
+            Barcode
+          </Label>
+          <input
+            id="barcode"
+            value={form.barcode}
+            onChange={(e) => setField("barcode", e.target.value)}
+            className={inputDense}
+          />
+        </div>
+      </div>
+      <CodeNameRow
+        label="Divisi"
+        codeId="divisi-code"
+        code={form.divisiCode}
+        name={form.divisiName}
+        onCode={(v) => setField("divisiCode", v)}
+        onName={(v) => setField("divisiName", v)}
+      />
+    </div>
+  );
+}
+
+type MasterProductSubTab = "main" | "inventory" | "price" | "discount";
+
+const MASTER_SUB_TABS: { id: MasterProductSubTab; label: string }[] = [
+  { id: "main", label: "Main Information" },
+  { id: "inventory", label: "Inventory Information" },
+  { id: "price", label: "Price Information" },
+  { id: "discount", label: "Discount Information" },
+];
+
+/** Master Product — legacy-style detail form; grids for Inventory / Price / Discount (POC data). */
 export function ItemsPage() {
   const navigate = useNavigate();
   const [recordIdx, setRecordIdx] = useState(0);
   const [lookupOpen, setLookupOpen] = useState(false);
+  const [subTab, setSubTab] = useState<MasterProductSubTab>("main");
   const [locked, setLocked] = useState(false);
   const [salesItem, setSalesItem] = useState("Yes");
   const [purchaseItem, setPurchaseItem] = useState("Yes");
@@ -255,10 +451,24 @@ export function ItemsPage() {
   const [maxLevel, setMaxLevel] = useState("");
 
   const [form, setForm] = useState<HeaderRecord>(DEMO_HEADERS[0]!);
+  const [inventoryRows, setInventoryRows] = useState<InventoryRow[]>(() =>
+    defaultInventoryForCode(DEMO_HEADERS[0]!.productCode).map((r) => ({ ...r }))
+  );
 
   const setField = <K extends keyof HeaderRecord>(key: K, value: HeaderRecord[K]) => {
     setForm((f) => ({ ...f, [key]: value }));
   };
+
+  const priceRows = useMemo(() => defaultPriceForCode(form.productCode), [form.productCode]);
+  const discountRows = useMemo(() => defaultDiscountForCode(form.productCode), [form.productCode]);
+  const inventoryTotal = useMemo(
+    () => inventoryRows.reduce((s, r) => s + r.stockOnHand, 0),
+    [inventoryRows],
+  );
+
+  useEffect(() => {
+    setInventoryRows(defaultInventoryForCode(form.productCode).map((r) => ({ ...r })));
+  }, [form.productCode]);
 
   const cycleRecord = useCallback((i: number) => {
     const n = DEMO_HEADERS.length;
@@ -376,107 +586,25 @@ export function ItemsPage() {
         onNextForm={() => cycleRecord(recordIdx + 1)}
       />
 
-      <div className="rounded-md border-2 border-border bg-card p-3 sm:p-4">
-        <h2 className="mb-3 text-lg font-bold tracking-tight">:: Master Product</h2>
+      <div className="flex min-h-[32rem] flex-col rounded-md border-2 border-border bg-card p-3 sm:min-h-[36rem] sm:p-4">
+        <h2 className="mb-0 shrink-0 text-lg font-bold tracking-tight">:: Master Product</h2>
 
-        <Tabs defaultValue="main" className="w-full">
-          {/* Extra py so overflow-y-hidden on TabsList does not clip rounded bottom borders */}
-          <TabsList className="mb-2 h-auto w-full flex-wrap justify-start gap-2 border-0 bg-transparent px-0 py-1.5 sm:mb-3">
-            {(["main", "inventory", "price", "discount"] as const).map((id) => (
-              <TabsTrigger
-                key={id}
-                value={id}
-                className={cn(
-                  "min-h-0 shrink-0 rounded-md px-3 py-1.5 text-sm font-semibold",
-                  /* Override global TabsTrigger underline + negative margin — full closed border */
-                  "mb-0 border-2 border-solid border-border bg-transparent shadow-none",
-                  "text-muted-foreground hover:bg-accent/40 hover:text-foreground",
-                  "data-[state=active]:border-primary data-[state=active]:bg-muted/50 data-[state=active]:text-primary",
-                )}
-              >
-                {id === "main" && "Main Information"}
-                {id === "inventory" && "Inventory Information"}
-                {id === "price" && "Price Information"}
-                {id === "discount" && "Discount Information"}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+        <div className="mt-3 flex min-h-0 flex-1 flex-col">
+          <MasterProductIdentityFields
+            form={form}
+            setField={setField}
+            locked={locked}
+            setLocked={setLocked}
+            onOpenLookup={() => setLookupOpen(true)}
+          />
 
-          <TabsContent value="main" className="mt-0 space-y-4 focus-visible:outline-none">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-              <div className="min-w-0 flex-1 space-y-1">
-                <Label htmlFor="prod-code" className="text-xs">
-                  Product Code
-                </Label>
-                <div className="flex max-w-md gap-1.5">
-                  <input
-                    id="prod-code"
-                    value={form.productCode}
-                    onChange={(e) => setField("productCode", e.target.value)}
-                    className={cn(inputDense, "flex-1 font-mono tabular-nums")}
-                    autoComplete="off"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    className="h-9 w-9 shrink-0"
-                    title="Product lookup"
-                    onClick={() => setLookupOpen(true)}
-                  >
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              <div className="flex shrink-0 flex-col gap-2 rounded-md border border-border bg-muted/20 px-3 py-2">
-                <label className="flex cursor-pointer items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={locked}
-                    onChange={(e) => setLocked(e.target.checked)}
-                    className="h-4 w-4 rounded border-2 border-input accent-primary"
-                  />
-                  Lock This Product
-                </label>
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <Label htmlFor="prod-desc" className="text-xs">
-                Description
-              </Label>
-              <input
-                id="prod-desc"
-                value={form.description}
-                onChange={(e) => setField("description", e.target.value)}
-                className={inputDense}
-              />
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-1">
-                <Label htmlFor="alias" className="text-xs">
-                  Alias Name
-                </Label>
-                <input
-                  id="alias"
-                  value={form.aliasName}
-                  onChange={(e) => setField("aliasName", e.target.value)}
-                  className={inputDense}
-                />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="barcode" className="text-xs">
-                  Barcode
-                </Label>
-                <input
-                  id="barcode"
-                  value={form.barcode}
-                  onChange={(e) => setField("barcode", e.target.value)}
-                  className={inputDense}
-                />
-              </div>
-            </div>
-
+          <div
+            id="master-subpanel-main"
+            role="tabpanel"
+            aria-labelledby="master-subtab-main"
+            hidden={subTab !== "main"}
+            className="mt-0 flex min-h-0 flex-1 flex-col space-y-4 focus-visible:outline-none"
+          >
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div className="space-y-1">
                 <Label className="text-xs">Sales Item</Label>
@@ -513,14 +641,6 @@ export function ItemsPage() {
               </div>
             </div>
 
-            <CodeNameRow
-              label="Divisi"
-              codeId="divisi-code"
-              code={form.divisiCode}
-              name={form.divisiName}
-              onCode={(v) => setField("divisiCode", v)}
-              onName={(v) => setField("divisiName", v)}
-            />
             <CodeNameRow
               label="Supplier Code"
               codeId="supp-code"
@@ -662,38 +782,270 @@ export function ItemsPage() {
                 />
               </div>
             </div>
-          </TabsContent>
+          </div>
 
-          <TabsContent
-            value="inventory"
-            className="mt-0 text-sm text-muted-foreground focus-visible:outline-none"
+          <div
+            id="master-subpanel-inventory"
+            role="tabpanel"
+            aria-labelledby="master-subtab-inventory"
+            hidden={subTab !== "inventory"}
+            className="mt-0 flex min-h-0 flex-1 flex-col space-y-3 focus-visible:outline-none"
           >
-            <p>
-              POC: Inventory Information tab (warehouse levels, batch, etc.) — wire when backend is
-              ready.
-            </p>
-          </TabsContent>
-          <TabsContent
-            value="price"
-            className="mt-0 text-sm text-muted-foreground focus-visible:outline-none"
+            <div className="md:hidden space-y-2">
+              {inventoryRows.map((row, idx) => (
+                <div
+                  key={`${row.whsCode}-${idx}`}
+                  className="rounded-md border-2 border-border bg-muted/15 px-3 py-2.5 text-sm"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="font-mono font-semibold tabular-nums">{row.whsCode}</p>
+                      <p className="text-muted-foreground">{row.whsName}</p>
+                    </div>
+                    <p className="shrink-0 text-right font-semibold tabular-nums">
+                      {row.stockOnHand.toLocaleString()}
+                    </p>
+                  </div>
+                  <label className="mt-2 flex cursor-pointer items-center gap-2 text-xs font-medium">
+                    <input
+                      type="checkbox"
+                      checked={row.locked}
+                      onChange={(e) =>
+                        setInventoryRows((prev) =>
+                          prev.map((r, i) => (i === idx ? { ...r, locked: e.target.checked } : r)),
+                        )
+                      }
+                      className="h-4 w-4 rounded border-2 border-input accent-primary"
+                    />
+                    Locked
+                  </label>
+                </div>
+              ))}
+              <div className="flex items-center justify-between rounded-md border-2 border-primary/40 bg-muted/25 px-3 py-2 font-semibold">
+                <span>TOTAL</span>
+                <span className="tabular-nums">{inventoryTotal.toLocaleString()}</span>
+              </div>
+            </div>
+
+            <div className="hidden max-h-[min(55vh,28rem)] flex-1 overflow-auto rounded-md border-2 border-border bg-background md:block">
+              <Table className="text-sm">
+                <TableHeader>
+                  <TableRow className="border-b-2 border-border bg-muted/40 hover:bg-muted/40">
+                    <TableHead className="whitespace-nowrap">Whs Code</TableHead>
+                    <TableHead>Warehouse Name</TableHead>
+                    <TableHead className="min-w-[8.5rem] whitespace-normal leading-tight sm:whitespace-nowrap">
+                      Stock On Hand In WareHouse
+                    </TableHead>
+                    <TableHead className="w-24 text-center">Locked</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {inventoryRows.map((row, idx) => (
+                    <TableRow key={`${row.whsCode}-${idx}`}>
+                      <TableCell className="font-mono tabular-nums">{row.whsCode}</TableCell>
+                      <TableCell className="max-w-[20rem]">{row.whsName}</TableCell>
+                      <TableCell className="text-right tabular-nums">
+                        {row.stockOnHand.toLocaleString()}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <input
+                          type="checkbox"
+                          checked={row.locked}
+                          onChange={(e) =>
+                            setInventoryRows((prev) =>
+                              prev.map((r, i) =>
+                                i === idx ? { ...r, locked: e.target.checked } : r,
+                              ),
+                            )
+                          }
+                          className="h-4 w-4 rounded border-2 border-input accent-primary"
+                          aria-label={`Locked ${row.whsCode}`}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow className="bg-muted/50 font-semibold">
+                    <TableCell colSpan={2}>TOTAL</TableCell>
+                    <TableCell className="text-right tabular-nums">
+                      {inventoryTotal.toLocaleString()}
+                    </TableCell>
+                    <TableCell />
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+
+          <div
+            id="master-subpanel-price"
+            role="tabpanel"
+            aria-labelledby="master-subtab-price"
+            hidden={subTab !== "price"}
+            className="mt-0 flex min-h-0 flex-1 flex-col space-y-3 focus-visible:outline-none"
           >
-            <p>
-              POC: Price Information tab (HET tiers, list prices) — use product lookup on Main for
-              HPP/HET sample values.
-            </p>
-          </TabsContent>
-          <TabsContent
-            value="discount"
-            className="mt-0 text-sm text-muted-foreground focus-visible:outline-none"
+            <div className="space-y-2 md:hidden">
+              {priceRows.length === 0 ? (
+                <p className="rounded-md border border-dashed border-border px-3 py-6 text-center text-sm text-muted-foreground">
+                  No price rows for this product.
+                </p>
+              ) : (
+                priceRows.map((row) => (
+                <div
+                  key={row.priceCode}
+                  className="rounded-md border-2 border-border bg-muted/15 px-3 py-2.5 text-sm"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="font-mono font-semibold">{row.priceCode}</p>
+                      <p className="text-muted-foreground">{row.priceDescription}</p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="font-semibold tabular-nums">
+                        {row.priceValue.toLocaleString()}
+                      </p>
+                      <p className="text-xs text-muted-foreground">{row.updateDate}</p>
+                    </div>
+                  </div>
+                </div>
+                ))
+              )}
+            </div>
+            <div className="hidden max-h-[min(55vh,28rem)] flex-1 overflow-auto rounded-md border-2 border-border bg-background md:block">
+              <Table className="text-sm">
+                <TableHeader>
+                  <TableRow className="border-b-2 border-border bg-muted/40 hover:bg-muted/40">
+                    <TableHead className="whitespace-nowrap">Price Code</TableHead>
+                    <TableHead>Price Description</TableHead>
+                    <TableHead className="whitespace-nowrap text-right">Price Value</TableHead>
+                    <TableHead className="whitespace-nowrap">Update Date</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {priceRows.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
+                        No price rows for this product.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    priceRows.map((row) => (
+                      <TableRow key={row.priceCode}>
+                        <TableCell className="font-mono">{row.priceCode}</TableCell>
+                        <TableCell className="max-w-xl">{row.priceDescription}</TableCell>
+                        <TableCell className="text-right tabular-nums">
+                          {row.priceValue.toLocaleString()}
+                        </TableCell>
+                        <TableCell className="tabular-nums">{row.updateDate}</TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+
+          <div
+            id="master-subpanel-discount"
+            role="tabpanel"
+            aria-labelledby="master-subtab-discount"
+            hidden={subTab !== "discount"}
+            className="mt-0 flex min-h-0 flex-1 flex-col space-y-3 focus-visible:outline-none"
           >
-            <p>POC: Discount Information tab — not implemented in this demo.</p>
-          </TabsContent>
-        </Tabs>
+            <div className="space-y-2 md:hidden">
+              {discountRows.length === 0 ? (
+                <p className="rounded-md border border-dashed border-border px-3 py-6 text-center text-sm text-muted-foreground">
+                  No discount rows for this product.
+                </p>
+              ) : (
+                discountRows.map((row) => (
+                <div
+                  key={row.discountCode}
+                  className="rounded-md border-2 border-border bg-muted/15 px-3 py-2.5 text-sm"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="font-mono font-semibold">{row.discountCode}</p>
+                      <p className="text-muted-foreground">{row.description}</p>
+                    </div>
+                    <p className="shrink-0 font-semibold tabular-nums">
+                      {formatLegacyDiscountPercent(row.discountPercent)}
+                    </p>
+                  </div>
+                </div>
+                ))
+              )}
+            </div>
+            <div className="hidden max-h-[min(55vh,28rem)] flex-1 overflow-auto rounded-md border-2 border-border bg-background md:block">
+              <Table className="text-sm">
+                <TableHeader>
+                  <TableRow className="border-b-2 border-border bg-muted/40 hover:bg-muted/40">
+                    <TableHead className="whitespace-nowrap">Discount Code</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead className="whitespace-nowrap text-right">Discount (%)</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {discountRows.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={3} className="py-8 text-center text-muted-foreground">
+                        No discount rows for this product.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    discountRows.map((row) => (
+                      <TableRow key={row.discountCode}>
+                        <TableCell className="font-mono">{row.discountCode}</TableCell>
+                        <TableCell className="max-w-xl">{row.description}</TableCell>
+                        <TableCell className="text-right tabular-nums">
+                          {formatLegacyDiscountPercent(row.discountPercent)}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+
+          <div
+            role="tablist"
+            aria-label="Master Product sections"
+            className={cn(
+              "mt-auto flex h-auto w-full shrink-0 flex-nowrap justify-start gap-2 overflow-x-auto overflow-y-hidden",
+              "scroll-smooth scrollbar-thin snap-x snap-mandatory",
+              "border-t-2 border-border bg-transparent px-0 pt-3",
+            )}
+          >
+            {MASTER_SUB_TABS.map(({ id, label }) => (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={subTab === id}
+                id={`master-subtab-${id}`}
+                aria-controls={`master-subpanel-${id}`}
+                tabIndex={subTab === id ? 0 : -1}
+                onClick={() => setSubTab(id)}
+                className={cn(
+                  "min-h-11 shrink-0 snap-start rounded-md px-3 py-2 text-xs font-semibold leading-tight sm:min-h-10 sm:text-sm",
+                  "mb-0 max-w-[11.5rem] border-2 border-solid shadow-none sm:max-w-none",
+                  "whitespace-normal sm:px-3 sm:py-1.5 sm:leading-normal",
+                  "transition-colors hover:bg-accent/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  subTab === id
+                    ? "border-primary bg-muted/50 text-primary"
+                    : "border-border bg-muted/10 text-muted-foreground",
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       <p className="text-xs text-muted-foreground">
-        POC: ~120 dummy lines in product lookup with pagination (Item Name, HPP, HET…HET5). Main
-        form matches legacy Master Product layout.
+        POC: Demo grids mirror legacy columns; tabs sit at the bottom of the form like the desktop ERP.
+        On narrow screens, scroll the tab row sideways or use the table&apos;s horizontal scroll.
       </p>
 
       <ProductLookupDialog

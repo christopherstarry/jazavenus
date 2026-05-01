@@ -114,8 +114,19 @@ import { DashboardPage } from "#/features/dashboard/DashboardPage";
 import { ItemsPage } from "#/features/items/ItemsPage";
 import { CustomersPage } from "#/features/customers/CustomersPage";
 import { SuppliersPage } from "#/features/suppliers/SuppliersPage";
-import { GrnsPage } from "#/features/inbound/GrnsPage";
-import { InvoicesPage } from "#/features/invoices/InvoicesPage";
+import {
+  PurchaseOrderPage,
+  ReceivingEntryPage,
+  PurchaseReturnPage,
+} from "#/features/purchase/PurchaseTransactionFormPage";
+import {
+  InvoicingProcessPage,
+  SalesConfirmationPage,
+  SalesOrderPage,
+  SalesReturnPage,
+} from "#/features/sales/SalesTransactionFormPage";
+import { BankTransferTransactionPage } from "#/features/ar/BankTransferTransactionPage";
+import { PdcClearanceCancellationPage } from "#/features/ar/PdcClearanceCancellationPage";
 import { SettingsPanel } from "#/features/settings/SettingsPanel";
 import { ChangePasswordPage } from "#/features/auth/ChangePasswordPage";
 import { EmployeePage } from "#/features/employees/EmployeePage";
@@ -145,6 +156,16 @@ import {
   UnitOfMeasurePage,
 } from "#/features/master/ProductWarehouseMasters";
 import { WarehouseLocationPage } from "#/features/master/WarehouseLocationPage";
+import {
+  IncomingTransactionBpbPage,
+  InterWarehouseTransactionPage,
+  OutgoingTransactionBbkPage,
+} from "#/features/inventory/InventoryTransactionFormPage";
+import {
+  InventoryPlanningPage,
+  StockTakingPreparationPage,
+  StockTakingRecordPage,
+} from "#/features/inventory/StockTakingAndPlanningPages";
 
 /* ── The actual tree ─────────────────────────────────────────────────────── */
 
@@ -432,19 +453,21 @@ export const TREE: ModuleNode[] = [
         path: "/purchase/purchase-order",
         label: "Purchase Order",
         description: "Order goods from a supplier",
+        Component: PurchaseOrderPage,
       },
       {
         id: "purchase.receiving",
         path: "/purchase/receiving-entry",
         label: "Receiving Entry",
         description: "Record stock that just arrived",
-        Component: GrnsPage,
+        Component: ReceivingEntryPage,
       },
       {
         id: "purchase.return",
         path: "/purchase/purchase-return",
         label: "Purchase Return",
         description: "Send goods back to a supplier",
+        Component: PurchaseReturnPage,
       },
     ],
   },
@@ -462,25 +485,28 @@ export const TREE: ModuleNode[] = [
         path: "/sales/sales-order",
         label: "Sales Order",
         description: "Take an order from a customer",
+        Component: SalesOrderPage,
       },
       {
         id: "sales.confirmation",
         path: "/sales/sales-confirmation",
         label: "Sales Confirmation",
         description: "Confirm orders for picking and delivery",
+        Component: SalesConfirmationPage,
       },
       {
         id: "sales.return",
         path: "/sales/sales-return",
         label: "Sales Return",
         description: "Receive returned goods from a customer",
+        Component: SalesReturnPage,
       },
       {
         id: "sales.invoicing",
         path: "/sales/invoicing-process",
         label: "Invoicing Process",
         description: "Bill customers for delivered goods",
-        Component: InvoicesPage,
+        Component: InvoicingProcessPage,
       },
     ],
   },
@@ -498,6 +524,7 @@ export const TREE: ModuleNode[] = [
         path: "/ar/bank-transfer-transaction",
         label: "Bank Transfer Transaction",
         description: "Record customer payments by bank transfer",
+        Component: BankTransferTransactionPage,
       },
       {
         id: "ar.pdc-clearance",
@@ -510,6 +537,7 @@ export const TREE: ModuleNode[] = [
         path: "/ar/pdc-clearance-cancellation",
         label: "PDC Clearance Cancellation",
         description: "Reverse a PDC clearance",
+        Component: PdcClearanceCancellationPage,
       },
     ],
   },
@@ -527,18 +555,21 @@ export const TREE: ModuleNode[] = [
         path: "/inventory/incoming-transaction-bpb",
         label: "Incoming Transaction (BPB)",
         description: "Receive stock into a warehouse",
+        Component: IncomingTransactionBpbPage,
       },
       {
         id: "inv.bbk",
         path: "/inventory/outgoing-transaction-bbk",
         label: "Outgoing Transaction (BBK)",
         description: "Issue stock out of a warehouse",
+        Component: OutgoingTransactionBbkPage,
       },
       {
         id: "inv.inter-warehouse",
         path: "/inventory/inter-warehouse-transaction",
         label: "Inter Warehouse Transaction",
         description: "Move stock between warehouses",
+        Component: InterWarehouseTransactionPage,
       },
 
       {
@@ -547,18 +578,21 @@ export const TREE: ModuleNode[] = [
         label: "Stock Taking Preparation",
         description: "Prepare a stock count",
         divider: true,
+        Component: StockTakingPreparationPage,
       },
       {
         id: "inv.stock-take-rec",
         path: "/inventory/stock-taking-record",
         label: "Stock Taking Record",
         description: "Enter stock count results",
+        Component: StockTakingRecordPage,
       },
       {
         id: "inv.planning",
         path: "/inventory/inventory-planning",
         label: "Inventory Planning",
         description: "Plan reorders and replenishment",
+        Component: InventoryPlanningPage,
       },
     ],
   },
