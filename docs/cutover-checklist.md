@@ -24,7 +24,7 @@ Print this. Tick boxes with a pen.
 - [ ] 19:00 — Run reconciliation queries. Compare totals. Sign off.
 - [ ] 19:30 — Switch DNS to point at the new server.
 - [ ] 20:00 — Smoke test as SuperAdmin and Operator. Create + post + invoice a real document. Print PDF.
-- [ ] 20:30 — Verify nightly backup job is scheduled in Hangfire.
+- [ ] 20:30 — Verify nightly backup automation is scheduled (SQL Agent / `cron`, etc.—see [`runbook.md`](runbook.md)).
 - [ ] 21:00 — Send "we're live" message.
 
 ## T+1 day
@@ -37,7 +37,7 @@ Print this. Tick boxes with a pen.
 
 - [ ] Quarterly drills go on the calendar:
   - Restore drill (every 3 months)
-  - Rotate JWT key + SuperAdmin password (every 6 months)
+  - Rotate long-lived secrets (SQL accounts, ASP.NET Data Protection keys if centrally managed, SuperAdmin password) (every 6 months)
   - Run OWASP ZAP baseline scan (every 3 months)
   - Review audit log for anomalies (every 1 month)
 

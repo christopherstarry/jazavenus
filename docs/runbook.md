@@ -11,7 +11,7 @@ Internet
    |
 [Jaza.Api]     <-- ASP.NET Core in Docker
    |
-[SQL Server]   <-- in Docker, bound to 127.0.0.1 only, BitLocker disk
+[PostgreSQL]   <-- in Docker, bound to 127.0.0.1 only, LUKS encrypted disk
 ```
 
 ## First-time deploy
@@ -23,7 +23,7 @@ git clone <repo-url> /opt/jaza
 cd /opt/jaza/deploy
 cp .env.example .env
 chmod 600 .env
-nano .env                 # fill JWT_KEY, SQL_SA_PASSWORD, JAZA_DB_PASSWORD, DOMAIN, etc.
+nano .env                 # DOMAIN, ACME_EMAIL, DB_PASSWORD, SEED_SUPERADMIN_* — see `.env.example`
 docker compose pull
 docker compose up -d
 docker compose logs -f api
@@ -41,11 +41,11 @@ docker compose ps
 docker compose logs --tail=200 api
 ```
 
-### Backup (automated nightly via Hangfire)
+### Backup (recommended automation)
 
-Hangfire job `NightlyBackup` runs at 02:00 server time:
+Use a **systemd timer** or `cron` + `pg_dump`. The ASP.NET Core app in this repository does **not** register a nightly backup job; the baseline procedure is:
 
-1. `BACKUP DATABASE [JazaVenus] TO DISK = '/backups/jaza-YYYYMMDD.bak' WITH COMPRESSION, ENCRYPTION (...)`.
+1. `docker compose exec postgres pg_dump -U jaza_app jaza_venus | gzip > /backups/jaza-$(date +%Y%m%d).sql.gz`.
 2. Copy to second drive (`/mnt/backup2`).
 3. Weekly: rsync to off-site target (`backup-offsite:/jaza/`).
 4. Retention: 30 daily + 12 weekly + 24 monthly. Older files pruned.
@@ -53,12 +53,11 @@ Hangfire job `NightlyBackup` runs at 02:00 server time:
 ### Restore (drill quarterly)
 
 ```bash
-docker compose exec sqlserver /opt/mssql-tools/bin/sqlcmd \
-  -S localhost -U sa -P "$SQL_SA_PASSWORD" \
-  -Q "RESTORE DATABASE [JazaVenus_DR] FROM DISK = '/backups/jaza-YYYYMMDD.bak' WITH MOVE 'JazaVenus' TO '/var/opt/mssql/data/jaza_dr.mdf', MOVE 'JazaVenus_log' TO '/var/opt/mssql/data/jaza_dr.ldf', RECOVERY"
+gunzip /backups/jaza-YYYYMMDD.sql.gz
+docker compose exec -T postgres psql -U jaza_app jaza_venus < /backups/jaza-YYYYMMDD.sql
 ```
 
-Verify by pointing a staging API at `JazaVenus_DR` and running smoke tests.
+Verify by pointing a staging API at the restored database and running smoke tests.
 
 ### Deploy a new version
 
@@ -83,7 +82,7 @@ EF migrations are forward-only; if a bad migration is shipped, restore the previ
 ## Rotate secrets
 
 ```bash
-nano /opt/jaza/deploy/.env       # change JWT_KEY (forces all sessions out)
+nano /opt/jaza/deploy/.env       # SQL passwords / seed settings; ASP.NET cookie sessions rotate by redeploy unless you invalidate Data Protection keys
 docker compose up -d --no-deps api
 ```
 

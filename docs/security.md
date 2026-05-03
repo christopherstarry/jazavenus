@@ -55,14 +55,14 @@ Cross-Origin-Resource-Policy:      same-origin
 - **Never** committed. `appsettings.json` contains only non-secret defaults.
 - Local dev: `dotnet user-secrets`.
 - Production: environment variables loaded from a `.env` file owned by `root` with mode `600`, or **Azure Key Vault** if cloud.
-- Connection strings, JWT keys, SMTP credentials, HIBP API key all read from env.
+- Connection strings, SMTP credentials, HIBP API key (if used), and **Data Protection keys** where you configure key persistence at scale all read from environment or vault — interactive sign-in uses **cookies**, not JWTs.
 
 ## Database hardening
 
-- Dedicated low-privilege SQL login `jaza_app` (no `db_owner`, no `sysadmin`).
-- TDE enabled where available (SQL Server Standard+ / Azure SQL).
-- Backups: nightly encrypted `.bak` to a second drive + weekly off-site (encrypted USB or OneDrive Personal Vault).
-- SQL Server bound to `localhost` only in production (no port 1433 exposed).
+- Dedicated low-privilege PostgreSQL role `jaza_app` (no `SUPERUSER`, no `CREATEDB`).
+- Data encrypted at rest via filesystem encryption (LUKS) or cloud provider encryption.
+- Backups: nightly encrypted `pg_dump` to a second drive + weekly off-site (encrypted USB or OneDrive Personal Vault).
+- PostgreSQL bound to `localhost` only in production (no port 5432 exposed).
 
 ## Network
 
@@ -87,7 +87,7 @@ Cross-Origin-Resource-Policy:      same-origin
 ## Incident response (one-pager)
 
 1. **Detect**: Seq alert / failed-login spike / unusual audit-log entry.
-2. **Contain**: rotate JWT signing key, revoke all sessions (`UPDATE AspNetUsers SET SecurityStamp = NEWID()`), block source IPs at Cloudflare.
+2. **Contain**: rotate ASP.NET **Data Protection keys** where you manage them centrally (invalidates existing auth cookies/antiforgery until users sign in again), bulk-invalidate Identity sessions (`UPDATE AspNetUsers SET SecurityStamp = NEWID()` or equivalent tooling), block source IPs at Cloudflare.
 3. **Eradicate**: identify root cause from logs, patch, redeploy.
 4. **Recover**: restore from latest clean backup if data was tampered with.
 5. **Lessons**: write post-mortem to `docs/incidents/YYYY-MM-DD.md`.

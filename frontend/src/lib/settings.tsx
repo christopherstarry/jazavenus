@@ -14,7 +14,7 @@ interface SettingsCtx extends Settings {
 }
 
 const KEY = "jaza.settings.v1";
-const DEFAULTS: Settings = { textSize: "normal", theme: "system" };
+const DEFAULTS: Settings = { textSize: "normal", theme: "light" };
 
 function load(): Settings {
   try {

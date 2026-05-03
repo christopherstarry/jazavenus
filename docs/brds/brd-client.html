@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jaza Venus — Dokumen Persetujuan Proyek</title>
+<style>
+  :root {
+    --primary: #1e40af;
+    --primary-light: #dbeafe;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --bg: #f8fafc;
+    --white: #ffffff;
+    --green: #16a34a;
+    --red: #dc2626;
+    --amber: #d97706;
+    --radius: 8px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+  .page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 32px;
+    background: var(--white);
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  @media print {
+    body { background: white; }
+    .page { box-shadow: none; padding: 20px 0; }
+    .no-print { display: none; }
+    table { page-break-inside: avoid; }
+    h2 { page-break-before: always; }
+    h2:first-of-type { page-break-before: avoid; }
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 48px 0 40px;
+    border-bottom: 3px solid var(--primary);
+    margin-bottom: 40px;
+  }
+  .header .logo {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--primary);
+    letter-spacing: -0.5px;
+  }
+  .header .sub {
+    font-size: 16px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+  .header .doctype {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    padding: 6px 24px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-top: 16px;
+  }
+
+  /* Sections */
+  h2 {
+    font-size: 22px;
+    color: var(--primary);
+    margin: 40px 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--primary-light);
+  }
+  h3 {
+    font-size: 17px;
+    color: var(--text);
+    margin: 24px 0 10px;
+  }
+  p { margin-bottom: 12px; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 20px;
+    font-size: 14px;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+  }
+  th {
+    background: var(--primary);
+    color: white;
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  tr:nth-child(even) td { background: var(--bg); }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .badge-critical { background: #fecaca; color: #991b1b; }
+  .badge-high     { background: #fed7aa; color: #9a3412; }
+  .badge-medium   { background: #fef08a; color: #854d0e; }
+  .badge-low      { background: #e2e8f0; color: #475569; }
+
+  /* Checklist */
+  .checklist { list-style: none; padding: 0; }
+  .checklist li {
+    padding: 6px 0 6px 28px;
+    position: relative;
+  }
+  .checklist li::before {
+    content: '☐';
+    position: absolute;
+    left: 0;
+    color: var(--primary);
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  /* Comparison boxes */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    margin: 16px 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .compare .old {
+    background: #fef2f2;
+    padding: 14px 18px;
+  }
+  .compare .new {
+    background: #f0fdf4;
+    padding: 14px 18px;
+  }
+  .compare .label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .compare .old .label { color: var(--red); }
+  .compare .new .label { color: var(--green); }
+
+  /* Timeline */
+  .timeline { list-style: none; padding: 0; }
+  .timeline li {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: start;
+  }
+  .timeline .phase {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--primary);
+  }
+  .timeline .date {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  /* Sign-off */
+  .sign-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .sign-box {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+  }
+  .sign-box .sig-name {
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 36px;
+  }
+  .sign-box .sig-label {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .sign-box .sig-line {
+    border-bottom: 1px solid var(--text-muted);
+    width: 70%;
+    margin: 8px auto;
+  }
+
+  /* Goal cards */
+  .goal-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .goal-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    background: var(--white);
+  }
+  .goal-card .goal-title {
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 4px;
+  }
+  .goal-card .goal-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .highlight {
+    background: #fef9c3;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+  .strong { font-weight: 700; }
+  .muted { color: var(--text-muted); font-size: 13px; }
+  .section-num {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 28px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-right: 8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">Jaza Venus</div>
+  <div class="sub">Warehouse &amp; Distribution Management System</div>
+  <div class="doctype">Dokumen Persetujuan Proyek</div>
+  <div class="muted" style="margin-top:12px">Mei 2026</div>
+</div>
+
+<p>
+  Dokumen ini menjelaskan rencana proyek pembaruan aplikasi Jaza secara ringkas.
+  Tujuannya agar <strong>Bapak/Ibu memahami apa yang akan kami kerjakan, kapan selesainya, dan apa manfaatnya</strong> sebelum proyek dimulai.
+</p>
+
+<!-- SECTION 1 -->
+<h2><span class="section-num">1</span> Ringkasan</h2>
+
+<p>
+  Aplikasi Jaza saat ini berjalan di <strong>Windows XP</strong> dengan teknologi lama.
+  Aplikasi ini <strong>tidak bisa diperbarui</strong>, tidak bisa dipasang di komputer baru, dan berisiko berhenti bekerja sewaktu-waktu.
+</p>
+
+<p style="font-size:17px; background:#fef9c3; padding:14px 18px; border-radius:8px; border-left:4px solid #d97706; margin:16px 0">
+  <strong>Yang paling penting:</strong> aplikasi baru akan berjalan <strong>persis sama</strong> dengan aplikasi lama. Semua alur kerja, semua nama menu, semua laporan — sama. Karyawan <strong>tidak perlu belajar ulang</strong>. Operasional harian <strong>tidak boleh terganggu</strong>.
+</p>
+
+<p>
+  Di atas fondasi itu, kami tambahkan perbaikan: invoice 1 langkah, catatan aktivitas, pembagian peran, Bahasa Indonesia, dan koneksi ke SFA vendor.
+</p>
+
+<div class="goal-cards" style="margin:16px 0">
+  <div class="goal-card" style="border-left:4px solid #d97706">
+    <div class="goal-title">Operasional Tidak Terganggu</div>
+    <div class="goal-desc">Semua alur kerja, menu, dan laporan <strong>persis sama</strong> dengan aplikasi lama. Karyawan tidak perlu belajar ulang.</div>
+  </div>
+  <div class="goal-card" style="border-left:4px solid #16a34a">
+    <div class="goal-title">Fondasi Baru &amp; Tahan Lama</div>
+    <div class="goal-desc">Teknologi modern yang bisa dirawat 10+ tahun ke depan. Aman, cepat, dan bisa diakses dari mana saja.</div>
+  </div>
+  <div class="goal-card" style="border-left:4px solid #1e40af">
+    <div class="goal-title">Invoice 1 Langkah</div>
+    <div class="goal-desc">Dari 3 langkah jadi 1 langkah — baik untuk membuat maupun merevisi invoice</div>
+  </div>
+  <div class="goal-card" style="border-left:4px solid #1e40af">
+    <div class="goal-title">Catatan Aktivitas &amp; Peran</div>
+    <div class="goal-desc">Setiap perubahan data tercatat. Setiap jabatan hanya lihat halaman sesuai tugasnya.</div>
+  </div>
+</div>
+
+<!-- SECTION 2 -->
+<h2><span class="section-num">2</span> Masalah yang Ingin Diselesaikan</h2>
+
+<table>
+  <tr>
+    <th style="width:5%">#</th>
+    <th style="width:45%">Masalah</th>
+    <th style="width:35%">Yang Terdampak</th>
+    <th style="width:15%">Tingkat</th>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>Windows XP — sudah tidak ada update keamanan, rawan diserang</td>
+    <td>Semua karyawan</td>
+    <td><span class="badge badge-critical">Kritis</span></td>
+  </tr>
+  <tr>
+    <td>2</td>
+    <td>Teknologi VB lama — tidak bisa diupdate, developer sulit memperbaiki</td>
+    <td>IT / Developer</td>
+    <td><span class="badge badge-critical">Kritis</span></td>
+  </tr>
+  <tr>
+    <td>3</td>
+    <td>Bikin invoice <strong>3 langkah</strong>; revisi harus ulang dari awal</td>
+    <td>Sales, Finance</td>
+    <td><span class="badge badge-high">Tinggi</span></td>
+  </tr>
+  <tr>
+    <td>4</td>
+    <td>Tidak ada catatan siapa mengubah data — tidak bisa lacak</td>
+    <td>SuperAdmin, Manajemen</td>
+    <td><span class="badge badge-high">Tinggi</span></td>
+  </tr>
+  <tr>
+    <td>5</td>
+    <td>Semua orang bisa lihat semua data — tidak ada batasan peran</td>
+    <td>Manajemen</td>
+    <td><span class="badge badge-medium">Sedang</span></td>
+  </tr>
+  <tr>
+    <td>6</td>
+    <td>Hanya satu bahasa — tidak mendukung Bahasa Indonesia</td>
+    <td>Karyawan</td>
+    <td><span class="badge badge-medium">Sedang</span></td>
+  </tr>
+  <tr>
+    <td>7</td>
+    <td>Data menumpuk tanpa arsip — aplikasi makin lambat</td>
+    <td>Semua pengguna</td>
+    <td><span class="badge badge-medium">Sedang</span></td>
+  </tr>
+  <tr>
+    <td>8</td>
+    <td>Tidak ada pemantauan error — masalah tidak ketahuan sampai user lapor</td>
+    <td>Developer</td>
+    <td><span class="badge badge-low">Rendah</span></td>
+  </tr>
+</table>
+
+<!-- SECTION 3 -->
+<h2><span class="section-num">3</span> Apa yang Akan Diperbaiki?</h2>
+
+<div class="compare" style="grid-template-columns:1fr; margin-bottom:12px">
+  <div class="old">
+    <div class="label">Aplikasi Lama</div>
+    <strong>Invoice dibuat dalam 3 langkah terpisah</strong><br>
+    <span class="muted">Kalau ada revisi, harus ulang semua langkah dari awal</span>
+  </div>
+  <div class="new">
+    <div class="label">Aplikasi Baru</div>
+    <strong>Invoice dibuat dalam 1 langkah</strong><br>
+    <span class="muted">Revisi juga 1 langkah — lebih cepat, lebih sedikit kesalahan</span>
+  </div>
+</div>
+
+<div class="compare" style="grid-template-columns:1fr; margin-bottom:12px">
+  <div class="old">
+    <div class="label">Aplikasi Lama</div>
+    <strong>Tidak ada catatan aktivitas</strong><br>
+    <span class="muted">Tidak tahu siapa yang membuat, mengubah, atau menghapus data</span>
+  </div>
+  <div class="new">
+    <div class="label">Aplikasi Baru</div>
+    <strong>Semua aktivitas tercatat otomatis</strong><br>
+    <span class="muted">Setiap buat, ubah, hapus data — tercatat siapa, apa, jam berapa</span>
+  </div>
+</div>
+
+<div class="compare" style="grid-template-columns:1fr; margin-bottom:12px">
+  <div class="old">
+    <div class="label">Aplikasi Lama</div>
+    <strong>Semua orang lihat semua data</strong><br>
+    <span class="muted">Sales bisa lihat data keuangan, Finance bisa akses data gudang</span>
+  </div>
+  <div class="new">
+    <div class="label">Aplikasi Baru</div>
+    <strong>Akses dibatasi sesuai jabatan</strong><br>
+    <span class="muted">Sales hanya lihat halaman penjualan. Finance hanya lihat halaman keuangan. Admin bisa lihat lebih banyak.</span>
+  </div>
+</div>
+
+<div class="compare" style="grid-template-columns:1fr; margin-bottom:12px">
+  <div class="old">
+    <div class="label">Aplikasi Lama</div>
+    <strong>Invoice dari SFA vendor tidak terhubung</strong><br>
+    <span class="muted">Harus input ulang manual</span>
+  </div>
+  <div class="new">
+    <div class="label">Aplikasi Baru</div>
+    <strong>Invoice dari SFA vendor otomatis masuk</strong><br>
+    <span class="muted">Saat sales vendor buat invoice di SFA mereka, otomatis tercatat di Jaza Venus</span>
+  </div>
+</div>
+
+<div class="compare" style="grid-template-columns:1fr; margin-bottom:12px">
+  <div class="old">
+    <div class="label">Aplikasi Lama</div>
+    <strong>Hanya Bahasa Inggris, hanya komputer kantor</strong>
+  </div>
+  <div class="new">
+    <div class="label">Aplikasi Baru</div>
+    <strong>Bahasa Indonesia + Inggris, bisa dibuka dari mana saja</strong><br>
+    <span class="muted">Laptop, tablet, HP — selama ada internet</span>
+  </div>
+</div>
+
+<!-- SECTION 4 -->
+<h2><span class="section-num">4</span> Siapa Penggunanya?</h2>
+
+<table>
+  <tr>
+    <th>Jabatan</th>
+    <th style="width:15%">Jumlah</th>
+    <th>Akses</th>
+  </tr>
+  <tr>
+    <td><strong>Developer</strong></td>
+    <td>1–2</td>
+    <td>Teknis penuh + pantau error sistem</td>
+  </tr>
+  <tr>
+    <td><strong>SuperAdmin</strong></td>
+    <td>1–2</td>
+    <td>Semua halaman, kelola pengguna, pengaturan sistem</td>
+  </tr>
+  <tr>
+    <td><strong>Admin</strong></td>
+    <td>3–5</td>
+    <td>Halaman tertentu (akan ditentukan bersama Bapak/Ibu)</td>
+  </tr>
+  <tr>
+    <td><strong>Sales / Operator</strong></td>
+    <td>15–20</td>
+    <td>Halaman operasional harian (pesanan, invoice, retur)</td>
+  </tr>
+  <tr>
+    <td><strong>Finance</strong></td>
+    <td>3–5</td>
+    <td>Halaman piutang, invoice, pembayaran, laporan keuangan</td>
+  </tr>
+  <tr>
+    <td><strong>Gudang</strong></td>
+    <td>10–15</td>
+    <td>Halaman stok, penerimaan, pengeluaran, stock opname</td>
+  </tr>
+</table>
+
+<p class="muted" style="text-align:center">Total sekitar <strong>35–50 pengguna</strong> bersamaan saat jam kerja.</p>
+
+<!-- SECTION 5 -->
+<h2><span class="section-num">5</span> Fitur yang Akan Dibangun</h2>
+
+<h3>Data Master</h3>
+<table>
+  <tr><th>Modul</th><th>Isi</th></tr>
+  <tr><td>Karyawan</td><td>Data seluruh karyawan</td></tr>
+  <tr><td>Pelanggan</td><td>Data pelanggan + 9 klasifikasi outlet (kelas, grup, lokasi, pasar, channel, tipe, salesman, collector, area)</td></tr>
+  <tr><td>Produk</td><td>Data produk + 9 klasifikasi (brand, kategori, sub-kategori, harga, diskon, lokasi gudang, tipe gudang, satuan)</td></tr>
+  <tr><td>Supplier / Principle</td><td>Data pemasok barang</td></tr>
+  <tr><td>Bank</td><td>Data bank untuk pembayaran</td></tr>
+  <tr><td>Pajak</td><td>Data nomor registrasi pajak</td></tr>
+  <tr><td>Syarat Pembayaran</td><td>Term of payment (Net 30, Net 60, dll)</td></tr>
+  <tr><td>Tipe Biaya</td><td>Kategori biaya operasional</td></tr>
+</table>
+
+<h3>Transaksi</h3>
+<table>
+  <tr><th>Modul</th><th>Fitur</th></tr>
+  <tr><td rowspan="3"><strong>Pembelian</strong></td><td>Purchase Order (pesanan ke supplier)</td></tr>
+  <tr><td>Penerimaan Barang</td></tr>
+  <tr><td>Retur Pembelian</td></tr>
+
+  <tr><td rowspan="5"><strong>Penjualan</strong></td><td>Sales Order (pesanan dari pelanggan)</td></tr>
+  <tr><td>Konfirmasi Pesanan</td></tr>
+  <tr><td>Retur Penjualan</td></tr>
+  <tr><td><strong>Pembuatan Invoice — 1 langkah</strong> ⬅️ Perbaikan utama</td></tr>
+  <tr><td><strong>Invoice dari SFA vendor otomatis masuk</strong></td></tr>
+
+  <tr><td rowspan="4"><strong>Gudang</strong></td><td>Barang Masuk (BPB)</td></tr>
+  <tr><td>Barang Keluar (BBK)</td></tr>
+  <tr><td>Transfer Antar Gudang</td></tr>
+  <tr><td>Stock Taking (persiapan + pencatatan)</td></tr>
+
+  <tr><td rowspan="3"><strong>Piutang (A/R)</strong></td><td>Transfer Bank</td></tr>
+  <tr><td>Pencairan Cek Mundur (PDC)</td></tr>
+  <tr><td>Pembatalan Pencairan PDC</td></tr>
+
+  <tr><td rowspan="5"><strong>Laporan</strong></td><td>Laporan Penjualan (semua jenis seperti di aplikasi lama)</td></tr>
+  <tr><td>Laporan Inventori</td></tr>
+  <tr><td>Laporan Pembelian</td></tr>
+  <tr><td>Laporan Piutang</td></tr>
+  <tr><td>Laporan Pajak</td></tr>
+</table>
+
+<h3>Sistem &amp; Fitur Tambahan</h3>
+<ul class="checklist">
+  <li>Login / Logout dengan password dan kode keamanan (MFA untuk SuperAdmin)</li>
+  <li>Ganti password</li>
+  <li>Atur peran pengguna (siapa boleh buka halaman apa)</li>
+  <li>Catatan aktivitas — semua buat/ubah/hapus data tercatat</li>
+  <li>Pemantauan error — untuk tim IT</li>
+  <li>Bahasa Indonesia + Bahasa Inggris — bisa pilih kapan saja</li>
+  <li>Dashboard ringkasan harian</li>
+  <li>Data 5 tahun terakhir aktif, data lama diarsipkan (masih bisa dibuka)</li>
+  <li>Pindahkan seluruh data dari aplikasi lama → aplikasi baru</li>
+</ul>
+
+<!-- SECTION 6 -->
+<h2><span class="section-num">6</span> Jadwal Pengerjaan</h2>
+
+<p>Target selesai: <strong class="highlight">Februari 2027</strong></p>
+
+<ul class="timeline">
+  <li>
+    <div>
+      <div class="phase">Demo Awal</div>
+      <div class="date">Mei – Juni 2026</div>
+    </div>
+    <div>Semua tampilan halaman bisa dibuka dan dinavigasi. Bapak/Ibu bisa lihat dan beri masukan.</div>
+  </li>
+  <li>
+    <div>
+      <div class="phase">Modul Utama</div>
+      <div class="date">Juli – Agustus 2026</div>
+    </div>
+    <div>Data master, pembelian, penjualan, inventori sudah berfungsi.</div>
+  </li>
+  <li>
+    <div>
+      <div class="phase">Invoice, SFA &amp; Laporan</div>
+      <div class="date">Sep – Oktober 2026</div>
+    </div>
+    <div>Invoice 1 langkah selesai. Invoice dari vendor SFA otomatis masuk. Semua laporan tersedia.</div>
+  </li>
+  <li>
+    <div>
+      <div class="phase">Audit, Peran, Data &amp; Bahasa</div>
+      <div class="date">Januari 2027</div>
+    </div>
+    <div>Catatan aktivitas lengkap. Pembatasan akses per jabatan. Semua data lama dipindahkan. Data > 5 tahun diarsipkan. Bahasa Indonesia + Inggris.</div>
+  </li>
+  <li>
+    <div>
+      <div class="phase">Pengamanan &amp; Tes Keamanan</div>
+      <div class="date">Januari 2027</div>
+    </div>
+    <div>Sistem diperkuat (enkripsi, perlindungan serangan). Tes keamanan menyeluruh. Semua celah diperbaiki.</div>
+  </li>
+  <li>
+    <div>
+      <div class="phase">Uji Coba &amp; Pelatihan</div>
+      <div class="date">Januari 2027</div>
+    </div>
+    <div>Karyawan mencoba dengan data asli. Pelatihan per jabatan (maks 1 jam per orang). Perbaikan berdasarkan masukan.</div>
+  </li>
+  <li>
+    <div>
+      <div>
+        <div class="phase" style="font-size:16px">Go-Live</div>
+        <div class="date" style="font-weight:700;color:var(--green);font-size:15px">Februari 2027</div>
+      </div>
+    </div>
+    <div><strong>Peralihan dari aplikasi lama ke baru.</strong> Dukungan penuh 2 minggu pertama. Backup harian diverifikasi.</div>
+  </li>
+</ul>
+
+<!-- SECTION 7 -->
+<h2><span class="section-num">7</span> Biaya Infrastruktur</h2>
+
+<table>
+  <tr>
+    <th>Item</th>
+    <th style="width:25%">Biaya per Bulan</th>
+    <th style="width:25%">Biaya per Tahun</th>
+  </tr>
+  <tr>
+    <td>Server + Hosting</td>
+    <td>~Rp 600.000</td>
+    <td>~Rp 7.200.000</td>
+  </tr>
+  <tr>
+    <td>Nama Domain (jaza-venus.com)</td>
+    <td>~Rp 20.000</td>
+    <td>~Rp 250.000</td>
+  </tr>
+  <tr>
+    <td>Pengamanan (Cloudflare)</td>
+    <td>Gratis</td>
+    <td>Gratis</td>
+  </tr>
+  <tr>
+    <td>Sertifikat SSL (koneksi aman)</td>
+    <td>Gratis</td>
+    <td>Gratis</td>
+  </tr>
+  <tr style="background:var(--primary-light); font-weight:700">
+    <td><strong>Total Infrastruktur</strong></td>
+    <td><strong>~Rp 620.000</strong></td>
+    <td><strong>~Rp 7.450.000</strong></td>
+  </tr>
+</table>
+
+<p class="muted">Biaya di atas hanya untuk server dan infrastruktur. Biaya pembangunan aplikasi akan didiskusikan terpisah.</p>
+
+<!-- SECTION 8 -->
+<h2><span class="section-num">8</span> Hal yang Perlu Diperhatikan</h2>
+
+<table>
+  <tr>
+    <th>Risiko</th>
+    <th style="width:35%">Dampak</th>
+    <th style="width:35%">Solusi Kami</th>
+  </tr>
+  <tr>
+    <td>Data lama sangat besar</td>
+    <td>Pemindahan data bisa lambat</td>
+    <td>Uji coba pindah data dulu. Data > 5 tahun langsung diarsipkan saat pemindahan.</td>
+  </tr>
+  <tr>
+    <td>Karyawan terbiasa aplikasi lama 10+ tahun</td>
+    <td>Bisa bingung kalau tampilan beda jauh</td>
+    <td>Tampilan dan menu dibuat semirip mungkin. Nama-nama menu sama persis dengan aplikasi lama.</td>
+  </tr>
+  <tr>
+    <td>Beberapa cabang internet lambat</td>
+    <td>Halaman lama terbuka</td>
+    <td>Aplikasi dibuat ringan. Data ditampilkan bertahap, tidak sekaligus.</td>
+  </tr>
+  <tr>
+    <td>Data keuangan sensitif</td>
+    <td>Risiko kecurangan internal</td>
+    <td>Setiap aktivitas tercatat. Akses dibatasi per jabatan. Tidak bisa hapus catatan aktivitas.</td>
+  </tr>
+  <tr>
+    <td>Vendor SFA punya format berbeda</td>
+    <td>Invoice bisa gagal masuk</td>
+    <td>Format invoice diseragamkan. Semua kiriman dicatat — kalau gagal, langsung ketahuan.</td>
+  </tr>
+</table>
+
+<p style="text-align:center; margin-top:32px; padding:16px; background:var(--primary-light); border-radius:var(--radius)">
+  <strong>Setelah dokumen ini disepakati, kami akan mulai membuat tampilan demo (POC) untuk dilihat dan diberi masukan.</strong>
+</p>
+
+</div>
+
+<!-- Print button (hidden when printed) -->
+<div class="no-print" style="text-align:center; padding: 24px">
+  <button onclick="window.print()" style="
+    background: #1e40af; color: white; border: none;
+    padding: 12px 32px; font-size: 15px; font-weight: 600;
+    border-radius: 8px; cursor: pointer;
+  ">
+    Cetak / Simpan sebagai PDF
+  </button>
+  <p class="muted" style="margin-top:8px">Klik tombol di atas, lalu pilih <strong>"Save as PDF"</strong> di dialog print</p>
+</div>
+
+</body>
+</html>
