@@ -53,6 +53,18 @@ jobs:
           echo "After deploy, open: https://${OWNER_LOWER}.github.io/${REPO_LOWER}/"
           echo "---"
 
+      - name: Set API base URL (Pages needs full Fly / API origin)
+        run: |
+          if [ -n "${{ vars.VITE_API_BASE_URL }}" ]; then
+            BASE="${{ vars.VITE_API_BASE_URL }}"
+          else
+            FLY_APP="${{ vars.FLY_APP }}"
+            FLY_APP="${FLY_APP:-jaza-venus}"
+            BASE="https://${FLY_APP}.fly.dev/api"
+          fi
+          echo "VITE_API_BASE_URL=${BASE}" >> "$GITHUB_ENV"
+          echo "SPA API prefix: ${BASE}"
+
       - name: Install & build
         working-directory: frontend
         run: npm ci && npm run build

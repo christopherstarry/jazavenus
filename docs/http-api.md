@@ -1,6 +1,6 @@
 # HTTP API reference — Jaza Venus
 
-All routes are under the same origin as the API unless CORS is configured for separate dev origins (typically `localhost:5173` for Vite).
+All routes are under the same origin as the API **unless** the SPA is built with `VITE_API_BASE_URL` pointing at another host (e.g. GitHub Pages → Fly). In that case CORS must allow the SPA origin and credentials if you rely on cookies; the current SPA primarily uses JWT `Authorization` after login.
 
 **Default policy**: authenticated user required. Anonymous access is explicit via `[AllowAnonymous]` (e.g. `POST /api/auth/login`, `GET /api/auth/antiforgery`).
 

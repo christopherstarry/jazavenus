@@ -103,10 +103,12 @@ Inside the SSH shell the API logs are at `/app/logs/jaza-api-YYYY-MM-DD.log` (Se
 
 ## Frontend pointing at production API
 
-The SPA's Vite dev proxy points to `localhost:5001`. In production it's served from GitHub Pages and assumes the API is on the same origin (`/api/*`). If you're hosting the SPA on a different origin (say `jaza-app.example.com`) you must:
+The SPA's Vite dev proxy points `/api` to `https://localhost:5001`. **GitHub Pages is static** — there is no same-origin `/api`, so the built SPA must call the Fly API explicitly.
 
-1. Add the SPA origin to `Cors__AllowedOrigins__0` in Fly secrets.
-2. Build the SPA with a `VITE_API_BASE_URL` env var (we don't use one yet — when you do, update `frontend/src/lib/api.ts`).
+1. Set **`VITE_API_BASE_URL`** at build time to your public API root, e.g. `https://<app>.fly.dev/api` (see [`frontend/.env.example`](../../frontend/.env.example)).
+2. Add the SPA **origin** to `Cors:AllowedOrigins` for the API (e.g. `https://christopherstarry.github.io` for project sites under `/<repo>/`). The browser sends `Origin: https://<user>.github.io`, not a path-specific origin.
+
+The [`deploy-frontend-github-pages`](../../.github/workflows/deploy-frontend-github-pages.yml) workflow sets `VITE_API_BASE_URL` from the repository variable `VITE_API_BASE_URL`, or defaults to `https://${FLY_APP}.fly.dev/api` (repository variable `FLY_APP`, default `jaza-venus`).
 
 ## Cost & limits today
 

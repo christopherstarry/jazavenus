@@ -35,8 +35,19 @@ function shouldRetryWithRefresh(req: KyRequest): boolean {
   return !NO_RETRY_PATHS.some((p) => url.pathname.endsWith("/" + p));
 }
 
+/**
+ * API root for ky. Local dev: `/api` (Vite proxies to the ASP.NET app).
+ * Static hosting (GitHub Pages): set `VITE_API_BASE_URL=https://<your-api-host>/api` at build time.
+ */
+function apiPrefixUrl(): string {
+  const raw = import.meta.env.VITE_API_BASE_URL?.trim();
+  if (!raw) return "/api";
+  const base = raw.replace(/\/+$/, "");
+  return base.length > 0 ? base : "/api";
+}
+
 export const api = ky.create({
-  prefixUrl: "/api",
+  prefixUrl: apiPrefixUrl(),
   credentials: "include",
   retry: { limit: 1, methods: ["get"] },
   timeout: 30_000,

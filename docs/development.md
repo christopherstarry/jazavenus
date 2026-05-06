@@ -33,6 +33,8 @@ npm run dev
 - Vite: `http://localhost:5173`
 - CORS in `appsettings.json` allows this origin with credentials.
 
+The HTTP client uses `VITE_API_BASE_URL` when set (see [`frontend/.env.example`](../frontend/.env.example)). For local dev, omit it so requests go to same-origin `/api`, which Vite proxies to `https://localhost:5001`.
+
 The SPA defaults to **light** theme (no saved preferences). Users can switch to dark or follow the OS in **Settings**. Theme is stored in `localStorage` under `jaza.settings.v1`.
 
 ### Seeded SuperAdmin (development)
