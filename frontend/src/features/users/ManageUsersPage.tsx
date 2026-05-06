@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { Search, ChevronLeft, ChevronRight, Users, Pencil, KeyRound, Lock } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Users, Pencil, KeyRound, Lock, Plus } from "lucide-react";
 import { api } from "#/lib/api";
 import { useAuth } from "#/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
@@ -13,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#
 import { Tooltip, TooltipContent, TooltipTrigger } from "#/components/ui/tooltip";
 import { UserEditDialog } from "#/features/users/UserEditDialog";
 import { ResetPasswordDialog } from "#/features/users/ResetPasswordDialog";
+import { CreateUserDialog } from "#/features/users/CreateUserDialog";
 import type { PagedResult } from "#/features/common/CrudPage";
 
 interface UserListItem {
@@ -53,6 +54,7 @@ export function ManageUsersPage() {
   const [role, setRole] = useState<number | undefined>();
   const [editingUser, setEditingUser] = useState<UserDetail | null>(null);
   const [resettingUser, setResettingUser] = useState<UserListItem | null>(null);
+  const [creatingUser, setCreatingUser] = useState(false);
 
   const q = useQuery({
     queryKey: ["users", page, search, role],
@@ -90,6 +92,10 @@ export function ManageUsersPage() {
         <div>
           <CardTitle>Manage Users</CardTitle>
         </div>
+        <Button size="sm" onClick={() => setCreatingUser(true)}>
+          <Plus className="h-4 w-4 mr-1" />
+          New User
+        </Button>
       </CardHeader>
       <CardContent>
         <div className="flex flex-wrap items-center gap-3 mb-4">
@@ -230,6 +236,11 @@ export function ManageUsersPage() {
             onClose={() => setResettingUser(null)}
           />
         )}
+
+        <CreateUserDialog
+          open={creatingUser}
+          onClose={() => { setCreatingUser(false); q.refetch(); }}
+        />
       </CardContent>
     </Card>
   );
