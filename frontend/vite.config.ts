@@ -11,15 +11,8 @@ function viteOutDir(): { outDir: string; emptyOutDir: boolean } {
   return { outDir, emptyOutDir: false };
 }
 
-/** GitHub Pages project sites live under /<repo>/; user sites <user>.github.io use "/". */
-function viteBase(): string {
-  const raw = process.env.VITE_PAGES_BASE;
-  if (raw === "/" || raw === undefined || raw === "") return "/";
-  return raw.endsWith("/") ? raw : `${raw}/`;
-}
-
 export default defineConfig({
-  base: viteBase(),
+  base: "/",
   plugins: [react(), tailwind()],
   resolve: { alias: { "#": path.resolve(__dirname, "src") } },
   server: {

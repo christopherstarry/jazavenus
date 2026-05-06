@@ -9,7 +9,7 @@ on:
     paths:
       - "backend/**"
       - "deploy/api.Dockerfile"
-      - "deploy/fly.toml"
+      - "fly.toml"
       - ".github/workflows/deploy-fly.yml"
   workflow_dispatch:
 
@@ -40,8 +40,7 @@ jobs:
         run: |
           flyctl deploy \
             --app "$FLY_APP" \
-            --config deploy/fly.toml \
-            --dockerfile deploy/api.Dockerfile \
+            --config fly.toml \
             --remote-only \
             --strategy rolling \
             --wait-timeout 600

@@ -1,0 +1,53 @@
+# Fly.io app manifest for the Jaza Venus API.
+#
+# This file lives at the repository root so `fly deploy` uses the repo as the Docker build
+# context (required by deploy/api.Dockerfile, which COPYs backend/**).
+#
+# One-time secrets (paste real Neon host/user/password):
+#   flyctl secrets set --app jaza-venus \
+#     ConnectionStrings__Default="Host=ep-....neon.tech;Port=5432;Database=neondb;Username=...;Password=...;SSL Mode=Require;Trust Server Certificate=true;Channel Binding=Disable" \
+#     Jwt__SigningKey="$(openssl rand -base64 64)" \
+#     Jwt__Issuer="jaza-venus" \
+#     Jwt__Audience="jaza-venus-app" \
+#     Seed__SuperAdminEmail="owner@jaza.local" \
+#     Seed__SuperAdminPassword=""
+#
+# Deploy from repo root:
+#   flyctl deploy --app jaza-venus
+
+app = "jaza-venus"
+primary_region = "sin"     # Singapore — matches Neon's ap-southeast-1 region.
+kill_signal = "SIGINT"
+kill_timeout = "15s"
+
+[build]
+  dockerfile = "deploy/api.Dockerfile"
+
+[env]
+  ASPNETCORE_ENVIRONMENT = "Production"
+  ASPNETCORE_URLS = "http://+:8080"
+  Cookie__SecurePolicy = "Always"
+  Cors__AllowedOrigins__0 = "https://jazavenus.vercel.app"
+  Cors__AllowedOrigins__1 = "https://jaza-venus.fly.dev"
+  Auth__RequireSuperAdminMfa = "true"
+  Seed__IncludeDemoUsers = "true"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_start_machines = true
+  auto_stop_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "10s"
+    method = "GET"
+    path = "/health"
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 512

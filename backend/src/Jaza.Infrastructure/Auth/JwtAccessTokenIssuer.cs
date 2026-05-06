@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -36,7 +37,8 @@ public sealed class JwtAccessTokenIssuer : IAccessTokenIssuer
 
         _issuer = section["Issuer"] ?? "jaza-venus";
         _audience = section["Audience"] ?? "jaza-venus-app";
-        AccessTokenLifetime = TimeSpan.FromMinutes(int.Parse(section["AccessTokenMinutes"] ?? "15"));
+        AccessTokenLifetime = TimeSpan.FromMinutes(
+            int.Parse(section["AccessTokenMinutes"] ?? "15", CultureInfo.InvariantCulture));
 
         var bytes = Encoding.UTF8.GetBytes(key);
         _credentials = new SigningCredentials(new SymmetricSecurityKey(bytes), SecurityAlgorithms.HmacSha256);

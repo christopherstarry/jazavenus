@@ -1,6 +1,6 @@
 # HTTP API reference — Jaza Venus
 
-All routes are under the same origin as the API **unless** the SPA is built with `VITE_API_BASE_URL` pointing at another host (e.g. GitHub Pages → Fly). In that case CORS must allow the SPA origin and credentials if you rely on cookies; the current SPA primarily uses JWT `Authorization` after login.
+The browser SPA calls same-origin `/api`. In local dev, Vite proxies that to `https://localhost:5001`; on Vercel, `frontend/vercel.json` rewrites `/api/*` to `https://jaza-venus.fly.dev/api/*`.
 
 **Default policy**: authenticated user required. Anonymous access is explicit via `[AllowAnonymous]` (e.g. `POST /api/auth/login`, `GET /api/auth/antiforgery`).
 

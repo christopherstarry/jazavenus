@@ -1,0 +1,3 @@
+#Revisi faktur sebisa mungkin bisa input dari prev faktur, jadi ada 1 checkbox untuk tulisian revisi faktur / ga, kalo di check kita masukin nomor faktur yang direvisi, ketika nomor faktur di enter, si field nya akan keisi semua dengan  data dari nomor faktur itu, baru bisa dirubah apa yang di revisi -> berarti harus simpen di DB nomor faktur dan datanya
+
+ada 1 checkbox untuk tulisian revisi faktur / ga, kalo di check kita masukin nomor faktur yang direvisi, ketika nomor faktur di enter, si field nya akan keisi semua dengan nomor data dari nomor faktur itu, baru bisa dirubah apa yang di revisi

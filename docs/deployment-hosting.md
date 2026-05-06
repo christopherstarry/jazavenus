@@ -163,7 +163,6 @@ The frontend (React SPA) can be hosted separately for near-zero cost:
 | **Vercel** | Free (Hobby) or $20/month (Pro) |
 | **Cloudflare Pages** | Free |
 | **Netlify** | Free (Starter) |
-| **GitHub Pages** | Free |
 
 This is fine for the POC. For production, deploy the frontend with the backend on the same server via Docker (Caddy serves the built React files). One server, one deployment, simpler.
 

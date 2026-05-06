@@ -21,9 +21,7 @@ configureApiAuth({
   onUnauthorized: () => setAccessToken(null),
 });
 
-if (import.meta.env.VITE_SKIP_ANTIFORGERY !== "true") {
-  await ensureAntiforgery().catch(() => { /* Backend may be cold-starting; AuthProvider retries. */ });
-}
+await ensureAntiforgery().catch(() => { /* Backend may be cold-starting; AuthProvider retries. */ });
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

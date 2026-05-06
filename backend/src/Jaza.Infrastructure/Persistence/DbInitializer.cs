@@ -1,3 +1,6 @@
+// Startup seeding uses standard ILogger extension methods; LoggerMessage source generators are overkill here.
+#pragma warning disable CA1848 // Use LoggerMessage delegates for high-performance logging
+#pragma warning disable CA1873 // Avoid expensive interpolated strings when logging is disabled
 using Jaza.Application.Common;
 using Jaza.Domain.Auth;
 using Jaza.Domain.MasterData;

@@ -56,8 +56,13 @@ public sealed class AuthController(
     [EnableRateLimiting("login")]
     [ProducesResponseType(typeof(LoginResponse), 200)]
     [ProducesResponseType(typeof(ProblemDetails), 401)]
-    public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest req, CancellationToken ct)
+    public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest? req, CancellationToken ct)
     {
+        if (req is null)
+        {
+            return BadRequest(Problem("validation_failed", "Request body must be valid JSON."));
+        }
+
         await loginValidator.ValidateAndThrowAsync(req, ct);
 
         var user = await users.FindByEmailAsync(req.Email.Trim());

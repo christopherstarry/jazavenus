@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Cryptography;
 using Jaza.Application.Auth;
 using Jaza.Domain.Auth;
@@ -18,7 +19,9 @@ namespace Jaza.Infrastructure.Auth;
 public sealed class RefreshTokenService(AppDbContext db, IConfiguration config) : IRefreshTokenService
 {
     public TimeSpan RefreshTokenLifetime { get; } =
-        TimeSpan.FromHours(int.Parse(config.GetSection("Jwt")["RefreshTokenHours"] ?? "24"));
+        TimeSpan.FromHours(int.Parse(
+            config.GetSection("Jwt")["RefreshTokenHours"] ?? "24",
+            CultureInfo.InvariantCulture));
 
     public async Task<(string RawToken, DateTime ExpiresAtUtc)> IssueAsync(
         Guid userId, Guid securityVersion, string? ip, string? userAgent, CancellationToken ct)

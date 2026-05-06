@@ -6,10 +6,6 @@ import { Spinner } from "#/components/ui/spinner";
 import { useAuth } from "#/lib/auth";
 import { TREE, isModuleVisible, type ModuleNode } from "#/app/modules";
 
-/** Matches Vite `base` for GitHub Pages project sites (/repo/). Undefined when hosted at /. */
-const routerBasename =
-  import.meta.env.BASE_URL === "/" ? undefined : import.meta.env.BASE_URL.replace(/\/$/, "");
-
 function RequireAuth() {
   const { user, loading } = useAuth();
   if (loading) return <div className="p-10 flex justify-center"><Spinner label="Checking your sign-in…" /></div>;
@@ -77,6 +73,4 @@ const routeDefs = [
   { path: "*", element: <Navigate to="/" replace /> },
 ];
 
-export const router = routerBasename
-  ? createBrowserRouter(routeDefs, { basename: routerBasename })
-  : createBrowserRouter(routeDefs);
+export const router = createBrowserRouter(routeDefs);

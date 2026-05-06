@@ -204,7 +204,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const detail = body?.detail ?? err.message;
         throw new LoginError(code, detail);
       }
-      throw new LoginError("login_failed", "Sign in failed. Please check your connection and try again.");
+      const technical = err instanceof Error ? err.message : String(err);
+      const apiRoot = window.location.hostname.endsWith(".vercel.app")
+        ? `${window.location.origin}/api`
+        : import.meta.env.VITE_API_BASE_URL?.trim() || `${window.location.origin}/api`;
+      const detail =
+        import.meta.env.DEV
+          ? `Network error (${technical}). API root: ${apiRoot}`
+          : "Sign in failed. Please check your connection and try again.";
+      throw new LoginError("network_error", detail);
     }
   }, []);
 

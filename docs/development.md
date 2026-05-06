@@ -33,7 +33,14 @@ npm run dev
 - Vite: `http://localhost:5173`
 - CORS in `appsettings.json` allows this origin with credentials.
 
-The HTTP client uses `VITE_API_BASE_URL` when set (see [`frontend/.env.example`](../frontend/.env.example)). For local dev, omit it so requests go to same-origin `/api`, which Vite proxies to `https://localhost:5001`.
+The HTTP client uses same-origin `/api` by default (see [`frontend/.env.example`](../frontend/.env.example)). For local dev, Vite proxies `/api` to `https://localhost:5001`. On Vercel, `vercel.json` rewrites `/api/*` to the Fly backend.
+
+### Vercel / static hosting
+
+1. Keep Vercel frontend requests on same-origin `/api`; `frontend/vercel.json` proxies them to `https://jaza-venus.fly.dev/api`.
+2. Remove `VITE_API_BASE_URL` from Vercel unless you intentionally want direct browser-to-Fly calls.
+3. **Redeploy** the site after config changes.
+4. Login must use `POST /api/auth/login`. A manual `GET /api/auth/login` returns 401 because the app's default policy requires authentication for unmatched routes.
 
 The SPA defaults to **light** theme (no saved preferences). Users can switch to dark or follow the OS in **Settings**. Theme is stored in `localStorage` under `jaza.settings.v1`.
 

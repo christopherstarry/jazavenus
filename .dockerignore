@@ -1,0 +1,11 @@
+# Keep Fly.io / Depot remote build contexts small — api.Dockerfile only needs backend/**.
+.git
+.github
+.cursor
+frontend
+docs
+**/bin
+**/obj
+*.md
+**/.vs
+**/node_modules

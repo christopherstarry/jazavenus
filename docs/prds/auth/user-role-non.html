@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jaza Venus — Aturan Pengguna & Hak Akses</title>
+<style>
+  :root {
+    --primary: #1e40af; --primary-light: #dbeafe; --text: #1e293b;
+    --text-muted: #64748b; --border: #e2e8f0; --bg: #f8fafc; --white: #ffffff;
+    --green: #16a34a; --red: #dc2626; --amber: #d97706; --radius: 8px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--text); background: var(--bg); line-height: 1.7; font-size: 15px;
+  }
+  .page {
+    max-width: 900px; margin: 0 auto; padding: 40px 32px;
+    background: var(--white); box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  @media print {
+    body { background: white; }
+    .page { box-shadow: none; padding: 20px 0; }
+    .no-print { display: none; }
+    table { page-break-inside: avoid; }
+    h2 { page-break-before: always; }
+    h2:first-of-type { page-break-before: avoid; }
+  }
+  .header {
+    text-align: center; padding: 48px 0 40px;
+    border-bottom: 3px solid var(--primary); margin-bottom: 40px;
+  }
+  .header .logo { font-size: 32px; font-weight: 800; color: var(--primary); }
+  .header .sub { font-size: 16px; color: var(--text-muted); margin-top: 6px; }
+  .header .doctype {
+    display: inline-block; background: var(--primary); color: white;
+    padding: 6px 24px; border-radius: 99px; font-size: 13px; font-weight: 600;
+    letter-spacing: 0.5px; margin-top: 16px;
+  }
+  h2 { font-size: 22px; color: var(--primary); margin: 40px 0 16px; padding-bottom: 8px; border-bottom: 2px solid var(--primary-light); }
+  h3 { font-size: 17px; color: var(--text); margin: 24px 0 10px; }
+  p { margin-bottom: 12px; }
+  ul, ol { padding-left: 20px; margin: 8px 0 16px; }
+  li { margin-bottom: 6px; }
+
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 14px; }
+  th, td { text-align: left; padding: 10px 14px; border: 1px solid var(--border); }
+  th { background: var(--primary); color: white; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+  tr:nth-child(even) td { background: var(--bg); }
+  td:first-child { font-weight: 700; }
+  .td-yes { background: #f0fdf4 !important; color: var(--green); text-align: center; font-weight: 700; }
+  .td-edit { background: #fef9c3 !important; color: #854d0e; text-align: center; font-weight: 600; }
+  .td-no { background: #fef2f2 !important; color: var(--red); text-align: center; font-weight: 600; }
+
+  .user-card {
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px 20px; margin-bottom: 14px; background: var(--white);
+  }
+  .user-card .user-name { font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 10px; }
+  .user-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 20px; }
+  .user-grid .row { display: contents; }
+  .user-grid .label { font-size: 13px; color: var(--text-muted); }
+  .user-grid .value { font-size: 14px; font-weight: 600; }
+  .user-grid .value.yes { color: var(--green); }
+  .user-grid .value.edit { color: #854d0e; }
+  .user-grid .value.no { color: var(--red); }
+
+  .note {
+    background: var(--primary-light); padding: 12px 16px;
+    border-radius: var(--radius); border-left: 4px solid var(--primary);
+    margin: 16px 0; font-size: 14px;
+  }
+  .permissions-table td { text-align: center; }
+  .perm-yes { color: var(--green); font-weight: 700; }
+  .perm-edit { color: #854d0e; font-weight: 700; }
+  .perm-no { color: var(--red); font-weight: 600; }
+
+  .section-num {
+    display: inline-block; background: var(--primary); color: white;
+    width: 28px; height: 28px; border-radius: 50%; text-align: center;
+    line-height: 28px; font-size: 13px; font-weight: 700; margin-right: 8px;
+  }
+  .muted { color: var(--text-muted); font-size: 13px; }
+  .highlight { background: #fef9c3; padding: 2px 6px; border-radius: 3px; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">Jaza Venus</div>
+  <div class="sub">Warehouse &amp; Distribution Management System</div>
+  <div class="doctype">Aturan Pengguna &amp; Hak Akses</div>
+  <div class="muted" style="margin-top:12px">Mei 2026</div>
+</div>
+
+<p>
+  Dokumen ini menjelaskan siapa yang bisa mengakses apa di aplikasi Jaza Venus.
+  <strong>Silakan dicek: apakah aturannya sudah sesuai?</strong>
+</p>
+
+<!-- SECTION 1 -->
+<h2><span class="section-num">1</span> Ringkasan</h2>
+
+<p>Aplikasi ini punya <strong>4 jabatan</strong> (role), tapi akses tiap orang bisa diatur sendiri-sendiri sesuai kebutuhan.</p>
+
+<div class="note">
+  <strong>Aturan utama:</strong> Semua menu tetap terlihat. Tapi kalau seseorang tidak punya akses ke suatu menu, menunya jadi <strong>abu-abu dan tidak bisa diklik</strong>. Tombol di halaman juga akan <strong>mati</strong> (disabled) kalau tidak punya izin.
+</div>
+
+<!-- SECTION 2 -->
+<h2><span class="section-num">2</span> Empat Jabatan (Role)</h2>
+
+<table>
+  <tr>
+    <th>Jabatan</th>
+    <th style="width:25%">Siapa</th>
+    <th>Aksesnya</th>
+  </tr>
+  <tr>
+    <td><strong>Developer</strong></td>
+    <td>IT / pembuat aplikasi</td>
+    <td>Buka semua halaman. Satu-satunya yang bisa lihat halaman log error.</td>
+  </tr>
+  <tr>
+    <td><strong>SuperAdmin</strong></td>
+    <td>Keluarga pemilik (~4 orang)</td>
+    <td>Buka semua halaman bisnis + atur pengguna + atur izin akses. <strong>Tidak bisa</strong> lihat halaman log error.</td>
+  </tr>
+  <tr>
+    <td><strong>Admin</strong></td>
+    <td>Cadangan</td>
+    <td>Saat ini tidak dipakai oleh 8 orang yang spesifik.</td>
+  </tr>
+  <tr>
+    <td><strong>Sales</strong></td>
+    <td>Staf umum</td>
+    <td>Paling terbatas. Akses akan ditentukan kemudian.</td>
+  </tr>
+</table>
+
+<!-- SECTION 3 -->
+<h2><span class="section-num">3</span> 8 Orang dengan Akses Spesifik</h2>
+
+<p>Setiap orang punya aturan akses yang berbeda. Tidak pakai jabatan standar — aksesnya diatur satu per satu.</p>
+
+<table>
+  <tr>
+    <th>Orang</th>
+    <th>Master</th>
+    <th>Pembelian</th>
+    <th>Penjualan</th>
+    <th>Piutang</th>
+    <th>Gudang</th>
+    <th>Laporan</th>
+  </tr>
+  <tr>
+    <td><strong>Didi</strong></td>
+    <td class="td-edit">Edit</td>
+    <td class="td-yes">Edit+Hapus</td>
+    <td class="td-yes">Edit+Hapus</td>
+    <td class="td-no">Tidak</td>
+    <td class="td-no">Tidak</td>
+    <td>Hanya A/R</td>
+  </tr>
+  <tr>
+    <td><strong>Pai</strong></td>
+    <td class="td-edit">Edit</td>
+    <td class="td-yes">Edit+Hapus</td>
+    <td class="td-no">Tidak</td>
+    <td class="td-no">Tidak</td>
+    <td class="td-yes">Edit+Hapus</td>
+    <td>Hanya A/R</td>
+  </tr>
+  <tr>
+    <td><strong>Nenden</strong></td>
+    <td class="td-edit">Edit</td>
+    <td class="td-yes">Edit+Hapus</td>
+    <td class="td-no">Tidak</td>
+    <td class="td-no">Tidak</td>
+    <td class="td-no">Tidak</td>
+    <td><strong>Semua</strong></td>
+  </tr>
+  <tr>
+    <td><strong>Atep</strong></td>
+    <td class="td-edit">Edit</td>
+    <td class="td-no">Tidak</td>
+    <td class="td-yes">Edit+Hapus</td>
+    <td class="td-no">Tidak</td>
+    <td class="td-no">Tidak</td>
+    <td>Hanya A/R</td>
+  </tr>
+  <tr>
+    <td><strong>Yane</strong></td>
+    <td class="td-no">Tidak</td>
+    <td class="td-no">Tidak</td>
+    <td class="td-yes">Edit+Hapus</td>
+    <td class="td-no">Tidak</td>
+    <td class="td-no">Tidak</td>
+    <td>Tidak ada</td>
+  </tr>
+  <tr>
+    <td><strong>Ilham</strong></td>
+    <td class="td-no">Tidak</td>
+    <td class="td-no">Tidak</td>
+    <td class="td-no">Tidak</td>
+    <td class="td-no">Tidak</td>
+    <td class="td-no">Tidak</td>
+    <td>Hanya A/R</td>
+  </tr>
+  <tr>
+    <td><strong>Robby</strong></td>
+    <td class="td-no">Tidak</td>
+    <td class="td-no">Tidak</td>
+    <td class="td-no">Tidak</td>
+    <td class="td-no">Tidak</td>
+    <td class="td-no">Tidak</td>
+    <td>Hanya A/R + Sales</td>
+  </tr>
+  <tr>
+    <td><strong>Alvin</strong></td>
+    <td class="td-edit">Edit</td>
+    <td class="td-no">Tidak</td>
+    <td class="td-no">Tidak</td>
+    <td class="td-yes">Edit+Hapus</td>
+    <td class="td-no">Tidak</td>
+    <td><strong>Semua</strong></td>
+  </tr>
+</table>
+
+<div class="note" style="margin-top:20px">
+  <strong>Keterangan warna:</strong><br>
+  <span style="color:var(--green);font-weight:700">Hijau</span> = Bisa lihat, buat baru, ubah, dan hapus data<br>
+  <span style="color:#854d0e;font-weight:700">Kuning</span> = Bisa lihat, buat baru, dan ubah data — <strong>tidak bisa hapus</strong><br>
+  <span style="color:var(--red);font-weight:700">Merah</span> = Tidak bisa akses (menu abu-abu, tidak bisa diklik)
+</div>
+
+<!-- SECTION 4 -->
+<h2><span class="section-num">4</span> Detail Per Orang</h2>
+
+<div class="user-card">
+  <div class="user-name">1. Didi</div>
+  <div class="user-grid">
+    <div class="label">Master (data induk)</div><div class="value edit">Bisa lihat, buat, ubah (tidak bisa hapus)</div>
+    <div class="label">Pembelian</div><div class="value yes">Bisa lihat, buat, ubah, hapus</div>
+    <div class="label">Penjualan</div><div class="value yes">Bisa lihat, buat, ubah, hapus</div>
+    <div class="label">Piutang (A/R)</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Gudang</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Laporan</div><div class="value edit">Hanya Laporan Piutang (A/R)</div>
+  </div>
+</div>
+
+<div class="user-card">
+  <div class="user-name">2. Pai</div>
+  <div class="user-grid">
+    <div class="label">Master (data induk)</div><div class="value edit">Bisa lihat, buat, ubah (tidak bisa hapus)</div>
+    <div class="label">Pembelian</div><div class="value yes">Bisa lihat, buat, ubah, hapus</div>
+    <div class="label">Penjualan</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Piutang (A/R)</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Gudang</div><div class="value yes">Bisa lihat, buat, ubah, hapus</div>
+    <div class="label">Laporan</div><div class="value edit">Hanya Laporan Piutang (A/R)</div>
+  </div>
+</div>
+
+<div class="user-card">
+  <div class="user-name">3. Nenden</div>
+  <div class="user-grid">
+    <div class="label">Master (data induk)</div><div class="value edit">Bisa lihat, buat, ubah (tidak bisa hapus)</div>
+    <div class="label">Pembelian</div><div class="value yes">Bisa lihat, buat, ubah, hapus</div>
+    <div class="label">Penjualan</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Piutang (A/R)</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Gudang</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Laporan</div><div class="value yes">Semua laporan bisa diakses</div>
+  </div>
+</div>
+
+<div class="user-card">
+  <div class="user-name">4. Atep</div>
+  <div class="user-grid">
+    <div class="label">Master (data induk)</div><div class="value edit">Bisa lihat, buat, ubah (tidak bisa hapus)</div>
+    <div class="label">Pembelian</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Penjualan</div><div class="value yes">Bisa lihat, buat, ubah, hapus</div>
+    <div class="label">Piutang (A/R)</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Gudang</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Laporan</div><div class="value edit">Hanya Laporan Piutang (A/R)</div>
+  </div>
+</div>
+
+<div class="user-card">
+  <div class="user-name">5. Yane</div>
+  <div class="user-grid">
+    <div class="label">Master (data induk)</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Pembelian</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Penjualan</div><div class="value yes">Bisa lihat, buat, ubah, hapus</div>
+    <div class="label">Piutang (A/R)</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Gudang</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Laporan</div><div class="value no">Tidak ada laporan</div>
+  </div>
+</div>
+
+<div class="user-card">
+  <div class="user-name">6. Ilham</div>
+  <div class="user-grid">
+    <div class="label">Master (data induk)</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Pembelian</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Penjualan</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Piutang (A/R)</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Gudang</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Laporan</div><div class="value edit">Hanya Laporan Piutang (A/R)</div>
+  </div>
+</div>
+
+<div class="user-card">
+  <div class="user-name">7. Robby</div>
+  <div class="user-grid">
+    <div class="label">Master (data induk)</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Pembelian</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Penjualan</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Piutang (A/R)</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Gudang</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Laporan</div><div class="value edit">Hanya Laporan Piutang (A/R) &amp; Laporan Penjualan</div>
+  </div>
+</div>
+
+<div class="user-card">
+  <div class="user-name">8. Alvin</div>
+  <div class="user-grid">
+    <div class="label">Master (data induk)</div><div class="value edit">Bisa lihat, buat, ubah (tidak bisa hapus)</div>
+    <div class="label">Pembelian</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Penjualan</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Piutang (A/R)</div><div class="value yes">Bisa lihat, buat, ubah, hapus</div>
+    <div class="label">Gudang</div><div class="value no">Tidak bisa akses</div>
+    <div class="label">Laporan</div><div class="value yes">Semua laporan bisa diakses</div>
+  </div>
+</div>
+
+<!-- SECTION 5 -->
+<h2><span class="section-num">5</span> Aturan Tampilan</h2>
+
+<table>
+  <tr><th>Situasi</th><th>Yang Terjadi</th></tr>
+  <tr><td>Punya akses penuh</td><td>Menu bisa diklik, semua tombol berfungsi</td></tr>
+  <tr><td>Punya akses tapi tidak bisa hapus</td><td><strong>Tombol Hapus disembunyikan</strong></td></tr>
+  <tr><td>Punya akses tapi tidak bisa ubah</td><td>Form hanya bisa dibaca (read-only), tombol Simpan mati</td></tr>
+  <tr><td>Tidak punya akses sama sekali</td><td><strong>Menu abu-abu</strong>, tidak bisa diklik</td></tr>
+  <tr><td>Buka halaman langsung lewat URL</td><td>Muncul pesan "Akses Dibatasi" + tombol kembali ke Dashboard</td></tr>
+</table>
+
+<!-- SECTION 6 -->
+<h2><span class="section-num">6</span> Aturan Laporan</h2>
+
+<p>Laporan terbagi 4 kategori:</p>
+<ol>
+  <li>Laporan Penjualan (Sales Report)</li>
+  <li>Laporan Gudang (Inventory Report)</li>
+  <li>Laporan Pembelian (Purchase Report)</li>
+  <li>Laporan Piutang (A/R Report)</li>
+</ol>
+
+<p>Setiap orang hanya bisa buka laporan yang diizinkan. Contoh: Didi hanya bisa buka Laporan Piutang — tiga laporan lainnya <strong>abu-abu</strong> di menu. Tapi di dalam Laporan Piutang, semua sub-halaman bisa dibuka penuh.</p>
+
+<!-- SECTION 7 -->
+<h2><span class="section-num">7</span> Siapa yang Bisa Atur Pengguna?</h2>
+
+<table>
+  <tr><th>Tugas</th><th style="width:15%">Developer</th><th style="width:15%">SuperAdmin</th><th style="width:15%">Lainnya</th></tr>
+  <tr><td>Buat pengguna baru</td><td class="td-yes">Ya</td><td class="td-yes">Ya</td><td class="td-no">Tidak</td></tr>
+  <tr><td>Ubah nama / email / jabatan</td><td class="td-yes">Ya</td><td class="td-yes">Ya</td><td class="td-no">Tidak</td></tr>
+  <tr><td>Ganti password pengguna lain</td><td class="td-yes">Ya</td><td class="td-yes">Ya</td><td class="td-no">Tidak</td></tr>
+  <tr><td>Atur izin akses per orang</td><td class="td-yes">Ya</td><td class="td-yes">Ya</td><td class="td-no">Tidak</td></tr>
+  <tr><td>Nonaktifkan pengguna</td><td class="td-yes">Ya</td><td class="td-yes">Ya</td><td class="td-no">Tidak</td></tr>
+</table>
+
+<p style="margin-top:12px">Pengaturan izin akses dilakukan lewat halaman Kelola Pengguna. Ada dialog untuk mengatur akses modul dan laporan per orang — seperti yang ada di tabel di atas.</p>
+
+<!-- SECTION 8 -->
+<h2><span class="section-num">8</span> Keamanan</h2>
+
+<ul>
+  <li>Setiap login pakai email + password</li>
+  <li>Password minimal 12 karakter (huruf besar, kecil, angka, simbol)</li>
+  <li>Salah password 5 kali → akun terkunci 15 menit</li>
+  <li>SuperAdmin wajib pakai kode keamanan tambahan (Google Authenticator)</li>
+  <li>Setiap 24 jam harus login ulang (sesi otomatis habis)</li>
+  <li>Semua aktivitas tercatat — ketahuan siapa yang melakukan apa dan kapan</li>
+</ul>
+
+<!-- SECTION 9 -->
+<h2><span class="section-num">9</span> Preferensi Pribadi</h2>
+
+<p>Setiap pengguna bisa atur sendiri:</p>
+
+<table>
+  <tr><th>Pengaturan</th><th>Pilihan</th></tr>
+  <tr><td>Bahasa</td><td>Indonesia / Inggris</td></tr>
+  <tr><td>Ukuran teks</td><td>Kecil / Normal / Besar</td></tr>
+  <tr><td>Tema</td><td>Terang / Gelap</td></tr>
+</table>
+
+<p>Pengaturan ini disimpan dan otomatis kembali saat login berikutnya — tidak perlu atur ulang.</p>
+
+<!-- CLOSING -->
+<div class="note" style="margin-top:40px; text-align:center; font-size:16px">
+  <strong>Apakah aturan akses di atas sudah sesuai?</strong><br><br>
+  Jika ada yang perlu diubah (misalnya: Didi seharusnya juga bisa buka Laporan Penjualan, atau Alvin tidak boleh hapus data Piutang), mohon dikabari sebelum kami mulai membangun.
+</div>
+
+<p style="text-align:center; margin-top:24px; padding:14px; background:var(--primary-light); border-radius:var(--radius); font-size:15px">
+  <strong>Setelah aturan ini disepakati, kami akan mulai membuat sistem login dan hak akses sesuai aturan di atas.</strong>
+</p>
+
+</div>
+
+<div class="no-print" style="text-align:center; padding: 24px">
+  <button onclick="window.print()" style="
+    background: #1e40af; color: white; border: none;
+    padding: 12px 32px; font-size: 15px; font-weight: 600;
+    border-radius: 8px; cursor: pointer;
+  ">
+    Cetak / Simpan sebagai PDF
+  </button>
+  <p class="muted" style="margin-top:8px">Klik tombol di atas, lalu pilih <strong>"Save as PDF"</strong> di dialog print</p>
+</div>
+
+</body>
+</html>

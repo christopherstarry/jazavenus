@@ -17,14 +17,14 @@ public sealed class AuditSaveChangesInterceptor(ICurrentUser currentUser) : Save
     private static readonly JsonSerializerOptions JsonOpts = new() { WriteIndented = false };
 
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
-        DbContextEventData eventData, InterceptionResult<int> result, CancellationToken ct = default)
+        DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
     {
         if (eventData.Context is not null)
         {
             StampAuditColumns(eventData.Context);
             EmitAuditLogs(eventData.Context);
         }
-        return base.SavingChangesAsync(eventData, result, ct);
+        return base.SavingChangesAsync(eventData, result, cancellationToken);
     }
 
     private void StampAuditColumns(DbContext db)

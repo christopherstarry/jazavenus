@@ -54,25 +54,25 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<DocumentSeries> DocumentSeries => Set<DocumentSeries>();
 
-    protected override void OnModelCreating(ModelBuilder b)
+    protected override void OnModelCreating(ModelBuilder builder)
     {
-        base.OnModelCreating(b);
+        base.OnModelCreating(builder);
 
         // PostgreSQL convention: snake_case is idiomatic but we keep PascalCase column names so
         // the legacy SQL Server schema (used by the ETL tool) is straightforward to map. PostgreSQL
         // happily quotes mixed-case identifiers; we set the citext extension only for case-insensitive
         // search on a couple of columns (handled per-property with .HasColumnType where needed).
-        b.HasPostgresExtension("citext");
+        builder.HasPostgresExtension("citext");
 
-        ConfigureIdentityTableNames(b);
-        ConfigureAuth(b);
-        ConfigureGlobalConventions(b);
-        ConfigureMasterData(b);
-        ConfigureInbound(b);
-        ConfigureOutbound(b);
-        ConfigureInvoicing(b);
-        ConfigureStock(b);
-        ConfigureAudit(b);
+        ConfigureIdentityTableNames(builder);
+        ConfigureAuth(builder);
+        ConfigureGlobalConventions(builder);
+        ConfigureMasterData(builder);
+        ConfigureInbound(builder);
+        ConfigureOutbound(builder);
+        ConfigureInvoicing(builder);
+        ConfigureStock(builder);
+        ConfigureAudit(builder);
     }
 
     private static void ConfigureIdentityTableNames(ModelBuilder b)

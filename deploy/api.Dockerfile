@@ -5,7 +5,8 @@ COPY backend/Jaza.Venus.sln ./
 COPY backend/src/ ./src/
 COPY backend/tests/ ./tests/
 RUN dotnet restore Jaza.Venus.sln
-RUN dotnet publish src/Jaza.Api/Jaza.Api.csproj -c Release -o /app /p:UseAppHost=false
+# API-only image (SPA is on Vercel). Skip npm/vite during publish.
+RUN dotnet publish src/Jaza.Api/Jaza.Api.csproj -c Release -o /app /p:UseAppHost=false /p:RunAnalyzersDuringBuild=false /p:SkipSpaPublish=true
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app

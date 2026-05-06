@@ -2,9 +2,9 @@
 
 ## 1. Executive Summary
 
-Jaza currently runs a warehouse and distribution management application built on **Windows XP**, written in **VB** with **SQL Server**. The system cannot be updated, cannot run on modern operating systems, and has no path forward for maintenance.
+Jaza currently runs a warehouse and distribution management application built on **Windows XP**, written in **VB** with **SQL Server**. The system cannot be updated, cannot run on modern operating systems, and has no path forward for maintenance. We are replacing it with **Jaza Venus** — a modern web-based application that replicates every existing feature, improves critical workflows, and is built on technology that can be maintained indefinitely.
 
-We are replacing it with **Jaza Venus** — a modern web-based application with one overriding principle: **the new system must work exactly like the old one, just better**. Same workflows, same menu names, same reports. Staff should not need retraining. On top of that foundation, we add improvements: 1-step invoicing, audit trail, role-based access, Bahasa Indonesia support, and SFA integration.
+The new system will be accessible from any device with a browser, provide an audit trail for all actions, support Bahasa Indonesia and English, and reduce invoice processing from 3 steps to 1.
 
 ## 2. Current Problems (Pain Points)
 
@@ -21,47 +21,32 @@ We are replacing it with **Jaza Venus** — a modern web-based application with 
 
 ## 3. Business Goals
 
-### 🎯 Goal #1 — Business Continuity: Zero Disruption (Must Have)
+### Primary Goals (Must Have)
 
-> **The most important goal: the new system must run exactly like the old one. No broken flows. No missing features. No downtime.**
+- [ ] **Full migration** — every feature in the old application works in the new application
+- [ ] **Zero workflow breakage** — all business flows work exactly as before, no retraining for existing behaviors
+- [ ] **Fast and secure** — pages load faster than the old desktop app, and security matches web standards
+- [ ] **All legacy data migrated** — every record from the old SQL Server moves to the new system intact
 
-- [ ] **Every feature migrated** — 100% of what the old VB application does, the new app does too
-- [ ] **All workflows unchanged** — purchase, sales, inventory, invoicing, A/R, and reporting flows work exactly the same
-- [ ] **Same labels and menu names** — staff do not need to relearn anything; the menu structure mirrors the old app
-- [ ] **All legacy data migrated intact** — every record from the old SQL Server moves to the new system with zero data loss
-- [ ] **Business keeps running during cutover** — no disruption to daily warehouse operations when switching
+### Improvement Goals (Must Have)
 
-### 🎯 Goal #2 — Modernize the Foundation (Must Have)
-
-> **Replace the aging technology so the application can be maintained and secure for the next 10+ years.**
-
-- [ ] **Maintainable forever** — PostgreSQL 17 + .NET 10 LTS + React 19, all chosen for long-term stability
-- [ ] **Fast and secure** — pages load faster than the old desktop app, data encrypted, security meets web standards
-- [ ] **Accessible from anywhere** — works on any device with a browser (laptop, tablet, phone)
-
-### 🎯 Goal #3 — Improvements (Must Have)
-
-> **Fix the biggest pain points the current system has.**
-
+- [ ] **Maintainable forever** — tech stack chosen for long-term stability (10+ years)
 - [ ] **Invoice flow simplified** — reduce from 3 steps to 1 step for both creation and revision
-- [ ] **Role-based access** — Developer (error logs), SuperAdmin (all access except logs), Admin (selected pages), Sales (limited pages)
-- [ ] **Full audit trail** — every create, edit, and delete records who did it and when (prevent internal fraud)
-- [ ] **5-year active data** — only the last 5 years of data is active; older data archived but still accessible
-- [ ] **Bahasa Indonesia + English** — user can switch language at any time
-- [ ] **SFA integration** — invoices created by vendor SFA systems automatically sync into Jaza Venus
+- [ ] **Role-based access** — at minimum: Developer (error logs), SuperAdmin (all access except logs), Admin (selected pages), Sales (limited pages)
+- [ ] **5-year active data** — only the last 5 years of data is active in the system; older data is archived
+- [ ] **Full audit trail** — every create, edit, and delete records who did it and when
+- [ ] **Bahasa Indonesia + English** — user can switch language; all labels support both
 
 ## 4. Who Will Use This?
 
 | Role | Estimated Users | Access Level |
 |------|----------------|-------------|
 | **Developer** | 1–2 | Full technical access + error log monitoring page (no business data changes) |
-| **SuperAdmin** | 1–2 | All business pages, user management, system settings (NO access to error logs) |
-| **Admin** | 3–5 | Selected pages (to be defined per module) |
-| **Operator / Sales** | 15–20 | Day-to-day operational pages only (to be defined per module) |
-| **Finance** | 3–5 | A/R, invoices, payment-related pages |
-| **Warehouse** | 10–15 | Inventory, receiving, stock movements |
+| **SuperAdmin** | 3–4 | All business pages, user management, system settings (NO access to error logs) |
+| **Admin** | 7-10 | Selected pages (to be defined per module) |
+| **Operator / Sales** | 20++ | Day-to-day operational pages only (to be defined per module) |
 
-**Total users**: ~35–50 concurrent during business hours.
+**Total users**: 50++ concurrent during business hours.
 
 ## 5. Scope
 
@@ -87,7 +72,6 @@ We are replacing it with **Jaza Venus** — a modern web-based application with 
 - [ ] Sales Confirmation
 - [ ] Sales Return
 - [ ] **Invoicing Process** (simplified from 3 steps to 1 step)
-- [ ] **SFA Invoice Receiving** — third-party vendor sales staff create invoices in their SFA system; those invoices are automatically sent to and recorded in Jaza Venus
 
 **Inventory Transaction**
 - [ ] Incoming Transaction (BPB)
@@ -124,17 +108,7 @@ We are replacing it with **Jaza Venus** — a modern web-based application with 
 - [ ] Localization (Bahasa Indonesia + English)
 - [ ] 5-year active data policy with archiving
 - [ ] Legacy data migration from old SQL Server
-- [ ] SFA integration layer — standard API endpoint to receive invoices from any third-party SFA vendor
 - [ ] Dashboard with daily summary
-
-### Phase 2 — Future (Out of Scope Now)
-
-- [ ] Mobile barcode scanning
-- [ ] Customer self-service portal
-- [ ] Supplier portal
-- [ ] Integration with accounting software
-- [ ] AI demand forecasting
-- [ ] Mobile app (Android / iOS)
 
 ## 6. Key Improvements Over Legacy System
 
@@ -147,7 +121,6 @@ We are replacing it with **Jaza Venus** — a modern web-based application with 
 | One language only | **Bahasa Indonesia + English**, switchable |
 | All data active forever | **5-year active data**, older data archived |
 | No error monitoring | **Developer dashboard** for API error logs |
-| No SFA integration — invoices only created inside the system | **SFA invoice receiving** — third-party vendor invoices sync automatically into Jaza Venus |
 | Windows XP desktop only | **Web browser** — any device, any modern OS |
 
 ## 7. Constraints & Risks
@@ -160,7 +133,6 @@ We are replacing it with **Jaza Venus** — a modern web-based application with 
 | Financial data — fraud risk from inside | Insiders could manipulate records | Audit trail captures every action; role-based access limits who can do what |
 | .NET + React stack must be maintainable forever | Technology choices must age well | .NET LTS versions only; React with stable ecosystem; avoid trendy/short-lived libraries |
 | Data > 5 years must remain accessible for audit | Archived data cannot slow down daily operations | Archive to separate read-only database or compressed files; accessible via separate query |
-| Third-party SFA vendors may send invoices in different formats | Incompatible data causes sync failures | Define a standard JSON schema for inbound invoices; validate on receipt; log all sync attempts |
 
 ## 8. Technical Requirements (Summary)
 
@@ -168,7 +140,7 @@ We are replacing it with **Jaza Venus** — a modern web-based application with 
 |------------|---------|
 | **Backend** | .NET 10 LTS (ASP.NET Core + EF Core) |
 | **Frontend** | React 19 + TypeScript + Vite + TailwindCSS |
-| **Database** | PostgreSQL 17 |
+| **Database** | SQL Server (kept from legacy) |
 | **Auth** | ASP.NET Core Identity + cookie sessions + MFA for SuperAdmin |
 | **Hosting** | Docker on Linux VPS (Caddy reverse proxy + Cloudflare CDN) |
 | **Localization** | i18n framework (Bahasa Indonesia + English) |
@@ -189,23 +161,18 @@ We are replacing it with **Jaza Venus** — a modern web-based application with 
 - [ ] System available in Bahasa Indonesia and English
 - [ ] Zero data loss during migration from old system
 - [ ] No security breaches in first 12 months
-- [ ] SFA invoice sync works within 60 seconds of vendor submission
-- [ ] Penetration test passed with zero critical or high findings before go-live
 
 ## 10. Timeline
 
-Target go-live: **Q1 2027 (January–February)**
-
-| Milestone | Timeline | Deliverable |
+| Milestone | Duration | Deliverable |
 |-----------|----------|------------|
-| **POC** | May–Jun 2026 | Working frontend with all screens navigable; client reviews UI/UX |
-| **Core modules** | Jul–Aug 2026 | Master data + Purchase + Sales + Inventory modules operational with real API |
-| **Invoicing + SFA + Reports** | Sep–Oct 2026 | Simplified 1-step invoice flow; SFA invoice receiving endpoint; all reports |
-| **Audit trail + Roles + i18n** | Jan 2027 | Full audit logging on every write action; role-based access enforced; Bahasa + English |
-| **Data migration + Archiving** | Jan 2027 | ETL from legacy SQL Server completed and verified; data > 5 years archived |
-| **Security hardening + Penetration testing** | Jan 2027 | Rate limiting, IP whitelisting, CSP, encryption, WAF, OWASP ZAP full scan; fix all findings |
-| **User acceptance testing (UAT) + Training** | Jan 2027 | Real users test with real data; bug fixes; training sessions by role |
-| **Go-live + cutover** | Feb 2027 | Cutover from legacy system; 2-week hyper-care support; daily backup verification |
+| **POC** | Week 1–2 | Working frontend with dummy data, all screens navigable |
+| **Core modules** | Week 3–8 | Master data + Purchase + Sales + Inventory working with real API |
+| **Invoicing + Reports + A/R** | Week 9–12 | All transactions, reports, A/R, simplified invoice flow |
+| **Audit trail + Roles + i18n** | Week 13–14 | Full audit logging, role-based access, Bahasa + English |
+| **Data migration** | Week 15–16 | ETL from legacy SQL Server, archive data > 5 years |
+| **User testing** | Week 17–18 | Real users test with real data, bug fixes |
+| **Go-live** | Week 19–20 | Cutover from old system, staff training |
 
 ## 11. Budget (Estimate)
 

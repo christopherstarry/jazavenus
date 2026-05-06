@@ -37,9 +37,13 @@ function shouldRetryWithRefresh(req: KyRequest): boolean {
 
 /**
  * API root for ky. Local dev: `/api` (Vite proxies to the ASP.NET app).
- * Static hosting (GitHub Pages): set `VITE_API_BASE_URL=https://<your-api-host>/api` at build time.
+ * Vercel hosting: `/api` (Vercel rewrites to the Fly backend in vercel.json).
  */
 function apiPrefixUrl(): string {
+  if (typeof window !== "undefined" && window.location.hostname.endsWith(".vercel.app")) {
+    return "/api";
+  }
+
   const raw = import.meta.env.VITE_API_BASE_URL?.trim();
   if (!raw) return "/api";
   const base = raw.replace(/\/+$/, "");
