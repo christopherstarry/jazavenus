@@ -32,7 +32,7 @@ kill_timeout = "15s"
   Auth__RequireSuperAdminMfa = "false"
   Seed__SuperAdminEmail = "superadmin@jaza.local"
   Seed__SuperAdminPassword = "SuperAdminPassword123!"
-  Seed__DeveloperEmail = "dev@jaza.local"
+  Seed__DeveloperEmail = "developer@jaza.local"
   Seed__DeveloperPassword = "DevPassword123!"
   Seed__IncludeDemoUsers = "true"
 

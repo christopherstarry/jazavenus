@@ -8,7 +8,6 @@ import {
   Wallet,
   Package,
   BarChart3,
-  Receipt,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -893,29 +892,6 @@ export const TREE: ModuleNode[] = [
             label: "Outstanding PDC Report",
           },
         ],
-      },
-    ],
-  },
-
-  /* ── Tax Form ────────────────────────────────────────────────────────── */
-  {
-    id: "tax",
-    path: "/tax",
-    label: "Tax Form",
-    description: "Tax invoice and VAT reporting",
-    icon: Receipt,
-    children: [
-      {
-        id: "tax.simple-invoice",
-        path: "/tax/simple-tax-invoice-report",
-        label: "Simple Tax Invoice Report",
-        description: "Generate simple tax invoices",
-      },
-      {
-        id: "tax.vat",
-        path: "/tax/value-added-tax-report",
-        label: "Value Added Tax Report",
-        description: "Generate VAT report",
       },
     ],
   },
