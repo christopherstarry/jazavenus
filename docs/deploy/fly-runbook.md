@@ -103,12 +103,17 @@ Inside the SSH shell the API logs are at `/app/logs/jaza-api-YYYY-MM-DD.log` (Se
 
 ## Frontend pointing at production API
 
-The SPA's Vite dev proxy points `/api` to `https://localhost:5001`. **GitHub Pages is static** — there is no same-origin `/api`, so the built SPA must call the Fly API explicitly.
+The SPA's Vite dev proxy points `/api` to `https://localhost:5001`. **GitHub Pages and Vercel are static hosts** — there is no same-origin `/api`, so the built SPA must call the Fly API explicitly.
 
-1. Set **`VITE_API_BASE_URL`** at build time to your public API root, e.g. `https://<app>.fly.dev/api` (see [`frontend/.env.example`](../../frontend/.env.example)).
-2. Add the SPA **origin** to `Cors:AllowedOrigins` for the API (e.g. `https://christopherstarry.github.io` for project sites under `/<repo>/`). The browser sends `Origin: https://<user>.github.io`, not a path-specific origin.
+1. Set **`VITE_API_BASE_URL`** at build time to your public API root, e.g. `https://jaza-venus.fly.dev/api` (see [`frontend/.env.example`](../../frontend/.env.example)).
+2. Add the SPA **origin** to `Cors:AllowedOrigins` for the API (e.g. `https://jazavenus.vercel.app` for Vercel).
 
-The [`deploy-frontend-github-pages`](../../.github/workflows/deploy-frontend-github-pages.yml) workflow sets `VITE_API_BASE_URL` from the repository variable `VITE_API_BASE_URL`, or defaults to `https://${FLY_APP}.fly.dev/api` (repository variable `FLY_APP`, default `jaza-venus`).
+**Vercel deployment:**
+- Set repository secret or Vercel environment variable **`VITE_API_BASE_URL=https://jaza-venus.fly.dev/api`** (or your Fly hostname).
+- Redeploy after setting the env var; the build will bake the API URL into the bundle.
+
+**GitHub Pages deployment:**
+- The [`deploy-frontend-github-pages`](../../.github/workflows/deploy-frontend-github-pages.yml) workflow sets `VITE_API_BASE_URL` from the repository variable `VITE_API_BASE_URL`, or defaults to `https://${FLY_APP}.fly.dev/api` (repository variable `FLY_APP`, default `jaza-venus`).
 
 ## Cost & limits today
 
