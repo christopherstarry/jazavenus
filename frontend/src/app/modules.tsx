@@ -226,7 +226,8 @@ export const TREE: ModuleNode[] = [
         id: "system.change-password",
         path: "/system/change-password",
         label: "Change Password",
-        description: "Update your sign-in password",
+        description: "Update a user's sign-in password",
+        superAdminOnly: true,
         Component: ChangePasswordPage,
       },
 

@@ -29,7 +29,11 @@ kill_timeout = "15s"
   Cookie__SecurePolicy = "Always"
   Cors__AllowedOrigins__0 = "https://jazavenus.vercel.app"
   Cors__AllowedOrigins__1 = "https://jaza-venus.fly.dev"
-  Auth__RequireSuperAdminMfa = "true"
+  Auth__RequireSuperAdminMfa = "false"
+  Seed__SuperAdminEmail = "superadmin@jaza.local"
+  Seed__SuperAdminPassword = ""
+  Seed__DeveloperEmail = "dev@jaza.local"
+  Seed__DeveloperPassword = "DevPassword123!"
   Seed__IncludeDemoUsers = "true"
 
 [http_service]

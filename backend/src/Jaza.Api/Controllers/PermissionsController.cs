@@ -10,13 +10,13 @@ using Microsoft.EntityFrameworkCore;
 namespace Jaza.Api.Controllers;
 
 /// <summary>
-/// Module + report permission management for an individual user. Developer + SuperAdmin only.
-/// PUT replaces the user's full permission set in a single transaction so the UI dialog can
-/// emit one request when the operator clicks Save.
+/// Module + report permission management for an individual user.
+/// Reading permissions is open to all authenticated users.
+/// Writing (PUT) is Developer + SuperAdmin only.
 /// </summary>
 [ApiController]
 [Route("api/users/{userId:guid}/permissions")]
-[Authorize(Policy = Policies.RequireSuperAdmin)]
+[Authorize]
 [Produces("application/json")]
 public sealed class PermissionsController(
     AppDbContext db,
@@ -52,6 +52,7 @@ public sealed class PermissionsController(
     /// • Modules absent from the request body are removed from the DB.
     /// </summary>
     [HttpPut]
+    [Authorize(Policy = Policies.RequireSuperAdmin)]
     [ProducesResponseType(typeof(UserPermissionsView), 200)]
     [ProducesResponseType(typeof(ProblemDetails), 400)]
     [ProducesResponseType(404)]

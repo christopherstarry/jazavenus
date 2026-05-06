@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
-import { useAuth, type CurrentUser, type ResolvedPermissions } from "#/lib/auth";
+import { useAuth, hasRole, type CurrentUser, type ResolvedPermissions } from "#/lib/auth";
 import { Button } from "#/components/ui/button";
 import { Badge } from "#/components/ui/badge";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "#/components/ui/sheet";
@@ -220,7 +220,9 @@ function UserMenu({
           </div>
         </div>
         <div className="p-2">
-          <UserMenuItem icon={KeyRound} label="Change password" onClick={() => { setOpen(false); onChangePassword(); }} />
+          {hasRole(user, "SuperAdmin", "Developer") && (
+            <UserMenuItem icon={KeyRound} label="Change password" onClick={() => { setOpen(false); onChangePassword(); }} />
+          )}
           <UserMenuItem icon={Settings} label="Settings"        onClick={() => { setOpen(false); onSettings(); }} />
           <UserMenuItem icon={LogOut}   label="Sign out"        onClick={() => { setOpen(false); onLogout(); }} tone="destructive" />
         </div>

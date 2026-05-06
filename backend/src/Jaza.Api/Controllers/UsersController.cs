@@ -12,12 +12,12 @@ using Microsoft.EntityFrameworkCore;
 namespace Jaza.Api.Controllers;
 
 /// <summary>
-/// User management — Developer + SuperAdmin only (PRD §10.1). Includes a force password reset
-/// endpoint that mirrors POST /api/auth/change-password but lives under /users for UI symmetry.
+/// User management — list is visible to all authenticated users (PRD §10.1 whitelist).
+/// Mutating endpoints (create / update / deactivate / reset-password) are Developer + SuperAdmin only.
 /// </summary>
 [ApiController]
 [Route("api/users")]
-[Authorize(Policy = Policies.RequireSuperAdmin)]
+[Authorize]
 [Produces("application/json")]
 public sealed class UsersController(
     UserManager<AppUser> users,
@@ -92,6 +92,7 @@ public sealed class UsersController(
 
     /// <summary>Create a new user with optional custom permissions.</summary>
     [HttpPost]
+    [Authorize(Policy = Policies.RequireSuperAdmin)]
     [ProducesResponseType(typeof(UserDetail), 201)]
     [ProducesResponseType(typeof(ProblemDetails), 400)]
     public async Task<ActionResult<UserDetail>> Create([FromBody] CreateUserRequest req, CancellationToken ct)
@@ -133,6 +134,7 @@ public sealed class UsersController(
 
     /// <summary>Update name, email, role, active flag.</summary>
     [HttpPut("{id:guid}")]
+    [Authorize(Policy = Policies.RequireSuperAdmin)]
     [ProducesResponseType(typeof(UserDetail), 200)]
     [ProducesResponseType(typeof(ProblemDetails), 400)]
     [ProducesResponseType(404)]
@@ -177,6 +179,7 @@ public sealed class UsersController(
 
     /// <summary>Soft-deactivate a user (IsActive = false). Revokes all sessions.</summary>
     [HttpDelete("{id:guid}")]
+    [Authorize(Policy = Policies.RequireSuperAdmin)]
     [ProducesResponseType(204)]
     [ProducesResponseType(404)]
     public async Task<IActionResult> Deactivate(Guid id, CancellationToken ct)
@@ -197,6 +200,7 @@ public sealed class UsersController(
     /// mirrored under the user resource for the management UI.
     /// </summary>
     [HttpPost("{id:guid}/reset-password")]
+    [Authorize(Policy = Policies.RequireSuperAdmin)]
     [ProducesResponseType(typeof(MessageResponse), 200)]
     [ProducesResponseType(typeof(ProblemDetails), 400)]
     [ProducesResponseType(404)]

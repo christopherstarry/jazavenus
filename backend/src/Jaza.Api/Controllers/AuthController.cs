@@ -271,7 +271,7 @@ public sealed class AuthController(
     /// a fresh cookie + JWT for the current device so they can keep working.
     /// </summary>
     [HttpPost("me/change-password")]
-    [Authorize]
+    [Authorize(Policy = Policies.RequireSuperAdmin)]
     [ProducesResponseType(typeof(LoginResponse), 200)]
     [ProducesResponseType(typeof(ProblemDetails), 400)]
     [ProducesResponseType(typeof(ProblemDetails), 401)]
