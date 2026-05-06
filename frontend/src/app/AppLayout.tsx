@@ -182,6 +182,7 @@ function UserMenu({
 }) {
   const [open, setOpen] = useState(false);
   const initials = getInitials(user);
+  const canManageUsers = user.isDeveloper || hasRole(user, "Developer", "SuperAdmin");
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -222,10 +223,10 @@ function UserMenu({
           </div>
         </div>
         <div className="p-2">
-          {hasRole(user, "SuperAdmin", "Developer") && (
+          {canManageUsers && (
             <UserMenuItem icon={KeyRound} label="Change password" onClick={() => { setOpen(false); onChangePassword(); }} />
           )}
-          {hasRole(user, "SuperAdmin", "Developer") && (
+          {canManageUsers && (
             <UserMenuItem icon={Users} label="Manage Users" onClick={() => { setOpen(false); onManageUsers(); }} />
           )}
           <UserMenuItem icon={Settings} label="Settings"        onClick={() => { setOpen(false); onSettings(); }} />
@@ -358,7 +359,9 @@ function SidebarSection({
     if (isActive) setManuallyExpanded(null);
   }, [isActive]);
 
-  const childrenForUser = navigationChildren(section);
+  const childrenForUser = navigationChildren(section).filter(
+    (child) => child.id !== "system.manage-users" || hasRole(user, "SuperAdmin"),
+  );
   const hasChildren = childrenForUser.length > 0;
   const canOpenSection = canAccessModule(section, user, permissions);
 

@@ -10,6 +10,7 @@ interface ModulePermissionDto {
   module: string;
   canEdit: boolean;
   canDelete: boolean;
+  enabled?: boolean;
 }
 
 interface UserDetail {
@@ -57,7 +58,12 @@ export function UserEditDialog({ user, currentUser, open, onClose }: Props) {
   const [modules, setModules] = useState<ModulePermissionDto[]>(() =>
     ALL_MODULES.map((m) => {
       const existing = user.modules.find((x) => x.module === m.key);
-      return { module: m.key, canEdit: existing?.canEdit ?? false, canDelete: existing?.canDelete ?? false };
+      return {
+        module: m.key,
+        canEdit: existing?.canEdit ?? false,
+        canDelete: existing?.canDelete ?? false,
+        enabled: !!existing,
+      };
     }));
   const [reports, setReports] = useState<string[]>(user.reports ?? []);
   const [saving, setSaving] = useState(false);
@@ -71,7 +77,12 @@ export function UserEditDialog({ user, currentUser, open, onClose }: Props) {
     setModules(
       ALL_MODULES.map((m) => {
         const existing = user.modules.find((x) => x.module === m.key);
-        return { module: m.key, canEdit: existing?.canEdit ?? false, canDelete: existing?.canDelete ?? false };
+        return {
+          module: m.key,
+          canEdit: existing?.canEdit ?? false,
+          canDelete: existing?.canDelete ?? false,
+          enabled: !!existing,
+        };
       })
     );
     setReports(user.reports ?? []);
@@ -90,7 +101,15 @@ export function UserEditDialog({ user, currentUser, open, onClose }: Props) {
       }).json();
       if (canEditDev || user.role !== "Developer") {
         await api.put(`users/${user.id}/permissions`, {
-          json: { hasCustomPermissions: hasCustom, modules: hasCustom ? modules.filter((m) => m.canEdit || m.canDelete) : [], reports: hasCustom ? reports : [] },
+          json: {
+            hasCustomPermissions: hasCustom,
+            modules: hasCustom
+              ? modules
+                  .filter((m) => m.enabled)
+                  .map(({ module, canEdit, canDelete }) => ({ module, canEdit, canDelete }))
+              : [],
+            reports: hasCustom ? reports : [],
+          },
         }).json();
       }
       onClose();
@@ -102,13 +121,13 @@ export function UserEditDialog({ user, currentUser, open, onClose }: Props) {
     }
   };
 
-  const canEditUser = canEditDev || user.role !== "Developer";
+  const canEditUser = canEditDev || user.role === "Admin" || user.role === "Sales";
 
   const roleOptions = canEditDev
     ? ["Sales", "Admin", "SuperAdmin", "Developer"]
     : ["Sales", "Admin"];
 
-  const activeModules = modules.filter((m) => m.canEdit || m.canDelete);
+  const activeModules = modules.filter((m) => m.enabled);
   const activeModulesSet = new Set(activeModules.map((m) => m.module));
 
   return (
@@ -178,10 +197,12 @@ export function UserEditDialog({ user, currentUser, open, onClose }: Props) {
                             disabled={!canEditUser}
                             onChange={(e) => {
                               const copy = [...modules];
+                              const current = copy[i];
+                              if (!current) return;
                               if (e.target.checked) {
-                                copy[i] = { ...copy[i], canEdit: false, canDelete: false };
+                                copy[i] = { ...current, enabled: true };
                               } else {
-                                copy[i] = { ...copy[i], canEdit: false, canDelete: false };
+                                copy[i] = { ...current, enabled: false, canEdit: false, canDelete: false };
                               }
                               setModules(copy);
                             }}
@@ -195,7 +216,14 @@ export function UserEditDialog({ user, currentUser, open, onClose }: Props) {
                             disabled={!activeModulesSet.has(m.module) || !canEditUser}
                             onChange={(e) => {
                               const copy = [...modules];
-                              copy[i] = { ...copy[i], canEdit: e.target.checked, canDelete: e.target.checked ? copy[i].canDelete : false };
+                              const current = copy[i];
+                              if (!current) return;
+                              copy[i] = {
+                                ...current,
+                                enabled: true,
+                                canEdit: e.target.checked,
+                                canDelete: e.target.checked ? current.canDelete : false,
+                              };
                               setModules(copy);
                             }}
                             className="h-4 w-4"
@@ -208,7 +236,9 @@ export function UserEditDialog({ user, currentUser, open, onClose }: Props) {
                             disabled={!m.canEdit || !canEditUser}
                             onChange={(e) => {
                               const copy = [...modules];
-                              copy[i] = { ...copy[i], canDelete: e.target.checked };
+                              const current = copy[i];
+                              if (!current) return;
+                              copy[i] = { ...current, enabled: true, canDelete: e.target.checked };
                               setModules(copy);
                             }}
                             className="h-4 w-4"

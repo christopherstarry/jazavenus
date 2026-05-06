@@ -11,13 +11,11 @@ using Microsoft.EntityFrameworkCore;
 namespace Jaza.Api.Controllers;
 
 /// <summary>
-/// Module + report permission management for an individual user.
-/// Reading permissions is open to all authenticated users.
-/// Writing (PUT) is Developer + SuperAdmin only.
+/// Module + report permission management for an individual user. Developer + SuperAdmin only.
 /// </summary>
 [ApiController]
 [Route("api/users/{userId:guid}/permissions")]
-[Authorize]
+[Authorize(Policy = Policies.RequireSuperAdmin)]
 [Produces("application/json")]
 public sealed class PermissionsController(
     AppDbContext db,
@@ -53,7 +51,6 @@ public sealed class PermissionsController(
     /// • Modules absent from the request body are removed from the DB.
     /// </summary>
     [HttpPut]
-    [Authorize(Policy = Policies.RequireSuperAdmin)]
     [ProducesResponseType(typeof(UserPermissionsView), 200)]
     [ProducesResponseType(typeof(ProblemDetails), 400)]
     [ProducesResponseType(404)]
@@ -65,8 +62,8 @@ public sealed class PermissionsController(
         var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId, ct);
         if (user is null) return NotFound();
 
-        // SuperAdmin cannot modify Developer permissions
-        if (!User.IsInRole(Roles.Developer) && user.RoleId == Roles.Code.Developer)
+        // Developer can modify all roles. SuperAdmin can modify Admin/Sales only.
+        if (!User.IsInRole(Roles.Developer) && user.RoleId is not (Roles.Code.Admin or Roles.Code.Sales))
             return Forbid();
 
         await permissions.ReplaceAsync(userId, req.HasCustomPermissions, req.Modules, req.Reports, ct);

@@ -154,17 +154,8 @@ public static class DbInitializer
         var existing = await users.FindByEmailAsync(seedEmail);
         if (existing is not null)
         {
-            // User exists — if an explicit password is configured, sync it so redeploys don't lock out.
-            if (!string.IsNullOrWhiteSpace(seedPwd))
-            {
-                var token = await users.GeneratePasswordResetTokenAsync(existing);
-                var reset = await users.ResetPasswordAsync(existing, token, seedPwd);
-                if (reset.Succeeded)
-                    logger.LogWarning("Synced SuperAdmin password from config (existing user)");
-                else
-                    logger.LogError("Failed to sync SuperAdmin password: {Errors}",
-                        string.Join("; ", reset.Errors.Select(e => e.Description)));
-            }
+            await EnsureSeededPrivilegedUserAsync(
+                users, logger, existing, Roles.Code.SuperAdmin, Roles.SuperAdmin, seedPwd, "SuperAdmin");
             return;
         }
 
@@ -208,17 +199,8 @@ public static class DbInitializer
         var existing = await users.FindByEmailAsync(seedEmail);
         if (existing is not null)
         {
-            // User exists — if an explicit password is configured, sync it.
-            if (!string.IsNullOrWhiteSpace(seedPwd))
-            {
-                var token = await users.GeneratePasswordResetTokenAsync(existing);
-                var reset = await users.ResetPasswordAsync(existing, token, seedPwd);
-                if (reset.Succeeded)
-                    logger.LogWarning("Synced Developer password from config (existing user)");
-                else
-                    logger.LogError("Failed to sync Developer password: {Errors}",
-                        string.Join("; ", reset.Errors.Select(e => e.Description)));
-            }
+            await EnsureSeededPrivilegedUserAsync(
+                users, logger, existing, Roles.Code.Developer, Roles.Developer, seedPwd, "Developer");
             return;
         }
 
@@ -248,6 +230,48 @@ public static class DbInitializer
         logger.LogWarning("Seeded Developer email={Email}", seedEmail);
         if (generated)
             logger.LogWarning("Generated initial Developer password (rotate immediately): {Password}", seedPwd);
+    }
+
+    private static async Task EnsureSeededPrivilegedUserAsync(
+        UserManager<AppUser> users,
+        ILogger logger,
+        AppUser user,
+        short roleId,
+        string roleName,
+        string? configuredPassword,
+        string label)
+    {
+        user.RoleId = roleId;
+        user.HasCustomPermissions = false;
+        user.IsActive = true;
+        user.LockoutEnd = null;
+        user.AccessFailedCount = 0;
+        user.MustChangePassword = false;
+        user.UpdatedAtUtc = DateTime.UtcNow;
+        await users.UpdateAsync(user);
+
+        if (!await users.IsInRoleAsync(user, roleName))
+        {
+            await users.AddToRoleAsync(user, roleName);
+        }
+
+        if (string.IsNullOrWhiteSpace(configuredPassword))
+        {
+            logger.LogWarning("Ensured seeded {Label} account is active and unlocked", label);
+            return;
+        }
+
+        var token = await users.GeneratePasswordResetTokenAsync(user);
+        var reset = await users.ResetPasswordAsync(user, token, configuredPassword);
+        if (reset.Succeeded)
+        {
+            logger.LogWarning("Synced {Label} password from config and cleared lockout", label);
+        }
+        else
+        {
+            logger.LogError("Failed to sync {Label} password: {Errors}",
+                label, string.Join("; ", reset.Errors.Select(e => e.Description)));
+        }
     }
 
     /// <summary>

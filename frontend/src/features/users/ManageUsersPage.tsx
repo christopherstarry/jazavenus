@@ -1,4 +1,4 @@
-import { useState, useCallback, type ReactNode } from "react";
+import { useState, useCallback } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { Search, ChevronLeft, ChevronRight, Users, Pencil, KeyRound, Lock } from "lucide-react";
 import { api } from "#/lib/api";
@@ -78,7 +78,7 @@ export function ManageUsersPage() {
     const isDev = currentUser?.isDeveloper;
     const isSuperAdmin = currentUser?.roles?.includes("SuperAdmin");
     if (isDev) return true;
-    if (isSuperAdmin && targetRole !== "Developer") return true;
+    if (isSuperAdmin && (targetRole === "Admin" || targetRole === "Sales")) return true;
     return false;
   }, [currentUser]);
 
@@ -140,9 +140,9 @@ export function ManageUsersPage() {
               </TableHeader>
               <TableBody>
                 {q.data.items.map((u) => {
-                  const isTargetDev = u.role === "Developer";
+                  const isProtectedRole = u.role === "Developer" || u.role === "SuperAdmin";
                   const isDev = currentUser?.isDeveloper;
-                  const locked = !isDev && isTargetDev;
+                  const locked = !isDev && isProtectedRole;
                   return (
                     <TableRow key={u.id}>
                       <TableCell className="font-medium">{u.fullName}</TableCell>
@@ -161,7 +161,7 @@ export function ManageUsersPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
-                          {canModify(u.role) && !isTargetDev && (
+                          {canModify(u.role) && (
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <Button variant="ghost" size="icon" onClick={() => openReset(u)}>
@@ -178,7 +178,7 @@ export function ManageUsersPage() {
                                   <Lock className="h-4 w-4" />
                                 </Button>
                               </TooltipTrigger>
-                              <TooltipContent>Cannot modify Developer</TooltipContent>
+                              <TooltipContent>Cannot modify this role</TooltipContent>
                             </Tooltip>
                           ) : canModify(u.role) ? (
                             <Tooltip>
