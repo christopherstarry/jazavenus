@@ -54,7 +54,7 @@ public static class DbInitializer
                 new(Modules.Purchase,  CanEdit: true,  CanDelete: true),
                 new(Modules.Inventory, CanEdit: true,  CanDelete: true),
             ],
-            [ReportTypes.Ar]),
+            [ReportTypes.Inventory]),
 
         new("nenden@jaza.local", "Nenden", Roles.Code.Admin,
             [

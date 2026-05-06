@@ -300,7 +300,10 @@ function SidebarNavigation({ user, permissions, activeSectionId }: NavBaseProps)
 
         {/* Main day-to-day sections */}
         <ul className="flex flex-col gap-1">
-          {main.map((section) => (
+          {main
+            .filter((s) => !s.superAdminOnly || hasRole(user, "SuperAdmin"))
+            .filter((s) => s.id !== "report" || (permissions?.reports?.length ?? 0) > 0)
+            .map((section) => (
             <SidebarSection
               key={section.id}
               section={section}
