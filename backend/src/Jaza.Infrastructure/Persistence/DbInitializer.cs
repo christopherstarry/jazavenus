@@ -144,7 +144,23 @@ public static class DbInitializer
     {
         var seedEmail = config["Seed:SuperAdminEmail"] ?? "superadmin@jaza.local";
         var seedPwd = config["Seed:SuperAdminPassword"];
-        if (await users.FindByEmailAsync(seedEmail) is not null) return;
+
+        var existing = await users.FindByEmailAsync(seedEmail);
+        if (existing is not null)
+        {
+            // User exists — if an explicit password is configured, sync it so redeploys don't lock out.
+            if (!string.IsNullOrWhiteSpace(seedPwd))
+            {
+                var token = await users.GeneratePasswordResetTokenAsync(existing);
+                var reset = await users.ResetPasswordAsync(existing, token, seedPwd);
+                if (reset.Succeeded)
+                    logger.LogWarning("Synced SuperAdmin password from config (existing user)");
+                else
+                    logger.LogError("Failed to sync SuperAdmin password: {Errors}",
+                        string.Join("; ", reset.Errors.Select(e => e.Description)));
+            }
+            return;
+        }
 
         var generated = false;
         if (string.IsNullOrWhiteSpace(seedPwd))
@@ -180,9 +196,26 @@ public static class DbInitializer
     {
         var seedEmail = config["Seed:DeveloperEmail"];
         if (string.IsNullOrWhiteSpace(seedEmail)) return;
-        if (await users.FindByEmailAsync(seedEmail) is not null) return;
 
         var seedPwd = config["Seed:DeveloperPassword"];
+
+        var existing = await users.FindByEmailAsync(seedEmail);
+        if (existing is not null)
+        {
+            // User exists — if an explicit password is configured, sync it.
+            if (!string.IsNullOrWhiteSpace(seedPwd))
+            {
+                var token = await users.GeneratePasswordResetTokenAsync(existing);
+                var reset = await users.ResetPasswordAsync(existing, token, seedPwd);
+                if (reset.Succeeded)
+                    logger.LogWarning("Synced Developer password from config (existing user)");
+                else
+                    logger.LogError("Failed to sync Developer password: {Errors}",
+                        string.Join("; ", reset.Errors.Select(e => e.Description)));
+            }
+            return;
+        }
+
         var generated = false;
         if (string.IsNullOrWhiteSpace(seedPwd))
         {
