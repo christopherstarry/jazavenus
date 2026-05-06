@@ -59,7 +59,7 @@ builder.Services.ConfigureApplicationCookie(opt =>
 {
     opt.Cookie.Name = cookieCfg["Name"] ?? "jaza.auth";
     opt.Cookie.HttpOnly = true;
-    opt.Cookie.SameSite = SameSiteMode.None;
+    opt.Cookie.SameSite = SameSiteMode.Strict;
     opt.Cookie.SecurePolicy = Enum.TryParse<CookieSecurePolicy>(cookieCfg["SecurePolicy"], out var p) ? p : CookieSecurePolicy.Always;
 
     // 24h fixed lifetime per PRD §7. NOT sliding — when the cookie expires the user must log in.
