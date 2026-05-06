@@ -46,6 +46,7 @@ public sealed class RefreshTokenService(AppDbContext db, IConfiguration config) 
         var hash = Hash(rawToken);
 
         var row = await db.RefreshTokens
+            .AsNoTracking()
             .Where(t => t.TokenHash == hash)
             .FirstOrDefaultAsync(ct);
         if (row is null) return null;

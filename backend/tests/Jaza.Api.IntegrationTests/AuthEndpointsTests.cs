@@ -142,9 +142,9 @@ public sealed class AuthEndpointsTests(PostgresFixture fx)
     [Fact]
     public async Task ChangePassword_AsRegularUser_Forbidden()
     {
-        var (yane, login) = await LoginAsync("yane@jaza.local", "Password123!");
+        var (user, login) = await LoginAsync("robby@jaza.local", "Password123!");
 
-        var resp = await yane.PostAsJsonAsync("/api/auth/change-password",
+        var resp = await user.PostAsJsonAsync("/api/auth/change-password",
             new ChangePasswordRequest(login.User.Id, "NewStrongPwd123!", "NewStrongPwd123!"));
         resp.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
