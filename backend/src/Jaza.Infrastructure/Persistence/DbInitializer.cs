@@ -80,6 +80,12 @@ public static class DbInitializer
             [],
             [ReportTypes.Ar]),
 
+        new("nisa@jaza.local",   "Nisa",   Roles.Code.Sales,
+            [
+                new(Modules.Sales, CanEdit: true, CanDelete: true),
+            ],
+            [ReportTypes.Ar]),
+
         new("robby@jaza.local",  "Robby",  Roles.Code.Sales,
             [],
             [ReportTypes.Ar, ReportTypes.Sales]),

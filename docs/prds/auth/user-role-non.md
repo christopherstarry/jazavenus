@@ -51,7 +51,7 @@ Setiap orang di bawah ini punya aturan akses yang berbeda. Tidak pakai jabatan s
 | Penjualan (Sales) | ❌ |
 | Piutang (A/R) | ❌ |
 | Inventori / Gudang | ✅ edit+hapus |
-| Laporan | Hanya **Laporan Piutang (A/R)** |
+| Laporan | Hanya **Laporan Inventori** |
 
 #### 3. Nenden
 
