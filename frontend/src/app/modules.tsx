@@ -33,6 +33,10 @@ export type ChildLayout =
   /** Children are tabs at the top of the parent page. They do NOT clutter the sidebar. */
   | "tabs";
 
+/** Canonical module ids known to the auth API (PRD §6.1). */
+export type ModuleKey = "master" | "purchase" | "sales" | "inventory" | "ar";
+export type ReportKey = "sales" | "inventory" | "purchase" | "ar";
+
 export interface ModuleNode {
   /** Stable id used by Recent / Favorites. */
   id: string;
@@ -44,8 +48,21 @@ export interface ModuleNode {
   description?: string;
   /** Optional Lucide icon. Top-level sections always have one. */
   icon?: LucideIcon;
-  /** "SuperAdmin" → only visible to SuperAdmins. */
+  /** "SuperAdmin" → only visible to SuperAdmins (legacy gate, kept for system tools). */
   superAdminOnly?: boolean;
+  /** "Developer" → only visible to Developer (error logs / dev-only diagnostics). */
+  developerOnly?: boolean;
+  /**
+   * The canonical permission module that gates this navigation item. When set, the sidebar
+   * and routing only show the node when the resolved permissions include the module
+   * (PRD §6.1). Inherited by descendants.
+   */
+  moduleKey?: ModuleKey;
+  /**
+   * The canonical permission report-type that gates this report node. When set, the user
+   * must have the report listed in `permissions.reports` to see it. Inherited by descendants.
+   */
+  reportKey?: ReportKey;
   /** Visual divider rendered BEFORE this node in the sidebar (matches the dashes in the user's list). */
   divider?: boolean;
   /** How children are presented; defaults to "sidebar". */
@@ -60,6 +77,8 @@ export interface ModuleNode {
    * that used to duplicate the hidden parent tab).
    */
   tabsDefaultRedirect?: string;
+  /** With `childLayout: "tabs"`, render legacy toolbar + division above the tab strip. */
+  legacyReportTabsChrome?: boolean;
   children?: ModuleNode[];
 }
 
@@ -166,6 +185,16 @@ import {
   StockTakingPreparationPage,
   StockTakingRecordPage,
 } from "#/features/inventory/StockTakingAndPlanningPages";
+import { ReportSelectorPage } from "#/features/reports/ReportSelectorPage";
+import { ProductSellingReportPage } from "#/features/reports/ProductSellingReportPage";
+import { DetailTransactionPenjualanReportPage } from "#/features/reports/DetailTransactionPenjualanReportPage";
+import {
+  RecapitulationSalesReturnByBrandPage,
+  RecapitulationSalesReturnByCustomerPage,
+  RecapitulationSalesReturnByCustomerWithStatusPage,
+  RecapitulationSalesReturnBySalesmanPage,
+} from "#/features/reports/RecapitulationSalesReturnVariants";
+import { StockPositionReportPage } from "#/features/reports/StockPositionReportPage";
 
 /* ── The actual tree ─────────────────────────────────────────────────────── */
 
@@ -249,6 +278,7 @@ export const TREE: ModuleNode[] = [
     label: "Master Maintenance",
     description: "All master records — people, products, finance setup",
     icon: Database,
+    moduleKey: "master",
     children: [
       {
         id: "master.employee",
@@ -447,6 +477,7 @@ export const TREE: ModuleNode[] = [
     label: "Purchase Transaction",
     description: "Buying from suppliers",
     icon: ShoppingCart,
+    moduleKey: "purchase",
     children: [
       {
         id: "purchase.order",
@@ -479,6 +510,7 @@ export const TREE: ModuleNode[] = [
     label: "Sales Transaction",
     description: "Selling to customers",
     icon: TrendingUp,
+    moduleKey: "sales",
     children: [
       {
         id: "sales.order",
@@ -518,6 +550,7 @@ export const TREE: ModuleNode[] = [
     label: "A/R Transaction",
     description: "Accounts receivable — money customers owe you",
     icon: Wallet,
+    moduleKey: "ar",
     children: [
       {
         id: "ar.bank-transfer",
@@ -549,6 +582,7 @@ export const TREE: ModuleNode[] = [
     label: "Inventory Transaction",
     description: "Stock movements between and within warehouses",
     icon: Package,
+    moduleKey: "inventory",
     children: [
       {
         id: "inv.bpb",
@@ -610,11 +644,20 @@ export const TREE: ModuleNode[] = [
         path: "/report/sales-report",
         label: "Sales Report",
         description: "Sales analysis reports",
+        reportKey: "sales",
         children: [
           {
             id: "report.sales.selector",
             path: "/report/sales-report/report-selector",
             label: "Report Selector",
+            Component: ReportSelectorPage,
+          },
+          {
+            id: "report.sales.product-selling",
+            path: "/report/sales-report/product-selling-report",
+            label: "Product Selling Report",
+            description: "Selling analysis — enable breakdown axes with checkboxes",
+            Component: ProductSellingReportPage,
           },
           {
             id: "report.sales.sales",
@@ -624,7 +667,45 @@ export const TREE: ModuleNode[] = [
           {
             id: "report.sales.detail",
             path: "/report/sales-report/detail-transaction-report",
-            label: "Detail Transaction Report",
+            label: "Laporan Detail Transaksi Penjualan",
+            description: "Sales transaction detail (legacy Detail Transaction Report)",
+            Component: DetailTransactionPenjualanReportPage,
+          },
+          {
+            id: "report.sales.recapitulation",
+            path: "/report/sales-report/recapitulation-sales-return",
+            label: "Recapitulation Sales and Return",
+            description: "Recap sales and returns by brand, customer, salesman, or customer with status",
+            childLayout: "tabs",
+            hideSelfTab: true,
+            legacyReportTabsChrome: true,
+            tabsDefaultRedirect: "/report/sales-report/recapitulation-sales-return/by-brand",
+            children: [
+              {
+                id: "report.sales.recapitulation.brand",
+                path: "/report/sales-report/recapitulation-sales-return/by-brand",
+                label: "By Brand",
+                Component: RecapitulationSalesReturnByBrandPage,
+              },
+              {
+                id: "report.sales.recapitulation.customer",
+                path: "/report/sales-report/recapitulation-sales-return/by-customer",
+                label: "By Customer",
+                Component: RecapitulationSalesReturnByCustomerPage,
+              },
+              {
+                id: "report.sales.recapitulation.salesman",
+                path: "/report/sales-report/recapitulation-sales-return/by-salesman",
+                label: "By Salesman",
+                Component: RecapitulationSalesReturnBySalesmanPage,
+              },
+              {
+                id: "report.sales.recapitulation.customer-status",
+                path: "/report/sales-report/recapitulation-sales-return/by-customer-with-status",
+                label: "By Customer With Status",
+                Component: RecapitulationSalesReturnByCustomerWithStatusPage,
+              },
+            ],
           },
           {
             id: "report.sales.return",
@@ -703,12 +784,14 @@ export const TREE: ModuleNode[] = [
         path: "/report/inventory-report",
         label: "Inventory Report",
         description: "Stock and movement reports",
+        reportKey: "inventory",
         children: [
           { id: "report.inv.process", path: "/report/inventory-report/process", label: "Process" },
           {
             id: "report.inv.stock-position",
             path: "/report/inventory-report/stock-position-report",
             label: "Stock Position Report",
+            Component: StockPositionReportPage,
           },
           {
             id: "report.inv.stock-mutation",
@@ -752,6 +835,7 @@ export const TREE: ModuleNode[] = [
         path: "/report/purchase-reports",
         label: "Purchase Reports",
         description: "Purchasing analysis reports",
+        reportKey: "purchase",
         children: [
           {
             id: "report.pur.purchase",
@@ -780,6 +864,7 @@ export const TREE: ModuleNode[] = [
         path: "/report/account-receivable-reports",
         label: "Account Receivable Reports",
         description: "Receivables and collections reports",
+        reportKey: "ar",
         children: [
           {
             id: "report.ar.collection",
@@ -843,3 +928,74 @@ export const TREE: ModuleNode[] = [
     Component: SettingsPanel,
   },
 ];
+
+/* ── Permission gating helpers ────────────────────────────────────────────────
+ * Sidebar, hub tiles, tabs, and the router all share the same visibility logic
+ * so a user can never see, deep-link, or be redirected into a screen they
+ * are not authorized to view. */
+
+import type { CurrentUser, ResolvedPermissions } from "#/lib/auth";
+
+/** Resolve the effective module/report key for a node, walking up its ancestor chain. */
+function ancestralKeys(target: ModuleNode): { moduleKey?: ModuleKey; reportKey?: ReportKey } {
+  let foundModule: ModuleKey | undefined = target.moduleKey;
+  let foundReport: ReportKey | undefined = target.reportKey;
+  if (foundModule && foundReport) return { moduleKey: foundModule, reportKey: foundReport };
+  const visit = (nodes: ModuleNode[], chain: ModuleNode[]): boolean => {
+    for (const n of nodes) {
+      const next = [...chain, n];
+      if (n === target) {
+        for (const a of next) {
+          foundModule ??= a.moduleKey;
+          foundReport ??= a.reportKey;
+        }
+        return true;
+      }
+      if (n.children && visit(n.children, next)) return true;
+    }
+    return false;
+  };
+  visit(TREE, []);
+  return { moduleKey: foundModule, reportKey: foundReport };
+}
+
+const KEYS_CACHE = new WeakMap<ModuleNode, { moduleKey?: ModuleKey; reportKey?: ReportKey }>();
+function keysFor(node: ModuleNode): { moduleKey?: ModuleKey; reportKey?: ReportKey } {
+  let v = KEYS_CACHE.get(node);
+  if (!v) { v = ancestralKeys(node); KEYS_CACHE.set(node, v); }
+  return v;
+}
+
+/** True when the navigation node can be opened by the given user. */
+export function canAccessModule(
+  node: ModuleNode,
+  user: CurrentUser | null,
+  perms: ResolvedPermissions | null,
+): boolean {
+  if (!user) return false;
+  if (node.developerOnly && !user.isDeveloper) return false;
+  if (node.superAdminOnly && !(user.isDeveloper || user.roles.includes("SuperAdmin"))) return false;
+  const { moduleKey, reportKey } = keysFor(node);
+  if (moduleKey && !(perms?.modules[moduleKey])) return false;
+  if (reportKey && !(perms?.reports.includes(reportKey))) return false;
+  return true;
+}
+
+/** Kept for route guards and older call sites: visible means accessible/openable. */
+export const isModuleVisible = canAccessModule;
+
+/** Return every child that should be shown in navigation, even when disabled/gray. */
+export function navigationChildren(
+  node: ModuleNode,
+): ModuleNode[] {
+  return node.children ?? [];
+}
+
+/** Return only the children of a node the user can open. */
+export function accessibleChildren(
+  node: ModuleNode,
+  user: CurrentUser | null,
+  perms: ResolvedPermissions | null,
+): ModuleNode[] {
+  return navigationChildren(node).filter((c) => canAccessModule(c, user, perms));
+}

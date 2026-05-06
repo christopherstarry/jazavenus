@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 namespace Jaza.Migration;
 
 /// <summary>
-/// One-off ETL runner: legacy SQL Server -> new schema.
+/// One-off ETL runner: legacy SQL Server -> new PostgreSQL schema.
 /// Each entity migration is a discrete method so they can be re-run individually with --only=.
 /// Every batch is wrapped in a transaction; --dry-run prints what would happen without writing.
 /// </summary>
@@ -22,7 +22,7 @@ public sealed class EtlRunner(EtlOptions opts, ILogger<EtlRunner> log)
             opts.DryRun, string.Join(",", opts.Only), opts.Since);
 
         var optsB = new DbContextOptionsBuilder<AppDbContext>()
-            .UseSqlServer(opts.TargetConnectionString).Options;
+            .UseNpgsql(opts.TargetConnectionString).Options;
         await using var target = new AppDbContext(optsB);
 
         var report = new Dictionary<string, MigrationReport>();

@@ -4,7 +4,7 @@ Modern replacement for the legacy VB.NET + SQL Server warehouse application.
 
 - **Backend**: .NET 10 LTS (ASP.NET Core + EF Core 10)
 - **Frontend**: React 19 + TypeScript + Vite + TailwindCSS + shadcn/ui
-- **Database**: SQL Server (kept from legacy system; runs in Docker for dev)
+- **Database**: PostgreSQL 17 (via EF Core + Npgsql; runs in Docker for dev)
 - **Auth**: ASP.NET Core Identity + cookie sessions + CSRF + MFA (TOTP) for SuperAdmin
 - **Hosting**: Linux VPS + Docker + Caddy auto-HTTPS, behind Cloudflare
 
@@ -28,6 +28,10 @@ frontend/
     components/ui/        # shadcn/ui (you own this code)
     lib/                  # api client, auth, utils
 docs/
+  README.md               # index linking all documentation
+  architecture.md         # layers, auth, hosting
+  development.md          # local workflow, tests, SPA publish
+  http-api.md             # route catalogue
   discovery-checklist.md  # what to capture from the legacy app (Phase 0)
   legacy-schema-extract.sql
   security.md             # OWASP Top-10 controls applied here
@@ -44,8 +48,8 @@ deploy/
 Prereqs: .NET 10 SDK, Node 22, Docker Desktop, Git.
 
 ```powershell
-# 1. Start SQL Server in Docker
-docker compose -f deploy/docker-compose.dev.yml up -d sqlserver
+# 1. Start PostgreSQL in Docker
+docker compose -f deploy/docker-compose.dev.yml up -d postgres
 
 # 2. Backend
 cd backend
@@ -61,7 +65,12 @@ npm run dev
 
 API → https://localhost:5001  
 Frontend → http://localhost:5173  
-Default super-admin (dev only): `superadmin@jaza.local` / `ChangeMe!2026` (you must rotate on first login)
+Default SuperAdmin email (dev only): `superadmin@jaza.local`. If no seed password is configured, the API generates
+one on first boot and prints it in the startup log. Demo users are seeded only when `Seed:IncludeDemoUsers=true`.
+
+## Documentation
+
+Structured docs live under [`docs/`](docs/). Start from [`docs/README.md`](docs/README.md) for the index (architecture, HTTP API shape, development, security, runbook, migration).
 
 ## Production deployment
 

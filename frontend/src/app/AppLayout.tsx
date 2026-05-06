@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
-import { useAuth, hasRole, type CurrentUser } from "#/lib/auth";
+import { useAuth, type CurrentUser, type ResolvedPermissions } from "#/lib/auth";
 import { Button } from "#/components/ui/button";
 import { Badge } from "#/components/ui/badge";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "#/components/ui/sheet";
@@ -11,7 +11,14 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "#/lib/utils";
-import { TREE, findModuleByPath, trailFor, type ModuleNode } from "#/app/modules";
+import {
+  TREE,
+  findModuleByPath,
+  trailFor,
+  canAccessModule,
+  navigationChildren,
+  type ModuleNode,
+} from "#/app/modules";
 import { ScrollToTop } from "#/app/ScrollToTop";
 
 /* "Maria Da Silva" → "MD". Falls back to username or email. */
@@ -32,7 +39,7 @@ function displayAccountSubtitle(user: CurrentUser): string {
 }
 
 export function AppLayout() {
-  const { user, logout } = useAuth();
+  const { user, permissions, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -64,12 +71,12 @@ export function AppLayout() {
 
   /** Nav items only — branding lives in the desktop header grid so bottom borders align across columns. */
   const sidebarNav = (
-    <SidebarNavigation user={user} activeSectionId={trail[0]?.id} />
+    <SidebarNavigation user={user} permissions={permissions} activeSectionId={trail[0]?.id} />
   );
 
   /** Full drawer chrome (brand + nav) — used in the mobile sheet only. */
   const sidebarDrawer = (
-    <SidebarDrawerBody user={user} activeSectionId={trail[0]?.id} />
+    <SidebarDrawerBody user={user} permissions={permissions} activeSectionId={trail[0]?.id} />
   );
 
   return (
@@ -255,8 +262,14 @@ function SidebarBranding() {
   );
 }
 
+interface NavBaseProps {
+  user: CurrentUser | null;
+  permissions: ResolvedPermissions | null;
+  activeSectionId?: string;
+}
+
 /** Nav list only — used in desktop `aside` and inside the mobile drawer. */
-function SidebarNavigation({ user, activeSectionId }: { user: CurrentUser | null; activeSectionId?: string }) {
+function SidebarNavigation({ user, permissions, activeSectionId }: NavBaseProps) {
   /* Sidebar order:
    *   1. Dashboard (top)
    *   2. The day-to-day work areas (Master, Purchase, Sales, A/R, Inventory, Report, Tax)
@@ -285,24 +298,24 @@ function SidebarNavigation({ user, activeSectionId }: { user: CurrentUser | null
 
         {/* Main day-to-day sections */}
         <ul className="flex flex-col gap-1">
-          {main
-            .filter((s) => !s.superAdminOnly || hasRole(user, "SuperAdmin"))
-            .map((section) => (
-              <SidebarSection
-                key={section.id}
-                section={section}
-                user={user}
-                isActive={activeSectionId === section.id}
-              />
-            ))}
+          {main.map((section) => (
+            <SidebarSection
+              key={section.id}
+              section={section}
+              user={user}
+              permissions={permissions}
+              isActive={activeSectionId === section.id}
+            />
+          ))}
         </ul>
 
         {/* System pinned to the bottom — admin/utility tools */}
-        {system && (!system.superAdminOnly || hasRole(user, "SuperAdmin")) && (
+        {system && (
           <ul className="mt-auto flex flex-col gap-1 pt-3 border-t-2 border-border/60">
             <SidebarSection
               section={system}
               user={user}
+              permissions={permissions}
               isActive={activeSectionId === "system"}
             />
           </ul>
@@ -312,21 +325,21 @@ function SidebarNavigation({ user, activeSectionId }: { user: CurrentUser | null
 }
 
 /** Mobile sheet: brand strip + nav (each has its own border; desktop uses unified header for brand). */
-function SidebarDrawerBody({ user, activeSectionId }: { user: CurrentUser | null; activeSectionId?: string }) {
+function SidebarDrawerBody({ user, permissions, activeSectionId }: NavBaseProps) {
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="shrink-0 border-b-2 px-5 py-5 sm:px-6 sm:py-6">
         <SidebarBranding />
       </div>
-      <SidebarNavigation user={user} activeSectionId={activeSectionId} />
+      <SidebarNavigation user={user} permissions={permissions} activeSectionId={activeSectionId} />
     </div>
   );
 }
 
 /** A top-level section in the sidebar — collapsible, auto-expands when active. */
 function SidebarSection({
-  section, user, isActive,
-}: { section: ModuleNode; user: CurrentUser | null; isActive: boolean }) {
+  section, user, permissions, isActive,
+}: { section: ModuleNode; user: CurrentUser | null; permissions: ResolvedPermissions | null; isActive: boolean }) {
   const [manuallyExpanded, setManuallyExpanded] = useState<boolean | null>(null);
   const expanded = manuallyExpanded ?? isActive;
 
@@ -335,10 +348,9 @@ function SidebarSection({
     if (isActive) setManuallyExpanded(null);
   }, [isActive]);
 
-  const visibleChildren = (section.children ?? []).filter(
-    (c) => !c.superAdminOnly || hasRole(user, "SuperAdmin"),
-  );
-  const hasChildren = visibleChildren.length > 0;
+  const childrenForUser = navigationChildren(section);
+  const hasChildren = childrenForUser.length > 0;
+  const canOpenSection = canAccessModule(section, user, permissions);
 
   return (
     <li>
@@ -347,30 +359,17 @@ function SidebarSection({
         active={isActive}
         hasChildren={hasChildren}
         expanded={expanded}
+        disabled={!canOpenSection}
         onToggle={() => setManuallyExpanded(!expanded)}
       />
       {hasChildren && expanded && (
         <ul className="mt-1 pl-2 ml-3 border-l-2 border-border flex flex-col gap-0.5">
-          {visibleChildren.map((child, idx) => (
+          {childrenForUser.map((child, idx) => (
             <li key={child.id}>
               {child.divider && idx > 0 && (
                 <div role="separator" className="my-2 mx-2 border-t border-dashed border-border" />
               )}
-              <NavLink
-                to={child.path}
-                end={!child.children || child.children.length === 0 || child.childLayout === "tabs"}
-                className={({ isActive }) =>
-                  cn(
-                    "block rounded-[var(--radius)] px-3 py-2.5 text-base min-h-[2.75rem]",
-                    "leading-snug transition-colors",
-                    isActive
-                      ? "bg-primary text-primary-foreground font-semibold"
-                      : "text-foreground hover:bg-accent",
-                  )
-                }
-              >
-                {child.label}
-              </NavLink>
+              <SidebarChildLink child={child} user={user} permissions={permissions} />
             </li>
           ))}
         </ul>
@@ -379,14 +378,61 @@ function SidebarSection({
   );
 }
 
+function SidebarChildLink({
+  child,
+  user,
+  permissions,
+}: {
+  child: ModuleNode;
+  user: CurrentUser | null;
+  permissions: ResolvedPermissions | null;
+}) {
+  const disabled = !canAccessModule(child, user, permissions);
+  const childHasNestedItems = !!child.children?.length;
+
+  if (disabled) {
+    return (
+      <div
+        aria-disabled="true"
+        title="You do not have access to this menu."
+        className={cn(
+          "block cursor-not-allowed rounded-[var(--radius)] px-3 py-2.5 text-base min-h-[2.75rem]",
+          "leading-snug text-muted-foreground opacity-45 grayscale",
+        )}
+      >
+        {child.label}
+      </div>
+    );
+  }
+
+  return (
+    <NavLink
+      to={child.path}
+      end={!childHasNestedItems || child.childLayout === "tabs"}
+      className={({ isActive }) =>
+        cn(
+          "block rounded-[var(--radius)] px-3 py-2.5 text-base min-h-[2.75rem]",
+          "leading-snug transition-colors",
+          isActive
+            ? "bg-primary text-primary-foreground font-semibold"
+            : "text-foreground hover:bg-accent",
+        )
+      }
+    >
+      {child.label}
+    </NavLink>
+  );
+}
+
 /** A section header row (icon + label + chevron). Doubles as the dashboard tile. */
 function SectionHeader({
-  node, active, hasChildren, expanded, onToggle,
+  node, active, hasChildren, expanded, disabled = false, onToggle,
 }: {
   node: ModuleNode;
   active: boolean;
   hasChildren: boolean;
   expanded: boolean;
+  disabled?: boolean;
   onToggle: () => void;
 }) {
   const Icon = node.icon;
@@ -395,6 +441,21 @@ function SectionHeader({
      otherwise we render a row with two buttons: NavLink to /section and a
      toggle button to expand/collapse. */
   if (!hasChildren) {
+    if (disabled) {
+      return (
+        <div
+          aria-disabled="true"
+          title="You do not have access to this menu."
+          className={cn(
+            "flex cursor-not-allowed items-center gap-3 rounded-[var(--radius)] px-3 py-3 min-h-[3rem]",
+            "text-muted-foreground opacity-45 grayscale",
+          )}
+        >
+          {Icon && <Icon className="h-5 w-5 shrink-0" aria-hidden />}
+          <span className="font-semibold text-base truncate">{node.label}</span>
+        </div>
+      );
+    }
     return (
       <NavLink
         to={node.path}
@@ -416,20 +477,31 @@ function SectionHeader({
     <div
       className={cn(
         "flex items-center rounded-[var(--radius)] transition-colors",
-        active ? "bg-primary/10" : "hover:bg-accent",
+        disabled ? "opacity-50 grayscale" : active ? "bg-primary/10" : "hover:bg-accent",
       )}
     >
-      <NavLink
-        to={node.path}
-        className={cn(
-          "flex flex-1 items-center gap-3 px-3 py-3 min-h-[3rem] rounded-[var(--radius)] focus-visible:outline-none focus-visible:bg-accent",
-        )}
-      >
+      {disabled ? (
+        <div
+          aria-disabled="true"
+          title="You do not have access to open this menu."
+          className="flex flex-1 cursor-not-allowed items-center gap-3 px-3 py-3 min-h-[3rem] rounded-[var(--radius)] text-muted-foreground"
+        >
+          {Icon && <Icon className="h-5 w-5 shrink-0" aria-hidden />}
+          <span className="font-semibold text-base truncate">{node.label}</span>
+        </div>
+      ) : (
+        <NavLink
+          to={node.path}
+          className={cn(
+            "flex flex-1 items-center gap-3 px-3 py-3 min-h-[3rem] rounded-[var(--radius)] focus-visible:outline-none focus-visible:bg-accent",
+          )}
+        >
         {Icon && <Icon className={cn("h-5 w-5 shrink-0", active && "text-primary")} aria-hidden />}
         <span className={cn("font-semibold text-base truncate", active && "text-primary")}>
           {node.label}
         </span>
-      </NavLink>
+        </NavLink>
+      )}
       <button
         type="button"
         onClick={onToggle}

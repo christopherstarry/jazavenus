@@ -19,7 +19,7 @@ cd "Jaza Venus"
 # 2. Trust the dev HTTPS cert
 dotnet dev-certs https --trust
 
-# 3. Bring up SQL Server (and Seq for log viewing) in Docker
+# 3. Bring up PostgreSQL (and Seq for log viewing) in Docker
 docker compose -f deploy/docker-compose.dev.yml up -d
 
 # 4. Apply migrations

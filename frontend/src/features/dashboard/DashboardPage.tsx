@@ -6,8 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/com
 import { Spinner } from "#/components/ui/spinner";
 import { Badge } from "#/components/ui/badge";
 import { Term } from "#/components/ui/tooltip";
-import { hasRole, useAuth } from "#/lib/auth";
+import { hasRole, useAuth, canViewReport } from "#/lib/auth";
 import { formatNumber } from "#/lib/utils";
+import { canAccessModule, findModuleByPath } from "#/app/modules";
 import {
   ArrowRight, Truck, ArrowLeftRight, FileText, Boxes, AlertTriangle,
   TrendingUp, Wallet, Receipt, CalendarClock,
@@ -22,13 +23,15 @@ interface FinancialSummary {
 interface LowStockRow { itemId: string; sku: string; name: string; onHand: number; reorderLevel: number | null; }
 
 export function DashboardPage() {
-  const { user } = useAuth();
-  const isSuperAdmin = hasRole(user, "SuperAdmin");
+  const { user, permissions } = useAuth();
+  // SuperAdmin / Developer always see financials. Others only see them when they have the
+  // A/R report permission (per PRD §6.1 — Sales/Admin without custom A/R access don't).
+  const canSeeFinancials = hasRole(user, "SuperAdmin", "Developer") || canViewReport(permissions, "ar");
 
   const summary = useQuery({
     queryKey: ["financial-summary"],
     queryFn: () => api.get("reports/financial-summary").json<FinancialSummary>(),
-    enabled: isSuperAdmin,
+    enabled: canSeeFinancials,
   });
 
   const lowStock = useQuery({
@@ -38,6 +41,10 @@ export function DashboardPage() {
 
   const greeting = greetingFor(new Date());
   const firstName = user?.fullName.split(" ")[0] ?? "there";
+  const canOpen = (path: string) => {
+    const node = findModuleByPath(path);
+    return node ? canAccessModule(node, user, permissions) : true;
+  };
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -50,15 +57,15 @@ export function DashboardPage() {
       <section aria-labelledby="quick-actions">
         <h3 id="quick-actions" className="sr-only">Quick actions</h3>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <QuickAction to="/purchase/receiving-entry"           icon={Truck}          title="Receiving Entry"     subtitle="Record stock coming in" />
-          <QuickAction to="/inventory/outgoing-transaction-bbk" icon={ArrowLeftRight} title="Outgoing (BBK)"      subtitle="Issue stock out" />
-          <QuickAction to="/sales/invoicing-process"            icon={FileText}       title="Invoicing Process"   subtitle="Bill a customer" />
-          <QuickAction to="/master/product"                     icon={Boxes}          title="Master Product"      subtitle="Manage products" />
+          <QuickAction to="/purchase/receiving-entry"           icon={Truck}          title="Receiving Entry"     subtitle="Record stock coming in" disabled={!canOpen("/purchase/receiving-entry")} />
+          <QuickAction to="/inventory/outgoing-transaction-bbk" icon={ArrowLeftRight} title="Outgoing (BBK)"      subtitle="Issue stock out" disabled={!canOpen("/inventory/outgoing-transaction-bbk")} />
+          <QuickAction to="/sales/invoicing-process"            icon={FileText}       title="Invoicing Process"   subtitle="Bill a customer" disabled={!canOpen("/sales/invoicing-process")} />
+          <QuickAction to="/master/product"                     icon={Boxes}          title="Master Product"      subtitle="Manage products" disabled={!canOpen("/master/product")} />
         </div>
       </section>
 
-      {/* Financial stats - SuperAdmin only */}
-      {isSuperAdmin && (
+      {/* Financial stats — SuperAdmin/Developer always; others only when they have A/R reports. */}
+      {canSeeFinancials && (
         <section aria-labelledby="financials" className="space-y-3">
           <h3 id="financials" className="text-xl font-bold">Money this period</h3>
           {summary.isLoading && <Spinner label="Loading financials…" />}
@@ -123,20 +130,57 @@ function greetingFor(d: Date) {
   return "Good evening";
 }
 
-function QuickAction({ to, icon: Icon, title, subtitle }: { to: string; icon: LucideIcon; title: string; subtitle: string }) {
-  return (
-    <Link
-      to={to}
-      className="group relative rounded-[var(--radius)] border-2 bg-card p-4 sm:p-5 transition-colors hover:border-primary hover:bg-primary/5 focus-visible:border-primary"
-    >
+function QuickAction({
+  to,
+  icon: Icon,
+  title,
+  subtitle,
+  disabled = false,
+}: {
+  to: string;
+  icon: LucideIcon;
+  title: string;
+  subtitle: string;
+  disabled?: boolean;
+}) {
+  const className = "group relative rounded-[var(--radius)] border-2 bg-card p-4 sm:p-5 transition-colors "
+    + (disabled
+      ? "cursor-not-allowed opacity-45 grayscale"
+      : "hover:border-primary hover:bg-primary/5 focus-visible:border-primary");
+
+  const content = (
+    <>
       <div className="flex items-start justify-between">
-        <div className="rounded-full bg-primary/10 p-2.5 sm:p-3 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+        <div className={"rounded-full bg-primary/10 p-2.5 sm:p-3 text-primary transition-colors "
+          + (!disabled ? "group-hover:bg-primary group-hover:text-primary-foreground" : "")}>
           <Icon className="h-6 w-6 sm:h-7 sm:w-7" aria-hidden />
         </div>
-        <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" aria-hidden />
+        <ArrowRight className={"h-5 w-5 text-muted-foreground transition-colors "
+          + (!disabled ? "group-hover:text-primary" : "")} aria-hidden />
       </div>
       <div className="mt-3 text-base sm:text-lg font-bold leading-tight">{title}</div>
       <div className="text-sm sm:text-base text-muted-foreground leading-tight">{subtitle}</div>
+    </>
+  );
+
+  if (disabled) {
+    return (
+      <div
+        aria-disabled="true"
+        title="You do not have access to this menu."
+        className={className}
+      >
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      to={to}
+      className={className}
+    >
+      {content}
     </Link>
   );
 }

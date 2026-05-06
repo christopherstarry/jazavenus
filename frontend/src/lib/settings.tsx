@@ -1,20 +1,23 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { api } from "#/lib/api";
+import { useAuth, type TextSize, type Theme, type UserPreferences } from "#/lib/auth";
 
-export type TextSize = "small" | "normal" | "large" | "xlarge";
-export type Theme = "light" | "dark" | "system";
+export type { TextSize, Theme };
 
 interface Settings {
   textSize: TextSize;
   theme: Theme;
+  language: "id" | "en";
 }
 
 interface SettingsCtx extends Settings {
   setTextSize: (s: TextSize) => void;
   setTheme: (t: Theme) => void;
+  setLanguage: (l: Settings["language"]) => void;
 }
 
 const KEY = "jaza.settings.v1";
-const DEFAULTS: Settings = { textSize: "normal", theme: "light" };
+const DEFAULTS: Settings = { textSize: "normal", theme: "light", language: "id" };
 
 function load(): Settings {
   try {
@@ -45,10 +48,50 @@ function applyTextSize(s: TextSize) { document.documentElement.dataset.text = s;
 const Ctx = createContext<SettingsCtx | undefined>(undefined);
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
+  const { user, preferences, updateLocalPreferences } = useAuth();
+
   const [s, setS] = useState<Settings>(() => load());
+  /** Track whether the user just changed a setting (so we know to PUT). When the change came
+   * from server-side preferences sync, we only update local state and do NOT post back. */
+  const remoteSyncRef = useRef(false);
 
-  useEffect(() => { applyTheme(s.theme); applyTextSize(s.textSize); save(s); }, [s]);
+  // When the API returns the signed-in user's preferences, hydrate local state without
+  // re-posting them. This guarantees the SPA always reflects what the server thinks is true.
+  useEffect(() => {
+    if (!user || !preferences) return;
+    remoteSyncRef.current = true;
+    setS({
+      language: (preferences.language as Settings["language"]) ?? DEFAULTS.language,
+      textSize: preferences.textSize as TextSize,
+      theme: preferences.theme as Theme,
+    });
+  }, [user, preferences]);
 
+  // Apply UI side-effects + persist to localStorage, and (when authenticated) to the API.
+  useEffect(() => {
+    applyTheme(s.theme);
+    applyTextSize(s.textSize);
+    save(s);
+
+    if (remoteSyncRef.current) {
+      remoteSyncRef.current = false;
+      return;
+    }
+    if (!user) return; // anonymous: localStorage is the only source of truth.
+
+    const payload: Partial<UserPreferences> = {
+      language: s.language,
+      textSize: s.textSize,
+      theme: s.theme,
+    };
+    void api
+      .put("auth/preferences", { json: payload })
+      .json<UserPreferences>()
+      .then((next) => updateLocalPreferences(next))
+      .catch(() => { /* silent; localStorage already saved */ });
+  }, [s, user, updateLocalPreferences]);
+
+  // React to OS-level theme changes when "system" is selected.
   useEffect(() => {
     if (s.theme !== "system") return;
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
@@ -62,6 +105,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       ...s,
       setTextSize: (v) => setS((p) => ({ ...p, textSize: v })),
       setTheme:    (v) => setS((p) => ({ ...p, theme: v })),
+      setLanguage: (v) => setS((p) => ({ ...p, language: v })),
     }}>
       {children}
     </Ctx.Provider>

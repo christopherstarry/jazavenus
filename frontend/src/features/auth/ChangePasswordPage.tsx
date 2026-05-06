@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { api } from "#/lib/api";
+import { useAuth } from "#/lib/auth";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
@@ -29,8 +30,18 @@ const Schema = z.object({
 
 type FormValues = z.infer<typeof Schema>;
 
+interface ChangeMyPasswordResponse {
+  user: { id: string; email: string; fullName: string; role: string; isDeveloper: boolean; mfaEnabled: boolean; mustChangePassword: boolean };
+  permissions: { modules: Record<string, { canEdit: boolean; canDelete: boolean }>; reports: string[]; isDeveloper: boolean };
+  preferences: { language: "id" | "en"; textSize: "small" | "normal" | "large" | "xlarge"; theme: "light" | "dark" | "system" };
+  accessToken: string;
+  refreshToken: string;
+  expiresAtUtc: string;
+}
+
 export function ChangePasswordPage() {
   const navigate = useNavigate();
+  const { applyAuthSnapshot } = useAuth();
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -45,22 +56,23 @@ export function ChangePasswordPage() {
   const onSubmit = async (values: FormValues) => {
     setServerError(null);
     try {
-      await api.post("auth/change-password", {
+      const res = await api.post("auth/me/change-password", {
         json: { currentPassword: values.currentPassword, newPassword: values.newPassword },
-      });
+      }).json<ChangeMyPasswordResponse>();
+      // Server rotated SecurityVersion → all OTHER sessions are revoked. We re-seat the new
+      // tokens here so the current device keeps working without a forced re-login.
+      applyAuthSnapshot(res);
       setSuccess(true);
       reset();
     } catch (err) {
       if (err instanceof HTTPError) {
-        try {
-          const body = (await err.response.clone().json()) as { errors?: string[] };
-          if (body.errors?.length) {
-            setServerError(body.errors.join(" "));
-            return;
-          }
-        } catch { /* ignore JSON parse errors */ }
-        if (err.response.status === 401) {
+        const body = await err.response.clone().json().catch(() => null) as { title?: string; detail?: string } | null;
+        if (body?.title === "invalid_current_password" || err.response.status === 401) {
           setServerError("Your current password is incorrect.");
+          return;
+        }
+        if (body?.detail) {
+          setServerError(body.detail);
           return;
         }
       }

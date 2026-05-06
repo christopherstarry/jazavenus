@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "#/components/ui/tabs";
-import { type ModuleNode } from "#/app/modules";
-import { useAuth, hasRole } from "#/lib/auth";
+import { canAccessModule, navigationChildren, type ModuleNode } from "#/app/modules";
+import { useAuth } from "#/lib/auth";
 import { ModulePlaceholder } from "./ModulePlaceholder";
 
 /**
@@ -21,11 +21,9 @@ import { ModulePlaceholder } from "./ModulePlaceholder";
 export function TabsLayout({ node }: { node: ModuleNode }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, permissions } = useAuth();
 
-  const visible = (node.children ?? []).filter(
-    (c) => !c.superAdminOnly || hasRole(user, "SuperAdmin"),
-  );
+  const children = navigationChildren(node);
 
   const pathname = location.pathname.replace(/\/$/, "") || "/";
 
@@ -45,29 +43,46 @@ export function TabsLayout({ node }: { node: ModuleNode }) {
 
   // Build the list of tabs. The parent itself is the first tab when it
   // has its own component (its label uses the parent's plain name).
-  type Tab = { value: string; label: string; node: ModuleNode };
+  type Tab = { value: string; label: string; node: ModuleNode; disabled: boolean };
   const tabs: Tab[] = [];
   if (node.Component && !node.hideSelfTab) {
-    tabs.push({ value: node.path, label: node.label, node });
+    tabs.push({ value: node.path, label: node.label, node, disabled: !canAccessModule(node, user, permissions) });
   }
-  for (const c of visible) {
-    tabs.push({ value: c.path, label: c.label, node: c });
+  for (const c of children) {
+    tabs.push({ value: c.path, label: c.label, node: c, disabled: !canAccessModule(c, user, permissions) });
   }
 
-  const active = tabs
+  const firstEnabled = tabs.find((t) => !t.disabled);
+  const matched = tabs
     .map((t) => t.value)
     .filter((p) => location.pathname === p || location.pathname.startsWith(p + "/"))
     .sort((a, b) => b.length - a.length)[0]
-    ?? tabs[0]?.value
+    ?? firstEnabled?.value
     ?? node.path;
 
+  const matchedTab = tabs.find((t) => t.value === matched);
+  const active = matchedTab?.disabled ? (firstEnabled?.value ?? node.path) : matched;
   const activeNode = tabs.find((t) => t.value === active)?.node ?? node;
 
+  useEffect(() => {
+    if (matchedTab?.disabled && firstEnabled && active !== pathname) {
+      navigate(active, { replace: true });
+    }
+  }, [active, firstEnabled, matchedTab?.disabled, navigate, pathname]);
+
   return (
-    <Tabs value={active} onValueChange={(v) => navigate(v)} className="w-full min-w-0 max-w-full space-y-1">
+    <Tabs value={active} onValueChange={(v) => {
+      const t = tabs.find((x) => x.value === v);
+      if (!t?.disabled) navigate(v);
+    }} className="w-full min-w-0 max-w-full space-y-1">
       <TabsList aria-label={`${node.label} sections`}>
         {tabs.map((t) => (
-          <TabsTrigger key={t.value} value={t.value}>
+          <TabsTrigger
+            key={t.value}
+            value={t.value}
+            disabled={t.disabled}
+            title={t.disabled ? "You do not have access to this menu." : undefined}
+          >
             {t.label}
           </TabsTrigger>
         ))}

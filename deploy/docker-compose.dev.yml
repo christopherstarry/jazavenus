@@ -1,16 +1,16 @@
 name: jaza-dev
 services:
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: jaza-sqlserver-dev
+  postgres:
+    image: postgres:17-alpine
+    container_name: jaza-postgres-dev
     environment:
-      ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "ChangeMe!Dev2026"
-      MSSQL_PID: "Developer"
+      POSTGRES_DB: jaza_venus_dev
+      POSTGRES_USER: jaza_app
+      POSTGRES_PASSWORD: "ChangeMe!Dev2027"
     ports:
-      - "127.0.0.1:1433:1433"
+      - "127.0.0.1:5432:5432"
     volumes:
-      - jaza-sqldata-dev:/var/opt/mssql
+      - jaza-pgdata-dev:/var/lib/postgresql/data
     restart: unless-stopped
 
   seq:
@@ -25,5 +25,5 @@ services:
     restart: unless-stopped
 
 volumes:
-  jaza-sqldata-dev:
+  jaza-pgdata-dev:
   jaza-seq-dev:

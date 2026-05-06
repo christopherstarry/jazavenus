@@ -3,16 +3,17 @@ import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useAuth } from "#/lib/auth";
+import { useAuth, LoginError } from "#/lib/auth";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card";
-import { LockKeyhole, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { LockKeyhole, Eye, EyeOff, AlertCircle, ShieldCheck } from "lucide-react";
 
 const schema = z.object({
-  username: z.string().min(1, "Please enter your username."),
+  username: z.string().min(1, "Please enter your username or email."),
   password: z.string().min(1, "Please enter your password."),
+  mfaCode: z.string().optional(),
 });
 type FormValues = z.infer<typeof schema>;
 
@@ -21,21 +22,50 @@ export function LoginPage() {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState<string | null>(null);
   const [showPwd, setShowPwd] = useState(false);
+  const [needsMfa, setNeedsMfa] = useState(false);
 
-  const { register, handleSubmit, formState } = useForm<FormValues>({ resolver: zodResolver(schema) });
+  const { register, handleSubmit, formState, setFocus } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: { username: "", password: "", mfaCode: "" },
+  });
 
   const onSubmit = async (v: FormValues) => {
     setServerError(null);
     try {
-      await login(v.username, v.password);
+      await login({
+        username: v.username,
+        password: v.password,
+        mfaCode: needsMfa ? v.mfaCode : undefined,
+      });
       navigate("/", { replace: true });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Sign in failed.";
-      if (msg.toLowerCase().includes("invalid")) {
-        setServerError("That username and password don't match. Please try again.");
-      } else {
-        setServerError(msg);
+      if (err instanceof LoginError) {
+        if (err.code === "mfa_required") {
+          setNeedsMfa(true);
+          setServerError(null);
+          setTimeout(() => setFocus("mfaCode"), 0);
+          return;
+        }
+        if (err.code === "mfa_setup_required") {
+          setServerError("Your account requires multi-factor authentication. Please ask the super admin to help you enrol.");
+          return;
+        }
+        if (err.code === "account_locked") {
+          setServerError("Your account is locked because of too many wrong tries. Please wait a few minutes and try again.");
+          return;
+        }
+        if (err.code === "invalid_totp") {
+          setServerError("That authenticator code wasn't right. Try the next code from your app.");
+          return;
+        }
+        if (err.code === "invalid_credentials") {
+          setServerError("That sign-in and password don't match. Please try again.");
+          return;
+        }
+        setServerError(err.message);
+        return;
       }
+      setServerError("Something went wrong. Please check your connection and try again.");
     }
   };
 
@@ -56,12 +86,12 @@ export function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
             <div className="space-y-2">
-              <Label htmlFor="username" required>Username</Label>
+              <Label htmlFor="username" required>Username or email</Label>
               <Input
                 id="username"
                 type="text"
                 autoComplete="username"
-                placeholder="Username"
+                placeholder="e.g. didi@jaza.local"
                 autoFocus
                 aria-invalid={!!formState.errors.username}
                 aria-describedby={formState.errors.username ? "username-err" : undefined}
@@ -103,6 +133,27 @@ export function LoginPage() {
               )}
             </div>
 
+            {needsMfa && (
+              <div className="space-y-2 rounded-[var(--radius)] border-2 border-primary/30 bg-primary/5 p-4">
+                <div className="flex items-center gap-2 text-base font-semibold">
+                  <ShieldCheck className="h-5 w-5 text-primary" />
+                  Authenticator code
+                </div>
+                <Label htmlFor="mfaCode" className="text-sm text-muted-foreground">
+                  Open your authenticator app and type the 6-digit code.
+                </Label>
+                <Input
+                  id="mfaCode"
+                  inputMode="numeric"
+                  pattern="[0-9]{6}"
+                  maxLength={6}
+                  autoComplete="one-time-code"
+                  placeholder="123456"
+                  {...register("mfaCode")}
+                />
+              </div>
+            )}
+
             {serverError && (
               <div role="alert" className="flex items-start gap-2 text-base text-destructive bg-destructive/10 border-2 border-destructive/30 rounded-[var(--radius)] p-3">
                 <AlertCircle className="h-5 w-5 mt-0.5 shrink-0" />
@@ -111,7 +162,7 @@ export function LoginPage() {
             )}
 
             <Button type="submit" size="lg" disabled={formState.isSubmitting} className="w-full">
-              {formState.isSubmitting ? "Signing in…" : "Sign in"}
+              {formState.isSubmitting ? "Signing in…" : needsMfa ? "Verify and sign in" : "Sign in"}
             </Button>
 
             <p className="text-sm text-muted-foreground text-center">

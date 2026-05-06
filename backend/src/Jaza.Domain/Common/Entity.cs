@@ -18,8 +18,12 @@ public abstract class Entity
     public DateTime? DeletedAtUtc { get; set; }
     public Guid? DeletedByUserId { get; set; }
 
-    /// <summary>Optimistic-concurrency token (xmin / rowversion).</summary>
-    public byte[] RowVersion { get; set; } = [];
+    /// <summary>
+    /// Optimistic-concurrency token. Mapped to PostgreSQL's <c>xmin</c> system column
+    /// (the transaction id of the last writer), which Npgsql populates automatically.
+    /// We never set this manually — EF reads it on load and uses it in UPDATE WHERE clauses.
+    /// </summary>
+    public uint RowVersion { get; set; }
 
     /// <summary>Set by ETL to keep traceability to the legacy primary key (nullable).</summary>
     public int? LegacyId { get; set; }

@@ -1,23 +1,23 @@
 name: jaza
 services:
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: jaza-sqlserver
+  postgres:
+    image: postgres:17-alpine
+    container_name: jaza-postgres
     environment:
-      ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: ${SQL_SA_PASSWORD:?env SQL_SA_PASSWORD is required}
-      MSSQL_PID: "Express"
+      POSTGRES_DB: jaza_venus
+      POSTGRES_USER: jaza_app
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?env DB_PASSWORD is required}
     ports:
-      - "127.0.0.1:1433:1433"
+      - "127.0.0.1:5432:5432"
     volumes:
-      - sqldata:/var/opt/mssql
+      - pgdata:/var/lib/postgresql/data
       - ./backups:/backups
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -No -Q 'SELECT 1' || exit 1"]
-      interval: 30s
+      test: ["CMD-SHELL", "pg_isready -U jaza_app -d jaza_venus"]
+      interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 5
 
   api:
     image: jaza/api:${IMAGE_TAG:-latest}
@@ -26,12 +26,12 @@ services:
       dockerfile: ../deploy/api.Dockerfile
     container_name: jaza-api
     depends_on:
-      sqlserver:
+      postgres:
         condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__Default: Server=sqlserver,1433;Database=JazaVenus;User Id=sa;Password=${SQL_SA_PASSWORD};TrustServerCertificate=True;Encrypt=True
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=jaza_venus;Username=jaza_app;Password=${DB_PASSWORD}
       Cookie__SecurePolicy: Always
       Cors__AllowedOrigins__0: https://${DOMAIN:?env DOMAIN is required}
       Seed__SuperAdminEmail: ${SEED_SUPERADMIN_EMAIL:-superadmin@jaza.local}
@@ -57,6 +57,6 @@ services:
     restart: unless-stopped
 
 volumes:
-  sqldata:
+  pgdata:
   caddy-data:
   caddy-config:

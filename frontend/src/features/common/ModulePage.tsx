@@ -1,4 +1,5 @@
 import { type ModuleNode } from "#/app/modules";
+import { LegacySalesReportTabsLayout } from "#/features/reports/LegacySalesReportTabsLayout";
 import { HubPage } from "./HubPage";
 import { TabsLayout } from "./TabsLayout";
 import { ModulePlaceholder } from "./ModulePlaceholder";
@@ -15,6 +16,9 @@ import { ModulePlaceholder } from "./ModulePlaceholder";
  */
 export function ModulePage({ node }: { node: ModuleNode }) {
   if (node.childLayout === "tabs" && node.children && node.children.length > 0) {
+    if (node.legacyReportTabsChrome) {
+      return <LegacySalesReportTabsLayout node={node} />;
+    }
     return <TabsLayout node={node} />;
   }
   if (node.Component) {

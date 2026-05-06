@@ -1,10 +1,11 @@
+using Jaza.Application.Auth;
 using Jaza.Application.Common;
 using Jaza.Application.Stock;
+using Jaza.Infrastructure.Auth;
 using Jaza.Infrastructure.Identity;
 using Jaza.Infrastructure.Persistence;
 using Jaza.Infrastructure.Stock;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,10 +20,12 @@ public static class DependencyInjection
         {
             var cs = config.GetConnectionString("Default")
                 ?? throw new InvalidOperationException("ConnectionStrings:Default is required");
-            opt.UseSqlServer(cs, sql =>
+            opt.UseNpgsql(cs, npgsql =>
             {
-                sql.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(5), errorNumbersToAdd: null);
-                sql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName);
+                // Neon (and most managed Postgres) closes idle TCP connections aggressively. Retry
+                // a handful of transient failures before surfacing the error to the caller.
+                npgsql.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(5), errorCodesToAdd: null);
+                npgsql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName);
             });
             opt.AddInterceptors(sp.GetRequiredService<AuditSaveChangesInterceptor>());
         });
@@ -50,6 +53,11 @@ public static class DependencyInjection
         services.AddScoped<IDocumentNumberGenerator, DocumentNumberGenerator>();
         services.AddScoped<IStockService, StockService>();
         services.AddSingleton<ITotpService, TotpService>();
+
+        // Auth services
+        services.AddSingleton<IAccessTokenIssuer, JwtAccessTokenIssuer>();
+        services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+        services.AddScoped<IPermissionService, PermissionService>();
 
         return services;
     }

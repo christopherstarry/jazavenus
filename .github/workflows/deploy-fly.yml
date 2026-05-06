@@ -1,0 +1,60 @@
+name: Deploy to Fly.io
+
+# Runs after CI succeeds on main, OR on a manual dispatch from the Actions tab.
+# Requires repo secret FLY_API_TOKEN (`flyctl auth token`) and FLY_APP (defaults to "jaza-venus").
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - "deploy/api.Dockerfile"
+      - "deploy/fly.toml"
+      - ".github/workflows/deploy-fly.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-fly-${{ github.ref }}
+  cancel-in-progress: false   # never abort a half-finished deploy
+
+jobs:
+  deploy:
+    name: flyctl deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      FLY_APP: ${{ vars.FLY_APP || 'jaza-venus' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@v1
+
+      - name: Verify Fly auth + app exists
+        run: |
+          flyctl auth whoami
+          flyctl status --app "$FLY_APP"
+
+      - name: Deploy
+        run: |
+          flyctl deploy \
+            --app "$FLY_APP" \
+            --config deploy/fly.toml \
+            --dockerfile deploy/api.Dockerfile \
+            --remote-only \
+            --strategy rolling \
+            --wait-timeout 600
+
+      - name: Health check
+        run: |
+          for i in 1 2 3 4 5 6; do
+            if curl -fsS "https://${FLY_APP}.fly.dev/health"; then
+              echo "API healthy"; exit 0
+            fi
+            echo "Health check $i failed; sleeping..."
+            sleep 10
+          done
+          echo "::error::API never became healthy"
+          flyctl logs --app "$FLY_APP" -n
+          exit 1

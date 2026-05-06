@@ -1,8 +1,8 @@
 import { Fragment } from "react";
 import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
-import { type ModuleNode } from "#/app/modules";
-import { useAuth, hasRole } from "#/lib/auth";
+import { canAccessModule, navigationChildren, type ModuleNode } from "#/app/modules";
+import { useAuth } from "#/lib/auth";
 import { cn } from "#/lib/utils";
 
 /**
@@ -14,10 +14,8 @@ import { cn } from "#/lib/utils";
  * custom Component of its own (e.g. /master, /sales, /report/sales-report).
  */
 export function HubPage({ node }: { node: ModuleNode }) {
-  const { user } = useAuth();
-  const tiles = (node.children ?? []).filter(
-    (c) => !c.superAdminOnly || hasRole(user, "SuperAdmin"),
-  );
+  const { user, permissions } = useAuth();
+  const tiles = navigationChildren(node);
 
   if (tiles.length === 0) {
     return (
@@ -49,7 +47,7 @@ export function HubPage({ node }: { node: ModuleNode }) {
                   aria-hidden
                 />
               )}
-              <Tile tile={tile} />
+              <Tile tile={tile} disabled={!canAccessModule(tile, user, permissions)} />
             </Fragment>
           );
         })}
@@ -58,23 +56,24 @@ export function HubPage({ node }: { node: ModuleNode }) {
   );
 }
 
-function Tile({ tile }: { tile: ModuleNode }) {
+function Tile({ tile, disabled }: { tile: ModuleNode; disabled: boolean }) {
   const Icon = tile.icon;
-  return (
-    <Link
-      to={tile.path}
-      className={cn(
-        "group flex items-start gap-3 rounded-[var(--radius)] border-2 bg-card",
-        "px-4 py-3 sm:px-4 sm:py-3",
-        "transition-colors hover:border-primary hover:bg-primary/5",
-        "focus-visible:border-primary",
-      )}
-    >
+  const className = cn(
+    "group flex items-start gap-3 rounded-[var(--radius)] border-2 bg-card",
+    "px-4 py-3 sm:px-4 sm:py-3",
+    "transition-colors",
+    disabled
+      ? "cursor-not-allowed opacity-45 grayscale"
+      : "hover:border-primary hover:bg-primary/5 focus-visible:border-primary",
+  );
+
+  const content = (
+    <>
       {Icon && (
         <div
           className={cn(
-            "shrink-0 rounded-md bg-primary/10 p-2 text-primary",
-            "group-hover:bg-primary group-hover:text-primary-foreground transition-colors",
+            "shrink-0 rounded-md bg-primary/10 p-2 text-primary transition-colors",
+            !disabled && "group-hover:bg-primary group-hover:text-primary-foreground",
           )}
         >
           <Icon className="h-5 w-5" aria-hidden />
@@ -89,9 +88,33 @@ function Tile({ tile }: { tile: ModuleNode }) {
         )}
       </div>
       <ArrowRight
-        className="h-5 w-5 mt-0.5 shrink-0 text-muted-foreground group-hover:text-primary transition-colors"
+        className={cn(
+          "h-5 w-5 mt-0.5 shrink-0 text-muted-foreground transition-colors",
+          !disabled && "group-hover:text-primary",
+        )}
         aria-hidden
       />
+    </>
+  );
+
+  if (disabled) {
+    return (
+      <div
+        aria-disabled="true"
+        title="You do not have access to this menu."
+        className={className}
+      >
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      to={tile.path}
+      className={className}
+    >
+      {content}
     </Link>
   );
 }

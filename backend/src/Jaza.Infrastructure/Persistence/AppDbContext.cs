@@ -1,4 +1,5 @@
 using Jaza.Domain.Audit;
+using Jaza.Domain.Auth;
 using Jaza.Domain.Common;
 using Jaza.Domain.Inbound;
 using Jaza.Domain.Invoicing;
@@ -14,6 +15,13 @@ namespace Jaza.Infrastructure.Persistence;
 public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     : IdentityDbContext<AppUser, AppRole, Guid>(options)
 {
+    // Auth + permissions
+    public DbSet<UserModulePermission> UserModulePermissions => Set<UserModulePermission>();
+    public DbSet<UserReportPermission> UserReportPermissions => Set<UserReportPermission>();
+    public DbSet<UserPreference> UserPreferences => Set<UserPreference>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+
+    // Master data
     public DbSet<Unit> Units => Set<Unit>();
     public DbSet<ItemCategory> Categories => Set<ItemCategory>();
     public DbSet<Item> Items => Set<Item>();
@@ -22,20 +30,24 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Warehouse> Warehouses => Set<Warehouse>();
     public DbSet<Location> Locations => Set<Location>();
 
+    // Purchase
     public DbSet<PurchaseOrder> PurchaseOrders => Set<PurchaseOrder>();
     public DbSet<PurchaseOrderLine> PurchaseOrderLines => Set<PurchaseOrderLine>();
     public DbSet<GoodsReceiptNote> GoodsReceiptNotes => Set<GoodsReceiptNote>();
     public DbSet<GoodsReceiptLine> GoodsReceiptLines => Set<GoodsReceiptLine>();
 
+    // Sales
     public DbSet<SalesOrder> SalesOrders => Set<SalesOrder>();
     public DbSet<SalesOrderLine> SalesOrderLines => Set<SalesOrderLine>();
     public DbSet<DeliveryOrder> DeliveryOrders => Set<DeliveryOrder>();
     public DbSet<DeliveryOrderLine> DeliveryOrderLines => Set<DeliveryOrderLine>();
 
+    // Invoicing
     public DbSet<Invoice> Invoices => Set<Invoice>();
     public DbSet<InvoiceLine> InvoiceLines => Set<InvoiceLine>();
     public DbSet<Payment> Payments => Set<Payment>();
 
+    // Stock
     public DbSet<StockMovement> StockMovements => Set<StockMovement>();
     public DbSet<StockOnHand> StockOnHand => Set<StockOnHand>();
 
@@ -46,7 +58,14 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     {
         base.OnModelCreating(b);
 
+        // PostgreSQL convention: snake_case is idiomatic but we keep PascalCase column names so
+        // the legacy SQL Server schema (used by the ETL tool) is straightforward to map. PostgreSQL
+        // happily quotes mixed-case identifiers; we set the citext extension only for case-insensitive
+        // search on a couple of columns (handled per-property with .HasColumnType where needed).
+        b.HasPostgresExtension("citext");
+
         ConfigureIdentityTableNames(b);
+        ConfigureAuth(b);
         ConfigureGlobalConventions(b);
         ConfigureMasterData(b);
         ConfigureInbound(b);
@@ -58,13 +77,64 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
 
     private static void ConfigureIdentityTableNames(ModelBuilder b)
     {
-        b.Entity<AppUser>().ToTable("Users");
-        b.Entity<AppRole>().ToTable("Roles");
-        b.Entity<Microsoft.AspNetCore.Identity.IdentityUserRole<Guid>>().ToTable("UserRoles");
-        b.Entity<Microsoft.AspNetCore.Identity.IdentityUserClaim<Guid>>().ToTable("UserClaims");
-        b.Entity<Microsoft.AspNetCore.Identity.IdentityUserLogin<Guid>>().ToTable("UserLogins");
-        b.Entity<Microsoft.AspNetCore.Identity.IdentityRoleClaim<Guid>>().ToTable("RoleClaims");
-        b.Entity<Microsoft.AspNetCore.Identity.IdentityUserToken<Guid>>().ToTable("UserTokens");
+        b.Entity<AppUser>(e =>
+        {
+            e.ToTable("AppUsers");
+            e.Property(x => x.FullName).HasMaxLength(200).IsRequired();
+            e.HasIndex(x => x.RoleId);
+            e.HasIndex(x => x.IsActive);
+        });
+        b.Entity<AppRole>().ToTable("AppRoles");
+        b.Entity<Microsoft.AspNetCore.Identity.IdentityUserRole<Guid>>().ToTable("AppUserRoles");
+        b.Entity<Microsoft.AspNetCore.Identity.IdentityUserClaim<Guid>>().ToTable("AppUserClaims");
+        b.Entity<Microsoft.AspNetCore.Identity.IdentityUserLogin<Guid>>().ToTable("AppUserLogins");
+        b.Entity<Microsoft.AspNetCore.Identity.IdentityRoleClaim<Guid>>().ToTable("AppRoleClaims");
+        b.Entity<Microsoft.AspNetCore.Identity.IdentityUserToken<Guid>>().ToTable("AppUserTokens");
+    }
+
+    private static void ConfigureAuth(ModelBuilder b)
+    {
+        b.Entity<UserModulePermission>(e =>
+        {
+            e.ToTable("UserModulePermissions");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Module).HasMaxLength(20).IsRequired();
+            e.HasIndex(x => new { x.UserId, x.Module }).IsUnique();
+            e.HasOne<AppUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        b.Entity<UserReportPermission>(e =>
+        {
+            e.ToTable("UserReportPermissions");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.ReportType).HasMaxLength(20).IsRequired();
+            e.HasIndex(x => new { x.UserId, x.ReportType }).IsUnique();
+            e.HasOne<AppUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        b.Entity<UserPreference>(e =>
+        {
+            e.ToTable("UserPreferences");
+            e.HasKey(x => x.UserId);
+            e.Property(x => x.Language).HasMaxLength(5).IsRequired();
+            e.Property(x => x.TextSize).HasMaxLength(10).IsRequired();
+            e.Property(x => x.Theme).HasMaxLength(10).IsRequired();
+            e.HasOne<AppUser>().WithOne().HasForeignKey<UserPreference>(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        b.Entity<RefreshToken>(e =>
+        {
+            e.ToTable("RefreshTokens");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.TokenHash).HasMaxLength(128).IsRequired();
+            e.Property(x => x.RevocationReason).HasMaxLength(64);
+            e.HasIndex(x => x.TokenHash).IsUnique();
+            e.HasIndex(x => x.UserId);
+            // Active-token lookup: by user + still valid + not revoked.
+            e.HasIndex(x => new { x.UserId, x.ExpiresAtUtc })
+                .HasFilter("\"RevokedAtUtc\" IS NULL");
+            e.HasOne<AppUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
     }
 
     /// <summary>Apply conventions to every Entity-derived type: PK, audit columns, soft-delete filter, decimal precision.</summary>
@@ -75,8 +145,16 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             var clr = et.ClrType;
             if (typeof(Entity).IsAssignableFrom(clr))
             {
-                b.Entity(clr).Property(nameof(Entity.RowVersion)).IsRowVersion();
-                b.Entity(clr).Property(nameof(Entity.CreatedAtUtc)).HasDefaultValueSql("SYSUTCDATETIME()");
+                // PostgreSQL exposes "xmin" as a system column on every table — it's the transaction
+                // id of the last writer. Mapping our RowVersion property to xmin gives us optimistic
+                // concurrency for free, no schema changes, and Npgsql populates it on every load.
+                b.Entity(clr).Property(nameof(Entity.RowVersion))
+                    .HasColumnName("xmin")
+                    .HasColumnType("xid")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .IsConcurrencyToken();
+                b.Entity(clr).Property(nameof(Entity.CreatedAtUtc))
+                    .HasDefaultValueSql("now() at time zone 'utc'");
                 b.Entity(clr).HasQueryFilter(GetSoftDeleteFilter(clr));
             }
 
@@ -99,19 +177,22 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
         return System.Linq.Expressions.Expression.Lambda(notDeleted, p);
     }
 
+    private const string NotSoftDeletedFilter = "\"IsDeleted\" = false";
+
     private static void ConfigureMasterData(ModelBuilder b)
     {
-        b.Entity<Unit>().HasIndex(x => x.Code).IsUnique().HasFilter("[IsDeleted] = 0");
-        b.Entity<ItemCategory>().HasIndex(x => x.Code).IsUnique().HasFilter("[IsDeleted] = 0");
+        b.Entity<Unit>().HasIndex(x => x.Code).IsUnique().HasFilter(NotSoftDeletedFilter);
+        b.Entity<ItemCategory>().HasIndex(x => x.Code).IsUnique().HasFilter(NotSoftDeletedFilter);
         b.Entity<ItemCategory>().HasOne(c => c.Parent).WithMany().HasForeignKey(c => c.ParentId);
 
-        b.Entity<Item>().HasIndex(x => x.Sku).IsUnique().HasFilter("[IsDeleted] = 0");
-        b.Entity<Item>().HasIndex(x => x.Barcode).HasFilter("[IsDeleted] = 0 AND [Barcode] IS NOT NULL");
+        b.Entity<Item>().HasIndex(x => x.Sku).IsUnique().HasFilter(NotSoftDeletedFilter);
+        b.Entity<Item>().HasIndex(x => x.Barcode)
+            .HasFilter("\"IsDeleted\" = false AND \"Barcode\" IS NOT NULL");
 
-        b.Entity<Supplier>().HasIndex(x => x.Code).IsUnique().HasFilter("[IsDeleted] = 0");
-        b.Entity<Customer>().HasIndex(x => x.Code).IsUnique().HasFilter("[IsDeleted] = 0");
-        b.Entity<Warehouse>().HasIndex(x => x.Code).IsUnique().HasFilter("[IsDeleted] = 0");
-        b.Entity<Location>().HasIndex(x => new { x.WarehouseId, x.Code }).IsUnique().HasFilter("[IsDeleted] = 0");
+        b.Entity<Supplier>().HasIndex(x => x.Code).IsUnique().HasFilter(NotSoftDeletedFilter);
+        b.Entity<Customer>().HasIndex(x => x.Code).IsUnique().HasFilter(NotSoftDeletedFilter);
+        b.Entity<Warehouse>().HasIndex(x => x.Code).IsUnique().HasFilter(NotSoftDeletedFilter);
+        b.Entity<Location>().HasIndex(x => new { x.WarehouseId, x.Code }).IsUnique().HasFilter(NotSoftDeletedFilter);
     }
 
     private static void ConfigureInbound(ModelBuilder b)

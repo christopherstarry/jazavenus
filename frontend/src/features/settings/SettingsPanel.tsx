@@ -1,8 +1,13 @@
 import { useSettings, type TextSize, type Theme } from "#/lib/settings";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card";
 import { Kbd } from "#/components/ui/kbd";
-import { Moon, Sun, Monitor, Type } from "lucide-react";
+import { Moon, Sun, Monitor, Type, Languages } from "lucide-react";
 import { cn } from "#/lib/utils";
+
+const LANGUAGE_OPTIONS: { value: "id" | "en"; label: string; description: string }[] = [
+  { value: "id", label: "Bahasa Indonesia", description: "Default for the Jaza team." },
+  { value: "en", label: "English",          description: "Field labels remain technical English." },
+];
 
 const TEXT_OPTIONS: { value: TextSize; label: string; sample: string }[] = [
   { value: "small",   label: "Small",        sample: "15px" },
@@ -75,6 +80,37 @@ export function SettingsPanel() {
               >
                 <Icon className="h-8 w-8" />
                 <span className="text-base font-semibold">{label}</span>
+              </button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2"><Languages className="h-6 w-6" /> Language</CardTitle>
+          <CardDescription>Pick how dates and labels display. The selection syncs to your account.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div role="radiogroup" aria-label="Language" className="grid gap-3 sm:grid-cols-2">
+            {LANGUAGE_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                role="radio"
+                aria-checked={s.language === opt.value}
+                onClick={() => s.setLanguage(opt.value)}
+                className={cn(
+                  "flex items-center justify-between rounded-[var(--radius)] border-2 px-5 py-4 text-left transition-colors",
+                  "hover:bg-accent hover:text-accent-foreground",
+                  s.language === opt.value ? "border-primary bg-primary/5" : "border-border"
+                )}
+              >
+                <div>
+                  <div className="font-semibold">{opt.label}</div>
+                  <div className="text-sm text-muted-foreground">{opt.description}</div>
+                </div>
+                <div className={cn("h-5 w-5 rounded-full border-2", s.language === opt.value ? "border-primary bg-primary" : "border-border")} />
               </button>
             ))}
           </div>

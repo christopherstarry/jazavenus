@@ -1,4 +1,5 @@
 using Jaza.Application.Common;
+using Jaza.Domain.Auth;
 using Jaza.Domain.MasterData;
 using Jaza.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
@@ -10,23 +11,82 @@ using Microsoft.Extensions.Logging;
 namespace Jaza.Infrastructure.Persistence;
 
 /// <summary>
-/// Applies pending EF migrations and seeds Roles + initial users on first run.
+/// Applies pending EF migrations and seeds the auth catalog on first run.
 ///
-/// Two seed paths:
-///  1. Production SuperAdmin — credentials read from configuration; if password is absent a strong
-///     random one is generated and printed to the log ONCE. Operator must rotate immediately.
-///  2. Convenience dev users — only seeded when "Seed:IncludeDevUsers" is true (Development only).
-///     These bypass the password policy on purpose so the chosen short password works.
-///     Never enable this flag in Production.
+/// Always seeded:
+///   • The 4 PRD roles (Sales / Admin / SuperAdmin / Developer) in the Identity Roles table.
+///
+/// Seeded conditionally:
+///   • Production SuperAdmin from <c>Seed:SuperAdminEmail</c> + optional password (auto-generated
+///     and printed to the log if absent — operator MUST rotate immediately).
+///   • Optional Developer account from <c>Seed:DeveloperEmail</c>.
+///   • The 8 named demo users from <c>docs/prds/auth/user-role.md §9</c>, only when
+///     <c>Seed:IncludeDemoUsers = true</c>. Disable this flag in Production.
 /// </summary>
 public static class DbInitializer
 {
-    private sealed record DevSeedUser(string UserName, string Email, string FullName, string Role, string Password);
+    private sealed record DemoUser(
+        string Email,
+        string FullName,
+        short RoleId,
+        IReadOnlyList<DemoModulePerm> Modules,
+        IReadOnlyList<string> Reports);
 
-    private static readonly DevSeedUser[] DevSeedUsers =
+    private sealed record DemoModulePerm(string Module, bool CanEdit, bool CanDelete);
+
+    /// <summary>The 8 named users from PRD §9. ALL have has_custom_permissions = true.</summary>
+    private static readonly DemoUser[] DemoUsers =
     [
-        new("super-admin", "super-admin@jaza.local", "Super Admin (dev)", Roles.SuperAdmin, "Password123!"),
-        new("admin",       "admin@jaza.local",       "Admin (dev)",       Roles.Admin,      "Password123!"),
+        new("didi@jaza.local",   "Didi",   Roles.Code.Admin,
+            [
+                new(Modules.Master,   CanEdit: true,  CanDelete: false),
+                new(Modules.Purchase, CanEdit: true,  CanDelete: true),
+                new(Modules.Sales,    CanEdit: true,  CanDelete: true),
+            ],
+            [ReportTypes.Ar]),
+
+        new("pai@jaza.local",    "Pai",    Roles.Code.Admin,
+            [
+                new(Modules.Master,    CanEdit: true,  CanDelete: false),
+                new(Modules.Purchase,  CanEdit: true,  CanDelete: true),
+                new(Modules.Inventory, CanEdit: true,  CanDelete: true),
+            ],
+            [ReportTypes.Ar]),
+
+        new("nenden@jaza.local", "Nenden", Roles.Code.Admin,
+            [
+                new(Modules.Master,   CanEdit: true,  CanDelete: false),
+                new(Modules.Purchase, CanEdit: true,  CanDelete: true),
+            ],
+            [ReportTypes.Ar, ReportTypes.Sales, ReportTypes.Inventory, ReportTypes.Purchase]),
+
+        new("atep@jaza.local",   "Atep",   Roles.Code.Admin,
+            [
+                new(Modules.Master, CanEdit: true,  CanDelete: false),
+                new(Modules.Sales,  CanEdit: true,  CanDelete: true),
+            ],
+            [ReportTypes.Ar]),
+
+        new("yane@jaza.local",   "Yane",   Roles.Code.Sales,
+            [
+                new(Modules.Sales,  CanEdit: true,  CanDelete: true),
+            ],
+            []),
+
+        new("ilham@jaza.local",  "Ilham",  Roles.Code.Sales,
+            [],
+            [ReportTypes.Ar]),
+
+        new("robby@jaza.local",  "Robby",  Roles.Code.Sales,
+            [],
+            [ReportTypes.Ar, ReportTypes.Sales]),
+
+        new("alvin@jaza.local",  "Alvin",  Roles.Code.Admin,
+            [
+                new(Modules.Master, CanEdit: true,  CanDelete: false),
+                new(Modules.Ar,     CanEdit: true,  CanDelete: true),
+            ],
+            [ReportTypes.Ar, ReportTypes.Sales, ReportTypes.Inventory, ReportTypes.Purchase]),
     ];
 
     public static async Task InitializeAsync(IServiceProvider services, CancellationToken ct = default)
@@ -42,24 +102,13 @@ public static class DbInitializer
         logger.LogInformation("Applying database migrations...");
         await db.Database.MigrateAsync(ct);
 
-        foreach (var name in Roles.All)
-        {
-            if (!await roles.RoleExistsAsync(name))
-            {
-                var r = await roles.CreateAsync(new AppRole(name));
-                if (!r.Succeeded)
-                    throw new InvalidOperationException("Failed to seed role " + name + ": " + string.Join("; ", r.Errors.Select(e => e.Description)));
-            }
-        }
+        await SeedRolesAsync(roles);
+        await SeedSuperAdminAsync(users, config, logger);
+        await SeedDeveloperAsync(users, config, logger);
 
-        await SeedProductionSuperAdminAsync(users, config, logger);
-
-        if (config.GetValue("Seed:IncludeDevUsers", defaultValue: false))
+        if (config.GetValue("Seed:IncludeDemoUsers", defaultValue: false))
         {
-            foreach (var u in DevSeedUsers)
-            {
-                await SeedDevUserAsync(users, u, logger);
-            }
+            await SeedDemoUsersAsync(users, db, logger);
         }
 
         if (!await db.Units.AnyAsync(ct))
@@ -73,13 +122,26 @@ public static class DbInitializer
         }
     }
 
-    private static async Task SeedProductionSuperAdminAsync(
+    private static async Task SeedRolesAsync(RoleManager<AppRole> roles)
+    {
+        foreach (var (_, name) in Roles.All)
+        {
+            if (!await roles.RoleExistsAsync(name))
+            {
+                var r = await roles.CreateAsync(new AppRole(name));
+                if (!r.Succeeded)
+                    throw new InvalidOperationException(
+                        $"Failed to seed role {name}: " + string.Join("; ", r.Errors.Select(e => e.Description)));
+            }
+        }
+    }
+
+    private static async Task SeedSuperAdminAsync(
         UserManager<AppUser> users, IConfiguration config, ILogger logger)
     {
-        var seedUserName = config["Seed:SuperAdminUserName"] ?? "super-admin";
         var seedEmail = config["Seed:SuperAdminEmail"] ?? "superadmin@jaza.local";
         var seedPwd = config["Seed:SuperAdminPassword"];
-        if (await users.FindByNameAsync(seedUserName) is not null) return;
+        if (await users.FindByEmailAsync(seedEmail) is not null) return;
 
         var generated = false;
         if (string.IsNullOrWhiteSpace(seedPwd))
@@ -90,56 +152,117 @@ public static class DbInitializer
 
         var user = new AppUser
         {
-            UserName = seedUserName,
+            UserName = seedEmail,
             Email = seedEmail,
             EmailConfirmed = true,
             FullName = "Super Admin",
-            MustChangePassword = true,
+            RoleId = Roles.Code.SuperAdmin,
+            HasCustomPermissions = false,
+            IsActive = true,
+            MustChangePassword = generated,
         };
         var create = await users.CreateAsync(user, seedPwd!);
         if (!create.Succeeded)
-            throw new InvalidOperationException("Failed to seed SuperAdmin: " + string.Join("; ", create.Errors.Select(e => e.Description)));
+            throw new InvalidOperationException(
+                "Failed to seed SuperAdmin: " + string.Join("; ", create.Errors.Select(e => e.Description)));
 
         await users.AddToRoleAsync(user, Roles.SuperAdmin);
-        logger.LogWarning("Seeded SuperAdmin userName={UserName} email={Email}", seedUserName, seedEmail);
+        logger.LogWarning("Seeded SuperAdmin email={Email}", seedEmail);
         if (generated)
-        {
             logger.LogWarning("Generated initial SuperAdmin password (rotate immediately): {Password}", seedPwd);
-        }
     }
 
-    /// <summary>
-    /// Seed a convenience dev user. We pre-hash the password and call CreateAsync(user)
-    /// without the password overload so the password validators are never invoked. The chosen
-    /// password still has to be remembered by the developer; the policy still applies to any
-    /// password change made through the UI.
-    /// </summary>
-    private static async Task SeedDevUserAsync(UserManager<AppUser> users, DevSeedUser seed, ILogger logger)
+    private static async Task SeedDeveloperAsync(
+        UserManager<AppUser> users, IConfiguration config, ILogger logger)
     {
-        if (await users.FindByEmailAsync(seed.Email) is not null) return;
+        var seedEmail = config["Seed:DeveloperEmail"];
+        if (string.IsNullOrWhiteSpace(seedEmail)) return;
+        if (await users.FindByEmailAsync(seedEmail) is not null) return;
+
+        var seedPwd = config["Seed:DeveloperPassword"];
+        var generated = false;
+        if (string.IsNullOrWhiteSpace(seedPwd))
+        {
+            seedPwd = GenerateStrongPassword();
+            generated = true;
+        }
 
         var user = new AppUser
         {
-            UserName = seed.Email,
-            Email = seed.Email,
+            UserName = seedEmail,
+            Email = seedEmail,
             EmailConfirmed = true,
-            FullName = seed.FullName,
-            MustChangePassword = false,
+            FullName = "Developer",
+            RoleId = Roles.Code.Developer,
+            HasCustomPermissions = false,
+            IsActive = true,
+            MustChangePassword = generated,
         };
-
-        user.PasswordHash = users.PasswordHasher.HashPassword(user, seed.Password);
-
-        var create = await users.CreateAsync(user);
+        var create = await users.CreateAsync(user, seedPwd!);
         if (!create.Succeeded)
-            throw new InvalidOperationException("Failed to seed dev user " + seed.Email + ": " + string.Join("; ", create.Errors.Select(e => e.Description)));
+            throw new InvalidOperationException(
+                "Failed to seed Developer: " + string.Join("; ", create.Errors.Select(e => e.Description)));
+        await users.AddToRoleAsync(user, Roles.Developer);
+        logger.LogWarning("Seeded Developer email={Email}", seedEmail);
+        if (generated)
+            logger.LogWarning("Generated initial Developer password (rotate immediately): {Password}", seedPwd);
+    }
 
-        var addRole = await users.AddToRoleAsync(user, seed.Role);
-        if (!addRole.Succeeded)
-            throw new InvalidOperationException("Failed to assign role to dev user " + seed.Email + ": " + string.Join("; ", addRole.Errors.Select(e => e.Description)));
+    /// <summary>
+    /// Insert the 8 named users from the PRD with custom permissions. Each gets the temporary
+    /// password "Password123!" (developer convenience only; never enable Seed:IncludeDemoUsers in prod).
+    /// </summary>
+    private static async Task SeedDemoUsersAsync(
+        UserManager<AppUser> users, AppDbContext db, ILogger logger)
+    {
+        const string demoPassword = "Password123!";
 
-        logger.LogWarning(
-            "Seeded DEV user {Email} with role {Role}. This account is for local testing only — disable Seed:IncludeDevUsers in non-dev environments.",
-            seed.Email, seed.Role);
+        foreach (var demo in DemoUsers)
+        {
+            if (await users.FindByEmailAsync(demo.Email) is not null) continue;
+
+            var user = new AppUser
+            {
+                UserName = demo.Email,
+                Email = demo.Email,
+                EmailConfirmed = true,
+                FullName = demo.FullName,
+                RoleId = demo.RoleId,
+                HasCustomPermissions = true,
+                IsActive = true,
+                MustChangePassword = false,
+            };
+
+            // CreateAsync overload without a password skips the password validators. We then set the
+            // hash manually with the configured hasher so the chosen demo password is acceptable
+            // even though the demo password violates the strict policy enforced for real users.
+            user.PasswordHash = users.PasswordHasher.HashPassword(user, demoPassword);
+            var r = await users.CreateAsync(user);
+            if (!r.Succeeded)
+                throw new InvalidOperationException(
+                    $"Failed to seed demo user {demo.Email}: " + string.Join("; ", r.Errors.Select(e => e.Description)));
+
+            var roleName = Roles.NameFromId(demo.RoleId);
+            await users.AddToRoleAsync(user, roleName);
+
+            foreach (var m in demo.Modules)
+                db.UserModulePermissions.Add(new UserModulePermission
+                {
+                    UserId = user.Id,
+                    Module = m.Module,
+                    CanEdit = m.CanEdit,
+                    CanDelete = m.CanDelete,
+                });
+            foreach (var rep in demo.Reports)
+                db.UserReportPermissions.Add(new UserReportPermission
+                {
+                    UserId = user.Id,
+                    ReportType = rep,
+                });
+
+            await db.SaveChangesAsync();
+            logger.LogInformation("Seeded demo user {Email} ({Role})", demo.Email, roleName);
+        }
     }
 
     private static string GenerateStrongPassword()

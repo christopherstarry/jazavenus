@@ -3,7 +3,7 @@ using Jaza.Domain.Stock;
 namespace Jaza.Application.Stock;
 
 /// <summary>
-/// All stock changes flow through this service to enforce the StockMovement <-> StockOnHand invariant.
+/// All stock changes flow through this service to enforce the StockMovement &lt;-&gt; StockOnHand invariant.
 /// Every method must run inside a transaction owned by the caller.
 /// </summary>
 public interface IStockService
