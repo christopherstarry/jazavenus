@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetTitle, SheetDescription } from "#/components/
 import { Popover, PopoverContent, PopoverTrigger } from "#/components/ui/popover";
 import { Breadcrumbs } from "#/components/ui/breadcrumbs";
 import {
-  LogOut, Settings, Menu, ChevronDown, KeyRound,
+  LogOut, Settings, Menu, ChevronDown, KeyRound, Users,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "#/lib/utils";
@@ -130,6 +130,7 @@ export function AppLayout() {
                   user={user}
                   onSettings={() => navigate("/settings")}
                   onChangePassword={() => navigate("/system/change-password")}
+                  onManageUsers={() => navigate("/system/manage-users")}
                   onLogout={() => void logout()}
                 />
               )}
@@ -171,11 +172,12 @@ export function AppLayout() {
  * ───────────────────────────────────────────────────────────────────────── */
 
 function UserMenu({
-  user, onSettings, onChangePassword, onLogout,
+  user, onSettings, onChangePassword, onManageUsers, onLogout,
 }: {
   user: CurrentUser;
   onSettings: () => void;
   onChangePassword: () => void;
+  onManageUsers: () => void;
   onLogout: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -222,6 +224,9 @@ function UserMenu({
         <div className="p-2">
           {hasRole(user, "SuperAdmin", "Developer") && (
             <UserMenuItem icon={KeyRound} label="Change password" onClick={() => { setOpen(false); onChangePassword(); }} />
+          )}
+          {hasRole(user, "SuperAdmin", "Developer") && (
+            <UserMenuItem icon={Users} label="Manage Users" onClick={() => { setOpen(false); onManageUsers(); }} />
           )}
           <UserMenuItem icon={Settings} label="Settings"        onClick={() => { setOpen(false); onSettings(); }} />
           <UserMenuItem icon={LogOut}   label="Sign out"        onClick={() => { setOpen(false); onLogout(); }} tone="destructive" />

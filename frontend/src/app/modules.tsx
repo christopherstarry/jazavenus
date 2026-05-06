@@ -147,6 +147,7 @@ import { BankTransferTransactionPage } from "#/features/ar/BankTransferTransacti
 import { PdcClearanceCancellationPage } from "#/features/ar/PdcClearanceCancellationPage";
 import { SettingsPanel } from "#/features/settings/SettingsPanel";
 import { ChangePasswordPage } from "#/features/auth/ChangePasswordPage";
+import { ManageUsersPage } from "#/features/users/ManageUsersPage";
 import { EmployeePage } from "#/features/employees/EmployeePage";
 import { ClassOutletPage } from "#/features/customers/ClassOutletPage";
 import { GroupOutletPage } from "#/features/customers/GroupOutletPage";
@@ -228,6 +229,14 @@ export const TREE: ModuleNode[] = [
         description: "Update a user's sign-in password",
         superAdminOnly: true,
         Component: ChangePasswordPage,
+      },
+      {
+        id: "system.manage-users",
+        path: "/system/manage-users",
+        label: "Manage Users",
+        description: "View and manage user accounts and permissions",
+        superAdminOnly: true,
+        Component: ManageUsersPage,
       },
 
       {

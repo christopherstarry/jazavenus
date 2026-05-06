@@ -14,6 +14,7 @@ namespace Jaza.Api.Controllers;
 /// <summary>
 /// User management — list is visible to all authenticated users (PRD §10.1 whitelist).
 /// Mutating endpoints (create / update / deactivate / reset-password) are Developer + SuperAdmin only.
+/// SuperAdmin cannot modify Developer accounts.
 /// </summary>
 [ApiController]
 [Route("api/users")]
@@ -29,6 +30,14 @@ public sealed class UsersController(
     IValidator<ChangePasswordRequest> changePwdValidator,
     ILogger<UsersController> logger) : ControllerBase
 {
+    /// <summary>SuperAdmin cannot modify Developer accounts. Returns false if blocked.</summary>
+    private bool CanModifyUser(AppUser target)
+    {
+        if (User.IsInRole(Roles.Developer)) return true;
+        if (target.RoleId == Roles.Code.Developer) return false;
+        return true;
+    }
+
     /// <summary>Paged list of users with simple search (name/email contains) and role filter.</summary>
     [HttpGet]
     [ProducesResponseType(typeof(PagedResult<UserListItem>), 200)]
@@ -102,6 +111,10 @@ public sealed class UsersController(
         if (await users.FindByEmailAsync(req.Email) is not null)
             return BadRequest(new ProblemDetails { Title = "email_in_use", Detail = "Email is already taken." });
 
+        // SuperAdmin cannot create Developer accounts
+        if (!User.IsInRole(Roles.Developer) && req.RoleId == Roles.Code.Developer)
+            return Forbid();
+
         var user = new AppUser
         {
             UserName = req.Email,
@@ -143,6 +156,8 @@ public sealed class UsersController(
         await updateValidator.ValidateAndThrowAsync(req, ct);
         var user = await users.FindByIdAsync(id.ToString());
         if (user is null) return NotFound();
+
+        if (!CanModifyUser(user)) return Forbid();
 
         var oldRoleId = user.RoleId;
         if (!string.Equals(user.Email, req.Email, StringComparison.OrdinalIgnoreCase))
@@ -187,6 +202,8 @@ public sealed class UsersController(
         var user = await users.FindByIdAsync(id.ToString());
         if (user is null) return NotFound();
 
+        if (!CanModifyUser(user)) return Forbid();
+
         user.IsActive = false;
         user.UpdatedAtUtc = DateTime.UtcNow;
         await users.UpdateAsync(user);
@@ -212,6 +229,8 @@ public sealed class UsersController(
 
         var user = await users.FindByIdAsync(id.ToString());
         if (user is null) return NotFound();
+
+        if (!CanModifyUser(user)) return Forbid();
 
         var token = await users.GeneratePasswordResetTokenAsync(user);
         var result = await users.ResetPasswordAsync(user, token, req.NewPassword);

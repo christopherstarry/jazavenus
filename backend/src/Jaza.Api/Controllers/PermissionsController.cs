@@ -2,6 +2,7 @@ using FluentValidation;
 using Jaza.Application.Auth;
 using Jaza.Application.Common;
 using Jaza.Domain.Audit;
+using Jaza.Infrastructure.Identity;
 using Jaza.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -63,6 +64,10 @@ public sealed class PermissionsController(
 
         var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId, ct);
         if (user is null) return NotFound();
+
+        // SuperAdmin cannot modify Developer permissions
+        if (!User.IsInRole(Roles.Developer) && user.RoleId == Roles.Code.Developer)
+            return Forbid();
 
         await permissions.ReplaceAsync(userId, req.HasCustomPermissions, req.Modules, req.Reports, ct);
 
