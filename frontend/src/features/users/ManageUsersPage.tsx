@@ -86,11 +86,11 @@ export function ManageUsersPage() {
     return false;
   }, [currentUser]);
 
-  const handleDeactivate = async (u: UserListItem) => {
+  const handleDelete = async (u: UserListItem) => {
     const ok = await confirm({
-      title: `Deactivate ${u.fullName}?`,
-      description: `This will disable login for ${u.fullName} (${u.email}). They will be signed out from all devices. This can be reversed by re-enabling the user.`,
-      confirmLabel: "Yes, deactivate",
+      title: `Delete ${u.fullName}?`,
+      description: `This will permanently delete ${u.fullName} (${u.email}) and all their permissions. This cannot be undone.`,
+      confirmLabel: "Yes, delete",
       destructive: true,
     });
     if (!ok) return;
@@ -213,11 +213,11 @@ export function ManageUsersPage() {
                           {canModify(u.role) && u.id !== currentUser?.userId && (
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" onClick={() => handleDeactivate(u)}>
+                                <Button variant="ghost" size="icon" onClick={() => handleDelete(u)}>
                                   <Trash2 className="h-4 w-4 text-destructive" />
                                 </Button>
                               </TooltipTrigger>
-                              <TooltipContent>Deactivate User</TooltipContent>
+                              <TooltipContent>Delete User</TooltipContent>
                             </Tooltip>
                           )}
                         </div>

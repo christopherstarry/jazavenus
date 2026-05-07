@@ -191,22 +191,35 @@ public sealed class UsersController(
         return ((ActionResult<UserDetail>)await Get(id, ct)).Value!;
     }
 
-    /// <summary>Soft-deactivate a user (IsActive = false). Revokes all sessions.</summary>
+    /// <summary>Permanently delete a user. Revokes all sessions first.</summary>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> Deactivate(Guid id, CancellationToken ct)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
         var user = await users.FindByIdAsync(id.ToString());
         if (user is null) return NotFound();
 
         if (!CanModifyUser(user)) return Forbid();
 
-        user.IsActive = false;
-        user.UpdatedAtUtc = DateTime.UtcNow;
-        await users.UpdateAsync(user);
-        await refreshTokens.RevokeAllForUserAsync(id, "deactivated", ct);
-        await LogUser("User.Deactivated", id, user.Email, $"by={User.Identity?.Name}");
+        // Revoke all refresh tokens before deleting the user
+        await refreshTokens.RevokeAllForUserAsync(id, "deleted", ct);
+
+        // Delete related permission rows (cascade handles module/report permissions, but we explicitly clear audit log FKs)
+        var auditEntries = await db.AuditLogs.Where(a => a.UserId == id).ToListAsync(ct);
+        foreach (var entry in auditEntries) entry.UserId = null;
+        await db.SaveChangesAsync(ct);
+
+        var email = user.Email;
+        var result = await users.DeleteAsync(user);
+        if (!result.Succeeded)
+            return BadRequest(new ProblemDetails
+            {
+                Title = "delete_failed",
+                Detail = string.Join("; ", result.Errors.Select(e => e.Description)),
+            });
+
+        await LogUser("User.Deleted", id, email, $"by={User.Identity?.Name}");
         return NoContent();
     }
 
