@@ -146,7 +146,6 @@ import {
 import { BankTransferTransactionPage } from "#/features/ar/BankTransferTransactionPage";
 import { PdcClearanceCancellationPage } from "#/features/ar/PdcClearanceCancellationPage";
 import { SettingsPanel } from "#/features/settings/SettingsPanel";
-import { ChangePasswordPage } from "#/features/auth/ChangePasswordPage";
 import { ManageUsersPage } from "#/features/users/ManageUsersPage";
 import { EmployeePage } from "#/features/employees/EmployeePage";
 import { ClassOutletPage } from "#/features/customers/ClassOutletPage";
@@ -216,20 +215,6 @@ export const TREE: ModuleNode[] = [
     description: "Logging in/out, period closing, cleanup tools",
     icon: Settings,
     children: [
-      {
-        id: "system.logoff",
-        path: "/system/log-off",
-        label: "Log off",
-        description: "Sign out of the application",
-      },
-      {
-        id: "system.change-password",
-        path: "/system/change-password",
-        label: "Change Password",
-        description: "Update a user's sign-in password",
-        superAdminOnly: true,
-        Component: ChangePasswordPage,
-      },
       {
         id: "system.manage-users",
         path: "/system/manage-users",
