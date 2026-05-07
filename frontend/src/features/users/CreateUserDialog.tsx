@@ -4,6 +4,7 @@ import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "#/components/ui/dialog";
+import type { CurrentUser } from "#/lib/auth";
 
 interface ModulePermissionDto {
   module: string;
@@ -29,9 +30,10 @@ const ALL_REPORTS = [
 interface Props {
   open: boolean;
   onClose: () => void;
+  currentUser: CurrentUser | null;
 }
 
-export function CreateUserDialog({ open, onClose }: Props) {
+export function CreateUserDialog({ open, onClose, currentUser }: Props) {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -126,6 +128,7 @@ export function CreateUserDialog({ open, onClose }: Props) {
               >
                 <option value={1}>Sales</option>
                 <option value={2}>Admin</option>
+                {currentUser?.isDeveloper && <option value={3}>SuperAdmin</option>}
               </select>
             </div>
           </div>

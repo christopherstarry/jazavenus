@@ -264,6 +264,7 @@ export function ManageUsersPage() {
         <CreateUserDialog
           open={creatingUser}
           onClose={() => { setCreatingUser(false); q.refetch(); }}
+          currentUser={currentUser}
         />
 
         {confirmDialog}
