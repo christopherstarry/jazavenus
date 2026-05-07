@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { Search, ChevronLeft, ChevronRight, Users, Pencil, KeyRound, Lock, Plus, Trash2 } from "lucide-react";
 import { api } from "#/lib/api";
 import { useAuth } from "#/lib/auth";
@@ -50,6 +50,7 @@ interface ModulePermissionDto {
 
 export function ManageUsersPage() {
   const { user: currentUser } = useAuth();
+  const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [role, setRole] = useState<number | undefined>();
@@ -94,8 +95,8 @@ export function ManageUsersPage() {
       destructive: true,
     });
     if (!ok) return;
-    await api.delete(`users/${u.id}`).json();
-    q.refetch();
+    await api.delete(`users/${u.id}`);
+    queryClient.invalidateQueries({ queryKey: ["users"] });
   };
 
   const isEmpty = q.data && q.data.items.length === 0 && !search;
