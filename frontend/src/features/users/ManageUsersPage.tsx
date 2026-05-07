@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { Search, ChevronLeft, ChevronRight, Users, Pencil, KeyRound, Lock, Plus } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Users, Pencil, KeyRound, Lock, Plus, Trash2 } from "lucide-react";
 import { api } from "#/lib/api";
 import { useAuth } from "#/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
@@ -11,6 +11,7 @@ import { EmptyState } from "#/components/ui/empty-state";
 import { Badge } from "#/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "#/components/ui/tooltip";
+import { useConfirm } from "#/components/ui/confirm";
 import { UserEditDialog } from "#/features/users/UserEditDialog";
 import { ResetPasswordDialog } from "#/features/users/ResetPasswordDialog";
 import { CreateUserDialog } from "#/features/users/CreateUserDialog";
@@ -55,6 +56,7 @@ export function ManageUsersPage() {
   const [editingUser, setEditingUser] = useState<UserDetail | null>(null);
   const [resettingUser, setResettingUser] = useState<UserListItem | null>(null);
   const [creatingUser, setCreatingUser] = useState(false);
+  const { confirm, dialog: confirmDialog } = useConfirm();
 
   const q = useQuery({
     queryKey: ["users", page, search, role],
@@ -80,9 +82,21 @@ export function ManageUsersPage() {
     const isDev = currentUser?.isDeveloper;
     const isSuperAdmin = currentUser?.roles?.includes("SuperAdmin");
     if (isDev) return true;
-    if (isSuperAdmin && (targetRole === "Admin" || targetRole === "Sales")) return true;
+    if (isSuperAdmin && targetRole !== "Developer") return true;
     return false;
   }, [currentUser]);
+
+  const handleDeactivate = async (u: UserListItem) => {
+    const ok = await confirm({
+      title: `Deactivate ${u.fullName}?`,
+      description: `This will disable login for ${u.fullName} (${u.email}). They will be signed out from all devices. This can be reversed by re-enabling the user.`,
+      confirmLabel: "Yes, deactivate",
+      destructive: true,
+    });
+    if (!ok) return;
+    await api.delete(`users/${u.id}`).json();
+    q.refetch();
+  };
 
   const isEmpty = q.data && q.data.items.length === 0 && !search;
 
@@ -196,6 +210,16 @@ export function ManageUsersPage() {
                               <TooltipContent>Edit User</TooltipContent>
                             </Tooltip>
                           ) : null}
+                          {canModify(u.role) && u.id !== currentUser?.userId && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" onClick={() => handleDeactivate(u)}>
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Deactivate User</TooltipContent>
+                            </Tooltip>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -241,6 +265,8 @@ export function ManageUsersPage() {
           open={creatingUser}
           onClose={() => { setCreatingUser(false); q.refetch(); }}
         />
+
+        {confirmDialog}
       </CardContent>
     </Card>
   );
