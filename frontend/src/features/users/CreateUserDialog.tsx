@@ -158,9 +158,13 @@ export function CreateUserDialog({ open, onClose, currentUser }: Props) {
                         <td className="text-center px-3 py-2">
                           <input
                             type="checkbox" checked={activeSet.has(m.module)}
-                            onChange={() => {
+                            onChange={(e) => {
                               const copy = [...modules];
-                              copy[i] = { module: m.module, canEdit: false, canDelete: false };
+                              if (e.target.checked) {
+                                copy[i] = { module: m.module, canEdit: true, canDelete: false };
+                              } else {
+                                copy[i] = { module: m.module, canEdit: false, canDelete: false };
+                              }
                               setModules(copy);
                             }}
                             className="h-4 w-4"
