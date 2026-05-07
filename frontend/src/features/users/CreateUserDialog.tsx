@@ -12,6 +12,10 @@ interface ModulePermissionDto {
   canDelete: boolean;
 }
 
+interface ModuleRow extends ModulePermissionDto {
+  enabled: boolean;
+}
+
 const ALL_MODULES = [
   { key: "master", label: "Master" },
   { key: "purchase", label: "Purchase" },
@@ -39,8 +43,8 @@ export function CreateUserDialog({ open, onClose, currentUser }: Props) {
   const [password, setPassword] = useState("");
   const [roleId, setRoleId] = useState(1); // default Sales
   const [hasCustom, setHasCustom] = useState(false);
-  const [modules, setModules] = useState<ModulePermissionDto[]>(() =>
-    ALL_MODULES.map((m) => ({ module: m.key, canEdit: false, canDelete: false })));
+  const [modules, setModules] = useState<ModuleRow[]>(() =>
+    ALL_MODULES.map((m) => ({ module: m.key, canEdit: false, canDelete: false, enabled: false })));
   const [reports, setReports] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,7 +69,7 @@ export function CreateUserDialog({ open, onClose, currentUser }: Props) {
           password,
           roleId,
           hasCustomPermissions: hasCustom,
-          modules: hasCustom ? modules.filter((m) => m.canEdit || m.canDelete) : [],
+          modules: hasCustom ? modules.filter((m) => m.enabled).map(({ module, canEdit, canDelete }) => ({ module, canEdit, canDelete })) : [],
           reports: hasCustom ? reports : [],
         },
       }).json();
@@ -88,13 +92,11 @@ export function CreateUserDialog({ open, onClose, currentUser }: Props) {
     setPassword("");
     setRoleId(1);
     setHasCustom(false);
-    setModules(ALL_MODULES.map((m) => ({ module: m.key, canEdit: false, canDelete: false })));
+    setModules(ALL_MODULES.map((m) => ({ module: m.key, canEdit: false, canDelete: false, enabled: false })));
     setReports([]);
     setError(null);
     onClose();
   };
-
-  const activeSet = new Set(modules.filter((m) => m.canEdit || m.canDelete).map((m) => m.module));
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
@@ -157,13 +159,15 @@ export function CreateUserDialog({ open, onClose, currentUser }: Props) {
                         <td className="px-3 py-2">{ALL_MODULES.find((x) => x.key === m.module)?.label}</td>
                         <td className="text-center px-3 py-2">
                           <input
-                            type="checkbox" checked={activeSet.has(m.module)}
+                            type="checkbox" checked={m.enabled}
                             onChange={(e) => {
                               const copy = [...modules];
+                              const cur = copy[i];
+                              if (!cur) return;
                               if (e.target.checked) {
-                                copy[i] = { module: m.module, canEdit: true, canDelete: false };
+                                copy[i] = { module: cur.module, enabled: true, canEdit: false, canDelete: false };
                               } else {
-                                copy[i] = { module: m.module, canEdit: false, canDelete: false };
+                                copy[i] = { module: cur.module, enabled: false, canEdit: false, canDelete: false };
                               }
                               setModules(copy);
                             }}
@@ -171,12 +175,12 @@ export function CreateUserDialog({ open, onClose, currentUser }: Props) {
                           />
                         </td>
                         <td className="text-center px-3 py-2">
-                          <input type="checkbox" checked={m.canEdit} disabled={!activeSet.has(m.module)}
+                          <input type="checkbox" checked={m.canEdit} disabled={!m.enabled}
                             onChange={(e) => {
                               const copy = [...modules];
                               const cur = copy[i];
                               if (!cur) return;
-                              copy[i] = { module: cur.module, canEdit: e.target.checked, canDelete: e.target.checked ? cur.canDelete : false };
+                              copy[i] = { module: cur.module, enabled: cur.enabled, canEdit: e.target.checked, canDelete: e.target.checked ? cur.canDelete : false };
                               setModules(copy);
                             }}
                             className="h-4 w-4"
@@ -188,7 +192,7 @@ export function CreateUserDialog({ open, onClose, currentUser }: Props) {
                               const copy = [...modules];
                               const cur = copy[i];
                               if (!cur) return;
-                              copy[i] = { module: cur.module, canEdit: cur.canEdit, canDelete: e.target.checked };
+                              copy[i] = { module: cur.module, enabled: cur.enabled, canEdit: cur.canEdit, canDelete: e.target.checked };
                               setModules(copy);
                             }}
                             className="h-4 w-4"
