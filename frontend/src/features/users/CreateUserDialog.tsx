@@ -155,9 +155,9 @@ export function CreateUserDialog({ open, onClose }: Props) {
                         <td className="text-center px-3 py-2">
                           <input
                             type="checkbox" checked={activeSet.has(m.module)}
-                            onChange={(e) => {
+                            onChange={() => {
                               const copy = [...modules];
-                              copy[i] = { ...copy[i], canEdit: false, canDelete: false };
+                              copy[i] = { module: m.module, canEdit: false, canDelete: false };
                               setModules(copy);
                             }}
                             className="h-4 w-4"
@@ -167,7 +167,9 @@ export function CreateUserDialog({ open, onClose }: Props) {
                           <input type="checkbox" checked={m.canEdit} disabled={!activeSet.has(m.module)}
                             onChange={(e) => {
                               const copy = [...modules];
-                              copy[i] = { ...copy[i], canEdit: e.target.checked, canDelete: e.target.checked ? copy[i].canDelete : false };
+                              const cur = copy[i];
+                              if (!cur) return;
+                              copy[i] = { module: cur.module, canEdit: e.target.checked, canDelete: e.target.checked ? cur.canDelete : false };
                               setModules(copy);
                             }}
                             className="h-4 w-4"
@@ -177,7 +179,9 @@ export function CreateUserDialog({ open, onClose }: Props) {
                           <input type="checkbox" checked={m.canDelete} disabled={!m.canEdit}
                             onChange={(e) => {
                               const copy = [...modules];
-                              copy[i] = { ...copy[i], canDelete: e.target.checked };
+                              const cur = copy[i];
+                              if (!cur) return;
+                              copy[i] = { module: cur.module, canEdit: cur.canEdit, canDelete: e.target.checked };
                               setModules(copy);
                             }}
                             className="h-4 w-4"
