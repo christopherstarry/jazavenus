@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { Search, ChevronLeft, ChevronRight, Bug } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Bug, Copy } from "lucide-react";
 import { api } from "#/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { Input } from "#/components/ui/input";
@@ -164,7 +164,13 @@ export function ErrorLogsPage() {
                       </TableCell>
                       <TableCell className="text-sm truncate max-w-[100px]">{log.userName ?? "—"}</TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" title="View details">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          title="View details"
+                          onClick={(e) => { e.stopPropagation(); openDetail(log); }}
+                        >
                           <Bug className="h-4 w-4" />
                         </Button>
                       </TableCell>
@@ -238,7 +244,17 @@ export function ErrorLogsPage() {
                 </div>
 
                 <div>
-                  <span className="text-sm font-medium text-muted-foreground">Message:</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-muted-foreground">Message:</span>
+                    <button
+                      type="button"
+                      onClick={() => navigator.clipboard.writeText(selectedLog.message)}
+                      className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                      title="Copy message"
+                    >
+                      <Copy className="h-3 w-3" /> Copy
+                    </button>
+                  </div>
                   <pre className="mt-1 p-3 rounded-md bg-muted text-sm font-mono whitespace-pre-wrap break-all">
                     {selectedLog.message}
                   </pre>
@@ -246,7 +262,17 @@ export function ErrorLogsPage() {
 
                 {selectedLog.stackTrace && (
                   <div>
-                    <span className="text-sm font-medium text-muted-foreground">Stack Trace:</span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-muted-foreground">Stack Trace:</span>
+                      <button
+                        type="button"
+                        onClick={() => navigator.clipboard.writeText(selectedLog.stackTrace!)}
+                        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                        title="Copy stack trace"
+                      >
+                        <Copy className="h-3 w-3" /> Copy
+                      </button>
+                    </div>
                     <pre className="mt-1 p-3 rounded-md bg-muted text-xs font-mono whitespace-pre-wrap break-all max-h-80 overflow-y-auto">
                       {selectedLog.stackTrace}
                     </pre>
