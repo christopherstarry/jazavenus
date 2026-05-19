@@ -57,6 +57,10 @@ const ACTION_LABELS: Record<string, { label: string; icon: string; color: string
   Delete: { label: "Deleted", icon: "🗑️", color: "text-red-600" },
 };
 
+function toISODateString(d: Date): string {
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+
 function formatDateTime(utc: string): string {
   const d = new Date(utc);
   const now = new Date();
@@ -74,15 +78,21 @@ export function AuditHistoryPage() {
   const [search, setSearch] = useState("");
   const [entity, setEntity] = useState("");
   const [action, setAction] = useState("");
+  const [dateFrom, setDateFrom] = useState(() => {
+    const d = new Date(); d.setDate(d.getDate() - 7); return toISODateString(d);
+  });
+  const [dateTo, setDateTo] = useState(() => toISODateString(new Date()));
   const [selectedLog, setSelectedLog] = useState<AuditLogDto | null>(null);
 
   const q = useQuery({
-    queryKey: ["audit-logs", page, search, entity, action],
+    queryKey: ["audit-logs", page, search, entity, action, dateFrom, dateTo],
     queryFn: async () => {
       const params: Record<string, string | number> = { page, pageSize: 20 };
       if (search) params.search = search;
       if (entity) params.entity = entity;
       if (action) params.action = action;
+      params.from = dateFrom;
+      params.to = dateTo;
       return api.get("audit-logs", { searchParams: params }).json<PagedResult<AuditLogDto>>();
     },
     placeholderData: keepPreviousData,
@@ -95,7 +105,7 @@ export function AuditHistoryPage() {
           <CardTitle className="text-2xl">Activity History</CardTitle>
           {q.data && (
             <p className="text-sm text-muted-foreground mt-1">
-              {q.data.totalCount} total events — last 7 days shown
+              {q.data.totalCount} total events — {dateFrom} to {dateTo}
             </p>
           )}
         </div>
@@ -121,6 +131,24 @@ export function AuditHistoryPage() {
               {f.label}
             </button>
           ))}
+        </div>
+
+        {/* Date range */}
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          <label className="text-sm text-muted-foreground">From</label>
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
+            className="flex h-11 w-full max-w-[180px] rounded-[var(--radius)] border-2 border-input bg-background px-3 text-base font-medium cursor-pointer"
+          />
+          <label className="text-sm text-muted-foreground">To</label>
+          <input
+            type="date"
+            value={dateTo}
+            onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
+            className="flex h-11 w-full max-w-[180px] rounded-[var(--radius)] border-2 border-input bg-background px-3 text-base font-medium cursor-pointer"
+          />
         </div>
 
         {/* Entity dropdown + Search */}
