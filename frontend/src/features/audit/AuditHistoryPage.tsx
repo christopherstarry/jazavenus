@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { Search, ChevronLeft, ChevronRight, FileText, EyeOff } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, FileText, EyeOff, Calendar } from "lucide-react";
 import { api } from "#/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { Input } from "#/components/ui/input";
@@ -82,6 +82,8 @@ export function AuditHistoryPage() {
     const d = new Date(); d.setDate(d.getDate() - 7); return toISODateString(d);
   });
   const [dateTo, setDateTo] = useState(() => toISODateString(new Date()));
+  const fromRef = useRef<HTMLInputElement>(null);
+  const toRef = useRef<HTMLInputElement>(null);
   const [selectedLog, setSelectedLog] = useState<AuditLogDto | null>(null);
 
   const q = useQuery({
@@ -134,24 +136,38 @@ export function AuditHistoryPage() {
         </div>
 
         {/* Date range */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mb-4">
-          <div className="flex items-center gap-2 min-w-0">
-            <label className="text-sm text-muted-foreground shrink-0">From</label>
-            <input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
-              className="min-h-[44px] flex-1 sm:flex-none sm:w-[170px] rounded-[var(--radius)] border-2 border-input bg-background px-3 text-base font-medium cursor-pointer appearance-none"
-            />
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">From</span>
+            <div
+              className="relative flex items-center min-h-[44px] sm:w-[170px] rounded-[var(--radius)] border-2 border-input bg-background cursor-pointer"
+              onClick={() => fromRef.current?.showPicker()}
+            >
+              <Calendar className="absolute left-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <input
+                ref={fromRef}
+                type="date"
+                value={dateFrom}
+                onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
+                className="w-full min-h-[44px] bg-transparent pl-10 pr-3 text-base font-medium cursor-pointer appearance-none [&::-webkit-calendar-picker-indicator]:hidden"
+              />
+            </div>
           </div>
-          <div className="flex items-center gap-2 min-w-0">
-            <label className="text-sm text-muted-foreground shrink-0">To</label>
-            <input
-              type="date"
-              value={dateTo}
-              onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
-              className="min-h-[44px] flex-1 sm:flex-none sm:w-[170px] rounded-[var(--radius)] border-2 border-input bg-background px-3 text-base font-medium cursor-pointer appearance-none"
-            />
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">To</span>
+            <div
+              className="relative flex items-center min-h-[44px] sm:w-[170px] rounded-[var(--radius)] border-2 border-input bg-background cursor-pointer"
+              onClick={() => toRef.current?.showPicker()}
+            >
+              <Calendar className="absolute left-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <input
+                ref={toRef}
+                type="date"
+                value={dateTo}
+                onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
+                className="w-full min-h-[44px] bg-transparent pl-10 pr-3 text-base font-medium cursor-pointer appearance-none [&::-webkit-calendar-picker-indicator]:hidden"
+              />
+            </div>
           </div>
         </div>
 
