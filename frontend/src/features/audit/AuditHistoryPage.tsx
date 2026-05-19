@@ -73,14 +73,16 @@ export function AuditHistoryPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [entity, setEntity] = useState("");
+  const [action, setAction] = useState("");
   const [selectedLog, setSelectedLog] = useState<AuditLogDto | null>(null);
 
   const q = useQuery({
-    queryKey: ["audit-logs", page, search, entity],
+    queryKey: ["audit-logs", page, search, entity, action],
     queryFn: async () => {
       const params: Record<string, string | number> = { page, pageSize: 20 };
       if (search) params.search = search;
       if (entity) params.entity = entity;
+      if (action) params.action = action;
       return api.get("audit-logs", { searchParams: params }).json<PagedResult<AuditLogDto>>();
     },
     placeholderData: keepPreviousData,
@@ -108,34 +110,39 @@ export function AuditHistoryPage() {
         </div>
       </CardHeader>
       <CardContent>
-        {/* Quick stats */}
-        {q.data && q.data.items.length > 0 && (
-          <div className="flex flex-wrap gap-3 mb-4 text-sm">
-            <span className="text-green-600 font-medium">➕ New: {actionStats.create}</span>
-            <span className="text-amber-600 font-medium">✏️ Changed: {actionStats.update}</span>
-            <span className="text-red-600 font-medium">🗑️ Deleted: {actionStats.delete}</span>
-          </div>
-        )}
-
-        {/* Entity tabs */}
-        <div className="flex flex-wrap gap-1 mb-4 overflow-x-auto">
-          {ENTITY_GROUPS.map((g) => (
+        {/* Action filter buttons */}
+        <div className="flex flex-wrap gap-2 mb-4">
+          {[
+            { key: "", label: "All" },
+            { key: "Create", label: "➕ Created", count: actionStats.create },
+            { key: "Update", label: "✏️ Updated", count: actionStats.update },
+            { key: "Delete", label: "🗑️ Deleted", count: actionStats.delete },
+          ].map((f) => (
             <button
-              key={g.key}
-              onClick={() => { setEntity(g.key); setPage(1); }}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium whitespace-nowrap transition-colors
-                ${entity === g.key
+              key={f.key}
+              onClick={() => { setAction(f.key); setPage(1); }}
+              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors
+                ${action === f.key
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 }`}
             >
-              {g.label}
+              {f.label}{f.count !== undefined ? ` (${f.count})` : ""}
             </button>
           ))}
         </div>
 
-        {/* Search */}
+        {/* Entity dropdown + Search */}
         <div className="flex flex-wrap items-center gap-3 mb-4">
+          <select
+            value={entity}
+            onChange={(e) => { setEntity(e.target.value); setPage(1); }}
+            className="flex h-11 w-full max-w-xs rounded-[var(--radius)] border-2 border-input bg-background px-3 text-base font-medium cursor-pointer"
+          >
+            {ENTITY_GROUPS.map((g) => (
+              <option key={g.key} value={g.key}>{g.label}</option>
+            ))}
+          </select>
           <div className="relative flex-1 min-w-[200px] max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
