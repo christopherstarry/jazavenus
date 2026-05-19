@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { Search, ChevronLeft, ChevronRight, FileText, Bug } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Bug } from "lucide-react";
 import { api } from "#/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { Input } from "#/components/ui/input";
