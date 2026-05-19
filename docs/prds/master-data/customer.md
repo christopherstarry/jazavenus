@@ -235,7 +235,10 @@ interface ClassParameter {
 
 Same pattern for: `/api/collectors`, `/api/areas`, `/api/outlet-types`, `/api/outlet-groups`, `/api/outlet-group-types`, `/api/distribution-types`, `/api/trade-types`, `/api/sub-trade-types`, `/api/class-parameters`
 
-## 8. Acceptance Criteria
+## 8. History / Audit
+Every create, update, and delete on customer records, addresses, salesmen, collectors, areas, and all customer-related lookup tables is logged to `audit_logs`. Developer and SuperAdmin can view the full change history at `/system/audit-history` or click the "Audit History" button on any detail page. See `docs/prds/master-data/audit-history.md` for full spec.
+
+## 9. Acceptance Criteria
 - [ ] Customer list loads with search, pagination, and all fields shown
 - [ ] Customer addresses open as sub-list within customer detail
 - [ ] All 10 tabs under Customer render correctly

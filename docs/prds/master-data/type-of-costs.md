@@ -31,6 +31,9 @@ Same as Master Maintenance: Didi, Pai, Nenden, Atep, Alvin can view+edit (no del
 | `PUT` | `/api/cost-types/:id` |
 | `DELETE` | `/api/cost-types/:id` |
 
-## 7. Acceptance Criteria
+## 7. History / Audit
+Every create, update, and delete on cost types is logged to `audit_logs`. Developer and SuperAdmin can view the full change history at `/system/audit-history`. See `docs/prds/master-data/audit-history.md` for the full spec.
+
+## 8. Acceptance Criteria
 - [ ] Simple CRUD table with Code + Name columns
 - [ ] Delete hidden for non-Dev/non-SuperAdmin

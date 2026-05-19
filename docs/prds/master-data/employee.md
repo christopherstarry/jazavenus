@@ -74,7 +74,10 @@ Our new schema: `app_users` (already built in auth system). The old `Employee` t
 
 Source: `insys-common.dbo.Employee` (12 rows) mapped to `app_users`.
 
-## 9. Acceptance Criteria
+## 9. History / Audit
+Every create, update, and delete on employee records is logged to `audit_logs`. Developer and SuperAdmin can view the full change history at `/system/audit-history` or click the "Audit History" button on any employee detail page. See `docs/prds/master-data/audit-history.md` for full spec.
+
+## 10. Acceptance Criteria
 - [ ] Employee list loads with search and pagination
 - [ ] Users with Master access can view, create, edit
 - [ ] Delete button hidden for non-Dev/non-SuperAdmin

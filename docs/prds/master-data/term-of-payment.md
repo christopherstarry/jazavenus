@@ -27,6 +27,9 @@ Master access: view+edit (no delete). Dev/SuperAdmin: full.
 
 ## 6. API — CRUD at `/api/payment-terms`
 
-## 7. Acceptance Criteria
+## 7. History / Audit
+Every create, update, and delete on payment terms is logged to `audit_logs`. Developer and SuperAdmin can view the change history at `/system/audit-history`. See `docs/prds/master-data/audit-history.md` for the full spec.
+
+## 8. Acceptance Criteria
 - [ ] Simple table: Code, Name, Credit Limit, Due Days
 - [ ] Delete hidden for non-Dev/non-SuperAdmin

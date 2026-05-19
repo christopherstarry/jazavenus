@@ -65,7 +65,10 @@ Same as Master Maintenance: Didi, Pai, Nenden, Atep, Alvin can view+edit (no del
 | `PUT` | `/api/suppliers/:id` |
 | `DELETE` | `/api/suppliers/:id` |
 
-## 7. Acceptance Criteria
+## 7. History / Audit
+Every create, update, and delete on supplier records is logged to `audit_logs`. Developer and SuperAdmin can view the full change history at `/system/audit-history` or click the "Audit History" button on any supplier detail page. See `docs/prds/master-data/audit-history.md` for the full spec.
+
+## 8. Acceptance Criteria
 - [ ] Supplier list with search by code/name
 - [ ] 20+ fields editable in create/edit form
 - [ ] Delete hidden for non-Dev/non-SuperAdmin

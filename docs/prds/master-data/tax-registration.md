@@ -40,7 +40,10 @@ Master access: view only (cannot edit tax registration — sensitive financial d
 | `PUT` | `/api/tax-registrations/:id` (Dev/SuperAdmin only) |
 | `DELETE` | `/api/tax-registrations/:id` (Dev/SuperAdmin only) |
 
-## 7. Acceptance Criteria
+## 7. History / Audit
+Every create, update, and delete on tax registrations is logged to `audit_logs`. Developer and SuperAdmin can view the change history at `/system/audit-history`. See `docs/prds/master-data/audit-history.md` for the full spec.
+
+## 8. Acceptance Criteria
 - [ ] Table shows: Reg No, Date, From-No, To-No, Used, Available (computed)
 - [ ] Create/Edit restricted to Dev/SuperAdmin
 - [ ] Regular Master users see read-only view

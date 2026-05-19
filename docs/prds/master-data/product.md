@@ -251,6 +251,9 @@ interface DiscountCode {
 
 All support standard CRUD with role-based delete restriction.
 
+## 7. History / Audit
+Every create, update, and delete on products, prices, discounts, brands, categories, warehouses, and all product-related lookup tables is logged to `audit_logs`. Developer and SuperAdmin can view the full change history at `/system/audit-history` or click the "Audit History" button on any product detail page. See `docs/prds/master-data/audit-history.md` for the full spec.
+
 ## 8. Acceptance Criteria
 - [ ] Product list with search, brand/category filter, pagination
 - [ ] Product detail shows pricing sub-table (read-only for Admin)
