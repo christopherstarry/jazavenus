@@ -137,7 +137,7 @@ public sealed class UsersController(
             req.Modules ?? Array.Empty<ModulePermissionDto>(),
             req.Reports ?? Array.Empty<string>(), ct);
 
-        await LogUser("User.Created", user.Id, user.Email, $"by={User.Identity?.Name}");
+        await LogUser("Create", user.Id, user.Email, $"by={User.Identity?.Name}");
         var detail = await Get(user.Id, ct);
         return CreatedAtAction(nameof(Get), new { id = user.Id }, ((ActionResult<UserDetail>)detail).Value);
     }
@@ -187,7 +187,7 @@ public sealed class UsersController(
         if (!req.IsActive)
             await refreshTokens.RevokeAllForUserAsync(user.Id, "deactivated", ct);
 
-        await LogUser("User.Updated", user.Id, user.Email, $"by={User.Identity?.Name}");
+        await LogUser("Update", user.Id, user.Email, $"by={User.Identity?.Name}");
         return ((ActionResult<UserDetail>)await Get(id, ct)).Value!;
     }
 
@@ -219,7 +219,7 @@ public sealed class UsersController(
                 Detail = string.Join("; ", result.Errors.Select(e => e.Description)),
             });
 
-        await LogUser("User.Deleted", id, email, $"by={User.Identity?.Name}");
+        await LogUser("Delete", id, email, $"by={User.Identity?.Name}");
         return NoContent();
     }
 
