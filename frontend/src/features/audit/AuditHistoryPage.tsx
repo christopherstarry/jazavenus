@@ -134,21 +134,25 @@ export function AuditHistoryPage() {
         </div>
 
         {/* Date range */}
-        <div className="flex flex-wrap items-center gap-2 mb-4">
-          <label className="text-sm text-muted-foreground">From</label>
-          <input
-            type="date"
-            value={dateFrom}
-            onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
-            className="flex h-11 w-full max-w-[180px] rounded-[var(--radius)] border-2 border-input bg-background px-3 text-base font-medium cursor-pointer"
-          />
-          <label className="text-sm text-muted-foreground">To</label>
-          <input
-            type="date"
-            value={dateTo}
-            onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
-            className="flex h-11 w-full max-w-[180px] rounded-[var(--radius)] border-2 border-input bg-background px-3 text-base font-medium cursor-pointer"
-          />
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mb-4">
+          <div className="flex items-center gap-2 min-w-0">
+            <label className="text-sm text-muted-foreground shrink-0">From</label>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
+              className="min-h-[44px] flex-1 sm:flex-none sm:w-[170px] rounded-[var(--radius)] border-2 border-input bg-background px-3 text-base font-medium cursor-pointer appearance-none"
+            />
+          </div>
+          <div className="flex items-center gap-2 min-w-0">
+            <label className="text-sm text-muted-foreground shrink-0">To</label>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
+              className="min-h-[44px] flex-1 sm:flex-none sm:w-[170px] rounded-[var(--radius)] border-2 border-input bg-background px-3 text-base font-medium cursor-pointer appearance-none"
+            />
+          </div>
         </div>
 
         {/* Entity dropdown + Search */}
