@@ -35,3 +35,35 @@ public sealed record WarehouseUpsertDto(string Code, string Name, string? Addres
 
 public sealed record LocationDto(Guid Id, Guid WarehouseId, string Code, string? Name, bool IsActive);
 public sealed record LocationUpsertDto(Guid WarehouseId, string Code, string? Name, bool IsActive = true);
+
+// Simple reference data (code + name)
+public sealed record RefDto(Guid Id, string Code, string Name, bool IsActive);
+public sealed record RefUpsertDto(string Code, string Name, bool IsActive = true);
+
+// PaymentTerm (code + name + net days)
+public sealed record PaymentTermDto(Guid Id, string Code, string Name, int NetDays, bool IsActive);
+public sealed record PaymentTermUpsertDto(string Code, string Name, int NetDays = 30, bool IsActive = true);
+
+// PriceTier (code + name + markup percent)
+public sealed record PriceTierDto(Guid Id, string Code, string Name, decimal MarkupPercent, bool IsActive);
+public sealed record PriceTierUpsertDto(string Code, string Name, decimal MarkupPercent = 0, bool IsActive = true);
+
+// DiscountCode (code + name + discount percent)
+public sealed record DiscountCodeDto(Guid Id, string Code, string Name, decimal DiscountPercent, bool IsActive);
+public sealed record DiscountCodeUpsertDto(string Code, string Name, decimal DiscountPercent = 0, bool IsActive = true);
+
+// SubCategory (code + name + categoryId)
+public sealed record SubCategoryDto(Guid Id, string Code, string Name, Guid CategoryId, string? CategoryName, bool IsActive);
+public sealed record SubCategoryUpsertDto(string Code, string Name, Guid CategoryId, bool IsActive = true);
+
+// CustomerAddress
+public sealed record CustomerAddressDto(Guid Id, Guid CustomerId, string Label, string Address, string? City, string? Country, bool IsDefault, bool IsActive);
+public sealed record CustomerAddressUpsertDto(Guid CustomerId, string Label, string Address, string? City, string? Country, bool IsDefault = false, bool IsActive = true);
+
+// ItemPrice (item + price tier + price)
+public sealed record ItemPriceDto(Guid Id, Guid ItemId, string? ItemSku, Guid PriceTierId, string? PriceTierCode, decimal Price, bool IsActive);
+public sealed record ItemPriceUpsertDto(Guid ItemId, Guid PriceTierId, decimal Price, bool IsActive = true);
+
+// ItemDiscount (item + discount code + rate + date range)
+public sealed record ItemDiscountDto(Guid Id, Guid ItemId, string? ItemSku, Guid DiscountCodeId, string? DiscountCodeName, decimal DiscountPercent, DateTime? StartDateUtc, DateTime? EndDateUtc, bool IsActive);
+public sealed record ItemDiscountUpsertDto(Guid ItemId, Guid DiscountCodeId, decimal DiscountPercent, DateTime? StartDateUtc, DateTime? EndDateUtc, bool IsActive = true);

@@ -78,3 +78,83 @@ public sealed class LocationUpsertValidator : AbstractValidator<LocationUpsertDt
         RuleFor(x => x.Code).NotEmpty().MaximumLength(32);
     }
 }
+
+public sealed class RefUpsertValidator : AbstractValidator<RefUpsertDto>
+{
+    public RefUpsertValidator()
+    {
+        RuleFor(x => x.Code).NotEmpty().MaximumLength(32);
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+    }
+}
+
+public sealed class PaymentTermUpsertValidator : AbstractValidator<PaymentTermUpsertDto>
+{
+    public PaymentTermUpsertValidator()
+    {
+        RuleFor(x => x.Code).NotEmpty().MaximumLength(32);
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.NetDays).InclusiveBetween(0, 365);
+    }
+}
+
+public sealed class PriceTierUpsertValidator : AbstractValidator<PriceTierUpsertDto>
+{
+    public PriceTierUpsertValidator()
+    {
+        RuleFor(x => x.Code).NotEmpty().MaximumLength(32);
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.MarkupPercent).GreaterThanOrEqualTo(0);
+    }
+}
+
+public sealed class DiscountCodeUpsertValidator : AbstractValidator<DiscountCodeUpsertDto>
+{
+    public DiscountCodeUpsertValidator()
+    {
+        RuleFor(x => x.Code).NotEmpty().MaximumLength(32);
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.DiscountPercent).InclusiveBetween(0, 100);
+    }
+}
+
+public sealed class SubCategoryUpsertValidator : AbstractValidator<SubCategoryUpsertDto>
+{
+    public SubCategoryUpsertValidator()
+    {
+        RuleFor(x => x.Code).NotEmpty().MaximumLength(32);
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.CategoryId).NotEmpty();
+    }
+}
+
+public sealed class CustomerAddressUpsertValidator : AbstractValidator<CustomerAddressUpsertDto>
+{
+    public CustomerAddressUpsertValidator()
+    {
+        RuleFor(x => x.CustomerId).NotEmpty();
+        RuleFor(x => x.Label).NotEmpty().MaximumLength(64);
+        RuleFor(x => x.Address).NotEmpty().MaximumLength(500);
+    }
+}
+
+public sealed class ItemPriceUpsertValidator : AbstractValidator<ItemPriceUpsertDto>
+{
+    public ItemPriceUpsertValidator()
+    {
+        RuleFor(x => x.ItemId).NotEmpty();
+        RuleFor(x => x.PriceTierId).NotEmpty();
+        RuleFor(x => x.Price).GreaterThanOrEqualTo(0);
+    }
+}
+
+public sealed class ItemDiscountUpsertValidator : AbstractValidator<ItemDiscountUpsertDto>
+{
+    public ItemDiscountUpsertValidator()
+    {
+        RuleFor(x => x.ItemId).NotEmpty();
+        RuleFor(x => x.DiscountCodeId).NotEmpty();
+        RuleFor(x => x.DiscountPercent).InclusiveBetween(0, 100);
+        RuleFor(x => x.EndDateUtc).GreaterThan(x => x.StartDateUtc).When(x => x.StartDateUtc.HasValue && x.EndDateUtc.HasValue);
+    }
+}

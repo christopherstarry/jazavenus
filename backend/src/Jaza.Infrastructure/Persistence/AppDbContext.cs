@@ -30,6 +30,28 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<Warehouse> Warehouses => Set<Warehouse>();
     public DbSet<Location> Locations => Set<Location>();
+    public DbSet<Brand> Brands => Set<Brand>();
+    public DbSet<Bank> Banks => Set<Bank>();
+    public DbSet<Salesman> Salesmen => Set<Salesman>();
+    public DbSet<Collector> Collectors => Set<Collector>();
+    public DbSet<Area> Areas => Set<Area>();
+    public DbSet<WarehouseType> WarehouseTypes => Set<WarehouseType>();
+    public DbSet<PaymentTerm> PaymentTerms => Set<PaymentTerm>();
+    public DbSet<OutletType> OutletTypes => Set<OutletType>();
+    public DbSet<GroupOutlet> GroupOutlets => Set<GroupOutlet>();
+    public DbSet<GroupOutletType> GroupOutletTypes => Set<GroupOutletType>();
+    public DbSet<TradeType> TradeTypes => Set<TradeType>();
+    public DbSet<SubTradeType> SubTradeTypes => Set<SubTradeType>();
+    public DbSet<DistributionType> DistributionTypes => Set<DistributionType>();
+    public DbSet<PriceTier> PriceTiers => Set<PriceTier>();
+    public DbSet<DiscountCode> DiscountCodes => Set<DiscountCode>();
+    public DbSet<CostType> CostTypes => Set<CostType>();
+    public DbSet<Manufacturing> Manufacturings => Set<Manufacturing>();
+    public DbSet<TaxRegistration> TaxRegistrations => Set<TaxRegistration>();
+    public DbSet<SubCategory> SubCategories => Set<SubCategory>();
+    public DbSet<CustomerAddress> CustomerAddresses => Set<CustomerAddress>();
+    public DbSet<ItemPrice> ItemPrices => Set<ItemPrice>();
+    public DbSet<ItemDiscount> ItemDiscounts => Set<ItemDiscount>();
 
     // Purchase
     public DbSet<PurchaseOrder> PurchaseOrders => Set<PurchaseOrder>();
@@ -196,6 +218,84 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
         b.Entity<Customer>().HasIndex(x => x.Code).IsUnique().HasFilter(NotSoftDeletedFilter);
         b.Entity<Warehouse>().HasIndex(x => x.Code).IsUnique().HasFilter(NotSoftDeletedFilter);
         b.Entity<Location>().HasIndex(x => new { x.WarehouseId, x.Code }).IsUnique().HasFilter(NotSoftDeletedFilter);
+
+        MapSimple<Brand>(b, "Brands");
+        MapSimple<Bank>(b, "Banks");
+        MapSimple<Salesman>(b, "Salesmen");
+        MapSimple<Collector>(b, "Collectors");
+        MapSimple<Area>(b, "Areas");
+        MapSimple<WarehouseType>(b, "WarehouseTypes");
+        MapSimple<OutletType>(b, "OutletTypes");
+        MapSimple<GroupOutlet>(b, "GroupOutlets");
+        MapSimple<GroupOutletType>(b, "GroupOutletTypes");
+        MapSimple<TradeType>(b, "TradeTypes");
+        MapSimple<SubTradeType>(b, "SubTradeTypes");
+        MapSimple<DistributionType>(b, "DistributionTypes");
+        MapSimple<CostType>(b, "CostTypes");
+        MapSimple<Manufacturing>(b, "Manufacturings");
+        MapSimple<TaxRegistration>(b, "TaxRegistrations");
+        MapSimple<PriceTier>(b, "PriceTiers");
+        MapSimple<DiscountCode>(b, "DiscountCodes");
+
+        b.Entity<PaymentTerm>(e =>
+        {
+            e.ToTable("PaymentTerms");
+            e.HasIndex(x => x.Code).IsUnique().HasFilter(NotSoftDeletedFilter);
+            e.Property(x => x.Code).HasMaxLength(32).IsRequired();
+            e.Property(x => x.Name).HasMaxLength(200).IsRequired();
+        });
+
+        b.Entity<SubCategory>(e =>
+        {
+            e.ToTable("SubCategories");
+            e.HasIndex(x => x.Code).IsUnique().HasFilter(NotSoftDeletedFilter);
+            e.Property(x => x.Code).HasMaxLength(32).IsRequired();
+            e.Property(x => x.Name).HasMaxLength(200).IsRequired();
+            e.HasOne(x => x.Category).WithMany().HasForeignKey(x => x.CategoryId);
+        });
+
+        b.Entity<CustomerAddress>(e =>
+        {
+            e.ToTable("CustomerAddresses");
+            e.Property(x => x.Label).HasMaxLength(64).IsRequired();
+            e.Property(x => x.Address).HasMaxLength(500).IsRequired();
+            e.HasOne(x => x.Customer).WithMany().HasForeignKey(x => x.CustomerId);
+            e.HasIndex(x => x.CustomerId);
+        });
+
+        b.Entity<ItemPrice>(e =>
+        {
+            e.ToTable("ItemPrices");
+            e.HasOne(x => x.Item).WithMany().HasForeignKey(x => x.ItemId);
+            e.HasOne(x => x.PriceTier).WithMany().HasForeignKey(x => x.PriceTierId);
+            e.HasIndex(x => new { x.ItemId, x.PriceTierId }).IsUnique().HasFilter(NotSoftDeletedFilter);
+        });
+
+        b.Entity<ItemDiscount>(e =>
+        {
+            e.ToTable("ItemDiscounts");
+            e.HasOne(x => x.Item).WithMany().HasForeignKey(x => x.ItemId);
+            e.HasOne(x => x.DiscountCode).WithMany().HasForeignKey(x => x.DiscountCodeId);
+            e.HasIndex(x => new { x.ItemId, x.DiscountCodeId });
+        });
+    }
+
+    private static void MapSimple<T>(ModelBuilder b, string table) where T : class
+    {
+        b.Entity<T>(e =>
+        {
+            e.ToTable(table);
+            var et = e.Metadata.ClrType;
+            var codeProp = et.GetProperty("Code");
+            var nameProp = et.GetProperty("Name");
+            if (codeProp != null)
+            {
+                e.HasIndex("Code").IsUnique().HasFilter(NotSoftDeletedFilter);
+                e.Property("Code").HasMaxLength(32).IsRequired();
+            }
+            if (nameProp != null)
+                e.Property("Name").HasMaxLength(200).IsRequired();
+        });
     }
 
     private static void ConfigureInbound(ModelBuilder b)
