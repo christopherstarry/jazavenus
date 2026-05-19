@@ -83,9 +83,15 @@ public sealed class AuditLogsController(AppDbContext db) : ControllerBase
         if (userId.HasValue)
             q = q.Where(a => a.UserId == userId.Value);
         if (from.HasValue)
-            q = q.Where(a => a.OccurredAtUtc >= from.Value);
+        {
+            var fromUtc = DateTime.SpecifyKind(from.Value, DateTimeKind.Utc);
+            q = q.Where(a => a.OccurredAtUtc >= fromUtc);
+        }
         if (to.HasValue)
-            q = q.Where(a => a.OccurredAtUtc < to.Value.Date.AddDays(1));
+        {
+            var toUtc = DateTime.SpecifyKind(to.Value.Date.AddDays(1), DateTimeKind.Utc);
+            q = q.Where(a => a.OccurredAtUtc < toUtc);
+        }
 
         var total = await q.CountAsync();
 
