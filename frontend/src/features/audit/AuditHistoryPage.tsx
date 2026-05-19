@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { Search, ChevronLeft, ChevronRight, FileText, EyeOff } from "lucide-react";
 import { api } from "#/lib/api";
@@ -88,15 +88,6 @@ export function AuditHistoryPage() {
     placeholderData: keepPreviousData,
   });
 
-  const actionStats = useMemo(() => {
-    if (!q.data) return { create: 0, update: 0, delete: 0 };
-    return {
-      create: q.data.items.filter((i) => i.action === "Create").length,
-      update: q.data.items.filter((i) => i.action === "Update").length,
-      delete: q.data.items.filter((i) => i.action === "Delete").length,
-    };
-  }, [q.data]);
-
   return (
     <Card>
       <CardHeader className="flex-row items-center justify-between gap-4 flex-wrap">
@@ -114,9 +105,9 @@ export function AuditHistoryPage() {
         <div className="flex flex-wrap gap-2 mb-4">
           {[
             { key: "", label: "All" },
-            { key: "Create", label: "➕ Created", count: actionStats.create },
-            { key: "Update", label: "✏️ Updated", count: actionStats.update },
-            { key: "Delete", label: "🗑️ Deleted", count: actionStats.delete },
+            { key: "Create", label: "➕ Created" },
+            { key: "Update", label: "✏️ Updated" },
+            { key: "Delete", label: "🗑️ Deleted" },
           ].map((f) => (
             <button
               key={f.key}
@@ -127,7 +118,7 @@ export function AuditHistoryPage() {
                   : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 }`}
             >
-              {f.label}{f.count !== undefined ? ` (${f.count})` : ""}
+              {f.label}
             </button>
           ))}
         </div>

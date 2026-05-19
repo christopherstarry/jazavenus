@@ -78,6 +78,8 @@ public sealed class AuditLogsController(AppDbContext db) : ControllerBase
             q = q.Where(a => a.EntityId == entityId.Value);
         if (!string.IsNullOrWhiteSpace(action))
             q = q.Where(a => a.Action == action);
+        else
+            q = q.Where(a => a.Action == "Create" || a.Action == "Update" || a.Action == "Delete");
         if (userId.HasValue)
             q = q.Where(a => a.UserId == userId.Value);
         if (from.HasValue)
