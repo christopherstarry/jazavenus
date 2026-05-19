@@ -15,6 +15,7 @@ public sealed class ErrorLogsController(AppDbContext db) : ControllerBase
     public async Task<ActionResult<PagedResult<ErrorLogDto>>> List(
         [FromQuery] string? exceptionType,
         [FromQuery] int? minStatusCode,
+        [FromQuery] int? maxStatusCode,
         [FromQuery] string? search,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20)
@@ -26,6 +27,8 @@ public sealed class ErrorLogsController(AppDbContext db) : ControllerBase
             q = q.Where(e => e.ExceptionType != null && e.ExceptionType.Contains(exceptionType));
         if (minStatusCode.HasValue)
             q = q.Where(e => e.StatusCode >= minStatusCode.Value);
+        if (maxStatusCode.HasValue)
+            q = q.Where(e => e.StatusCode < maxStatusCode.Value);
         if (!string.IsNullOrWhiteSpace(search))
             q = q.Where(e =>
                 e.Message.Contains(search) ||
@@ -46,8 +49,10 @@ public sealed class ErrorLogsController(AppDbContext db) : ControllerBase
                 e.StatusCode,
                 e.RequestPath,
                 e.RequestMethod,
+                e.UserId,
                 e.UserName,
                 e.IpAddress,
+                e.UserAgent,
                 e.StackTrace))
             .ToListAsync();
 
@@ -55,13 +60,13 @@ public sealed class ErrorLogsController(AppDbContext db) : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<ErrorLogDetailDto>> Get(Guid id)
+    public async Task<ActionResult<ErrorLogDto>> Get(Guid id)
     {
         var log = await db.ErrorLogs.AsNoTracking()
-            .Select(e => new ErrorLogDetailDto(
-                e.Id, e.OccurredAtUtc, e.Message, e.StackTrace,
-                e.ExceptionType, e.StatusCode, e.RequestPath, e.RequestMethod,
-                e.UserId, e.UserName, e.IpAddress, e.UserAgent))
+            .Select(e => new ErrorLogDto(
+                e.Id, e.OccurredAtUtc, e.Message, e.ExceptionType,
+                e.StatusCode, e.RequestPath, e.RequestMethod, e.UserId,
+                e.UserName, e.IpAddress, e.UserAgent, e.StackTrace))
             .FirstOrDefaultAsync(e => e.Id == id);
 
         if (log is null) return NotFound();
@@ -77,20 +82,8 @@ public sealed record ErrorLogDto(
     int StatusCode,
     string? RequestPath,
     string? RequestMethod,
-    string? UserName,
-    string? IpAddress,
-    string? StackTrace);
-
-public sealed record ErrorLogDetailDto(
-    Guid Id,
-    DateTime OccurredAtUtc,
-    string Message,
-    string? StackTrace,
-    string? ExceptionType,
-    int StatusCode,
-    string? RequestPath,
-    string? RequestMethod,
     string? UserId,
     string? UserName,
     string? IpAddress,
-    string? UserAgent);
+    string? UserAgent,
+    string? StackTrace);

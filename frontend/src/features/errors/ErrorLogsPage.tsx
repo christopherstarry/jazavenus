@@ -20,14 +20,11 @@ interface ErrorLogDto {
   statusCode: number;
   requestPath: string | null;
   requestMethod: string | null;
+  userId: string | null;
   userName: string | null;
   ipAddress: string | null;
-  stackTrace: string | null;
-}
-
-interface ErrorLogDetailDto extends ErrorLogDto {
-  userId: string | null;
   userAgent: string | null;
+  stackTrace: string | null;
 }
 
 function formatDateTime(utc: string): string {
@@ -48,27 +45,37 @@ function statusColor(code: number): string {
   return "text-blue-600 bg-blue-50 border-blue-200";
 }
 
+type StatusRange = { label: string; min: number; max?: number };
+
+const STATUS_RANGES: StatusRange[] = [
+  { label: "Errors (5xx)", min: 500 },
+  { label: "Client (4xx)", min: 400, max: 500 },
+  { label: "All Codes",   min: 0 },
+];
+
 export function ErrorLogsPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [minStatusCode, setMinStatusCode] = useState(500);
-  const [selectedLog, setSelectedLog] = useState<ErrorLogDetailDto | null>(null);
+  const [statusIdx, setStatusIdx] = useState(0);
+  const [selectedLog, setSelectedLog] = useState<ErrorLogDto | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
 
+  const range = STATUS_RANGES[statusIdx]!;
+
   const q = useQuery({
-    queryKey: ["error-logs", page, search, minStatusCode],
+    queryKey: ["error-logs", page, search, range.min, range.max],
     queryFn: async () => {
       const params: Record<string, string | number> = { page, pageSize: 20 };
       if (search) params.search = search;
-      params.minStatusCode = minStatusCode;
+      params.minStatusCode = range.min;
+      if (range.max !== undefined) params.maxStatusCode = range.max;
       return api.get("error-logs", { searchParams: params }).json<PagedResult<ErrorLogDto>>();
     },
     placeholderData: keepPreviousData,
   });
 
-  async function openDetail(log: ErrorLogDto) {
-    const detail = await api.get(`error-logs/${log.id}`).json<ErrorLogDetailDto>();
-    setSelectedLog(detail);
+  function openDetail(log: ErrorLogDto) {
+    setSelectedLog(log);
     setDetailOpen(true);
   }
 
@@ -88,16 +95,12 @@ export function ErrorLogsPage() {
         {/* Filters */}
         <div className="flex flex-wrap items-center gap-3 mb-4">
           <div className="flex gap-1 rounded-[var(--radius)] border-2 border-input overflow-hidden">
-            {[
-              { value: 500, label: "Errors (5xx)" },
-              { value: 400, label: "Client (4xx)" },
-              { value: 0, label: "All Codes" },
-            ].map((f) => (
+            {STATUS_RANGES.map((f, i) => (
               <button
-                key={f.value}
-                onClick={() => { setMinStatusCode(f.value); setPage(1); }}
+                key={f.label}
+                onClick={() => { setStatusIdx(i); setPage(1); }}
                 className={`px-3 py-2 text-sm font-medium transition-colors
-                  ${minStatusCode === f.value
+                  ${statusIdx === i
                     ? "bg-primary text-primary-foreground"
                     : "bg-background text-muted-foreground hover:bg-accent"
                   }`}
