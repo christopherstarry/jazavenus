@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetTitle, SheetDescription } from "#/components/
 import { Popover, PopoverContent, PopoverTrigger } from "#/components/ui/popover";
 import { Breadcrumbs } from "#/components/ui/breadcrumbs";
 import {
-  LogOut, Settings, Menu, ChevronDown, Users, FileText,
+  LogOut, Settings, Menu, ChevronDown, Users, FileText, Bug,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "#/lib/utils";
@@ -131,6 +131,7 @@ export function AppLayout() {
                   onSettings={() => navigate("/settings")}
                   onManageUsers={() => navigate("/system/manage-users")}
                   onAuditHistory={() => navigate("/system/audit-history")}
+                  onErrorLogs={() => navigate("/system/error-logs")}
                   onLogout={() => void logout()}
                 />
               )}
@@ -172,12 +173,13 @@ export function AppLayout() {
  * ───────────────────────────────────────────────────────────────────────── */
 
 function UserMenu({
-  user, onSettings, onManageUsers, onAuditHistory, onLogout,
+  user, onSettings, onManageUsers, onAuditHistory, onErrorLogs, onLogout,
 }: {
   user: CurrentUser;
   onSettings: () => void;
   onManageUsers: () => void;
   onAuditHistory: () => void;
+  onErrorLogs: () => void;
   onLogout: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -228,6 +230,9 @@ function UserMenu({
           )}
           {canManageUsers && (
             <UserMenuItem icon={FileText} label="Activity History" onClick={() => { setOpen(false); onAuditHistory(); }} />
+          )}
+          {user.isDeveloper && (
+            <UserMenuItem icon={Bug} label="Error Logs" onClick={() => { setOpen(false); onErrorLogs(); }} />
           )}
           <UserMenuItem icon={Settings} label="Settings"        onClick={() => { setOpen(false); onSettings(); }} />
           <UserMenuItem icon={LogOut}   label="Sign out"        onClick={() => { setOpen(false); onLogout(); }} tone="destructive" />
@@ -360,7 +365,7 @@ function SidebarSection({
   }, [isActive]);
 
   const childrenForUser = navigationChildren(section).filter(
-    (child) => child.id !== "system.manage-users" || hasRole(user, "SuperAdmin"),
+    (child) => canAccessModule(child, user, permissions),
   );
   const hasChildren = childrenForUser.length > 0;
   const canOpenSection = canAccessModule(section, user, permissions);

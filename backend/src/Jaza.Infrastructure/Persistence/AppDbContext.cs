@@ -1,6 +1,7 @@
 using Jaza.Domain.Audit;
 using Jaza.Domain.Auth;
 using Jaza.Domain.Common;
+using Jaza.Domain.Errors;
 using Jaza.Domain.Inbound;
 using Jaza.Domain.Invoicing;
 using Jaza.Domain.MasterData;
@@ -52,6 +53,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<StockOnHand> StockOnHand => Set<StockOnHand>();
 
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<ErrorLog> ErrorLogs => Set<ErrorLog>();
     public DbSet<DocumentSeries> DocumentSeries => Set<DocumentSeries>();
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -73,6 +75,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
         ConfigureInvoicing(builder);
         ConfigureStock(builder);
         ConfigureAudit(builder);
+        ConfigureErrors(builder);
     }
 
     private static void ConfigureIdentityTableNames(ModelBuilder b)
@@ -259,6 +262,25 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             e.ToTable("DocumentSeries");
             e.HasKey(x => new { x.Prefix, x.Year });
             e.Property(x => x.Prefix).HasMaxLength(16);
+        });
+    }
+
+    private static void ConfigureErrors(ModelBuilder b)
+    {
+        b.Entity<ErrorLog>(e =>
+        {
+            e.ToTable("ErrorLogs");
+            e.HasKey(x => x.Id);
+            e.HasIndex(x => x.OccurredAtUtc);
+            e.HasIndex(x => x.ExceptionType);
+            e.Property(x => x.Message).HasMaxLength(4000).IsRequired();
+            e.Property(x => x.ExceptionType).HasMaxLength(256);
+            e.Property(x => x.RequestPath).HasMaxLength(512);
+            e.Property(x => x.RequestMethod).HasMaxLength(10);
+            e.Property(x => x.UserId).HasMaxLength(64);
+            e.Property(x => x.UserName).HasMaxLength(128);
+            e.Property(x => x.IpAddress).HasMaxLength(64);
+            e.Property(x => x.UserAgent).HasMaxLength(512);
         });
     }
 }

@@ -148,6 +148,7 @@ import { PdcClearanceCancellationPage } from "#/features/ar/PdcClearanceCancella
 import { SettingsPanel } from "#/features/settings/SettingsPanel";
 import { ManageUsersPage } from "#/features/users/ManageUsersPage";
 import { AuditHistoryPage } from "#/features/audit/AuditHistoryPage";
+import { ErrorLogsPage } from "#/features/errors/ErrorLogsPage";
 import { EmployeePage } from "#/features/employees/EmployeePage";
 import { ClassOutletPage } from "#/features/customers/ClassOutletPage";
 import { GroupOutletPage } from "#/features/customers/GroupOutletPage";
@@ -231,6 +232,14 @@ export const TREE: ModuleNode[] = [
         description: "View who did what in the system",
         superAdminOnly: true,
         Component: AuditHistoryPage,
+      },
+      {
+        id: "system.error-logs",
+        path: "/system/error-logs",
+        label: "Error Logs",
+        description: "View application errors and stack traces",
+        developerOnly: true,
+        Component: ErrorLogsPage,
       },
 
       {
