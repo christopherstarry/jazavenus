@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetTitle, SheetDescription } from "#/components/
 import { Popover, PopoverContent, PopoverTrigger } from "#/components/ui/popover";
 import { Breadcrumbs } from "#/components/ui/breadcrumbs";
 import {
-  LogOut, Settings, Menu, ChevronDown, Users,
+  LogOut, Settings, Menu, ChevronDown, Users, FileText,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "#/lib/utils";
@@ -130,6 +130,7 @@ export function AppLayout() {
                   user={user}
                   onSettings={() => navigate("/settings")}
                   onManageUsers={() => navigate("/system/manage-users")}
+                  onAuditHistory={() => navigate("/system/audit-history")}
                   onLogout={() => void logout()}
                 />
               )}
@@ -171,11 +172,12 @@ export function AppLayout() {
  * ───────────────────────────────────────────────────────────────────────── */
 
 function UserMenu({
-  user, onSettings, onManageUsers, onLogout,
+  user, onSettings, onManageUsers, onAuditHistory, onLogout,
 }: {
   user: CurrentUser;
   onSettings: () => void;
   onManageUsers: () => void;
+  onAuditHistory: () => void;
   onLogout: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -223,6 +225,9 @@ function UserMenu({
         <div className="p-2">
           {canManageUsers && (
             <UserMenuItem icon={Users} label="Manage Users" onClick={() => { setOpen(false); onManageUsers(); }} />
+          )}
+          {canManageUsers && (
+            <UserMenuItem icon={FileText} label="Activity History" onClick={() => { setOpen(false); onAuditHistory(); }} />
           )}
           <UserMenuItem icon={Settings} label="Settings"        onClick={() => { setOpen(false); onSettings(); }} />
           <UserMenuItem icon={LogOut}   label="Sign out"        onClick={() => { setOpen(false); onLogout(); }} tone="destructive" />

@@ -147,6 +147,7 @@ import { BankTransferTransactionPage } from "#/features/ar/BankTransferTransacti
 import { PdcClearanceCancellationPage } from "#/features/ar/PdcClearanceCancellationPage";
 import { SettingsPanel } from "#/features/settings/SettingsPanel";
 import { ManageUsersPage } from "#/features/users/ManageUsersPage";
+import { AuditHistoryPage } from "#/features/audit/AuditHistoryPage";
 import { EmployeePage } from "#/features/employees/EmployeePage";
 import { ClassOutletPage } from "#/features/customers/ClassOutletPage";
 import { GroupOutletPage } from "#/features/customers/GroupOutletPage";
@@ -222,6 +223,14 @@ export const TREE: ModuleNode[] = [
         description: "View and manage user accounts and permissions",
         superAdminOnly: true,
         Component: ManageUsersPage,
+      },
+      {
+        id: "system.audit-history",
+        path: "/system/audit-history",
+        label: "Activity History",
+        description: "View who did what in the system",
+        superAdminOnly: true,
+        Component: AuditHistoryPage,
       },
 
       {
