@@ -294,8 +294,15 @@ export const TREE: ModuleNode[] = [
         divider: true,
         childLayout: "tabs",
         hideSelfTab: true,
+        tabsDefaultRedirect: "/master/customer/master-customer",
         Component: CustomerPage,
         children: [
+          {
+            id: "master.customer.master-customer",
+            path: "/master/customer/master-customer",
+            label: "Master Customer",
+            Component: CustomerPage,
+          },
           {
             id: "master.customer.class-outlet",
             path: "/master/customer/class-outlet",
@@ -350,12 +357,6 @@ export const TREE: ModuleNode[] = [
             label: "Table of Sales Area",
             Component: SalesAreaPage,
           },
-          {
-            id: "master.customer.master-customer",
-            path: "/master/customer/master-customer",
-            label: "Master Customer (X)",
-            Component: CustomerPage,
-          },
         ],
       },
 
@@ -409,6 +410,12 @@ export const TREE: ModuleNode[] = [
         tabsDefaultRedirect: "/master/product/master-product",
         children: [
           {
+            id: "master.product.master-product",
+            path: "/master/product/master-product",
+            label: "Master Product",
+            Component: ItemPage,
+          },
+          {
             id: "master.product.brand",
             path: "/master/product/brand",
             label: "Table of Brand",
@@ -437,12 +444,6 @@ export const TREE: ModuleNode[] = [
             path: "/master/product/discount",
             label: "Table of Discount",
             Component: DiscountCodePage,
-          },
-          {
-            id: "master.product.master-product",
-            path: "/master/product/master-product",
-            label: "Master Product",
-            Component: ItemPage,
           },
           {
             id: "master.product.warehouse-loc",
