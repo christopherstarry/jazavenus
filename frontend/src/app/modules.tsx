@@ -129,7 +129,6 @@ export function trailFor(pathname: string): ModuleNode[] {
  * ───────────────────────────────────────────────────────────────────────── */
 
 import { DashboardPage } from "#/features/dashboard/DashboardPage";
-import { CustomersPage } from "#/features/customers/CustomersPage";
 import {
   PurchaseOrderPage,
   ReceivingEntryPage,
@@ -147,10 +146,10 @@ import { SettingsPanel } from "#/features/settings/SettingsPanel";
 import { ManageUsersPage } from "#/features/users/ManageUsersPage";
 import { AuditHistoryPage } from "#/features/audit/AuditHistoryPage";
 import { ErrorLogsPage } from "#/features/errors/ErrorLogsPage";
-import { MasterCustomerPage } from "#/features/customers/MasterCustomerPage";
 import { TaxRegistrationPage } from "#/features/common/pages/TaxRegistrationPage";
 import { SupplierPage } from "#/features/common/pages/SupplierPage";
-import { ItemsPage } from "#/features/items/ItemsPage";
+import { CustomerPage } from "#/features/common/pages/CustomerPage";
+import { ItemPage } from "#/features/common/pages/ItemPage";
 import { BrandPage } from "#/features/common/pages/BrandPage";
 import { BankPage } from "#/features/common/pages/BankPage";
 import { SalesmanPage } from "#/features/common/pages/SalesmanPage";
@@ -295,7 +294,7 @@ export const TREE: ModuleNode[] = [
         divider: true,
         childLayout: "tabs",
         hideSelfTab: true,
-        Component: CustomersPage, // default tab content for /master/customer
+        Component: CustomerPage,
         children: [
           {
             id: "master.customer.class-outlet",
@@ -355,7 +354,7 @@ export const TREE: ModuleNode[] = [
             id: "master.customer.master-customer",
             path: "/master/customer/master-customer",
             label: "Master Customer (X)",
-            Component: MasterCustomerPage,
+            Component: CustomerPage,
           },
         ],
       },
@@ -443,7 +442,7 @@ export const TREE: ModuleNode[] = [
             id: "master.product.master-product",
             path: "/master/product/master-product",
             label: "Master Product",
-            Component: ItemsPage,
+            Component: ItemPage,
           },
           {
             id: "master.product.warehouse-loc",
