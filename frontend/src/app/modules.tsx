@@ -149,7 +149,6 @@ import { SettingsPanel } from "#/features/settings/SettingsPanel";
 import { ManageUsersPage } from "#/features/users/ManageUsersPage";
 import { AuditHistoryPage } from "#/features/audit/AuditHistoryPage";
 import { ErrorLogsPage } from "#/features/errors/ErrorLogsPage";
-import { EmployeePage } from "#/features/employees/EmployeePage";
 import { ClassOutletPage } from "#/features/customers/ClassOutletPage";
 import { GroupOutletPage } from "#/features/customers/GroupOutletPage";
 import { MarketTypePage } from "#/features/customers/MarketTypePage";
@@ -292,14 +291,6 @@ export const TREE: ModuleNode[] = [
     icon: Database,
     moduleKey: "master",
     children: [
-      {
-        id: "master.employee",
-        path: "/master/employee",
-        label: "Employee",
-        description: "Staff members",
-        Component: EmployeePage,
-      },
-
       /* Customer + its tabs */
       {
         id: "master.customer",
