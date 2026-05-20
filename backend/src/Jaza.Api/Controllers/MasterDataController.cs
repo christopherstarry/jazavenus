@@ -192,7 +192,10 @@ public sealed class MasterDataController(AppDbContext db,
 
     [HttpGet("customers")]
     public async Task<PagedResult<CustomerDto>> ListCustomers([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.Customers.OrderBy(x => x.Code).Select(x => ProjectCustomer(x)), q, ct);
+    {
+        var src = SearchRef(db.Customers, q.Search);
+        return await Page(src.OrderBy(x => x.Code).Select(x => ProjectCustomer(x)), q, ct);
+    }
 
     [HttpGet("customers/{id:guid}")]
     public async Task<ActionResult<CustomerDto>> GetCustomer(Guid id, CancellationToken ct)
@@ -322,6 +325,7 @@ public sealed class MasterDataController(AppDbContext db,
     {
         var qry = db.Locations.AsNoTracking();
         if (warehouseId is not null) qry = qry.Where(x => x.WarehouseId == warehouseId);
+        if (!string.IsNullOrWhiteSpace(q.Search)) { var s = $"%{q.Search.Trim()}%"; qry = qry.Where(x => EF.Functions.ILike(x.Code, s) || EF.Functions.ILike(x.Name!, s)); }
         return await Page(qry.OrderBy(x => x.Code).Select(x => new LocationDto(x.Id, x.WarehouseId, x.Code, x.Name, x.IsActive)), q, ct);
     }
 
