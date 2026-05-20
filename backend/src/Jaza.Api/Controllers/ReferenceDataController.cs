@@ -28,7 +28,7 @@ public sealed class ReferenceDataController(AppDbContext db,
     public async Task<PagedResult<RefDto>> ListBrands([FromQuery] PagedRequest q, CancellationToken ct)
     {
         var src = string.IsNullOrWhiteSpace(q.Search) ? db.Brands.AsQueryable()
-            : db.Brands.Where(x => EF.Functions.Like(x.Code, $"%{q.Search.Trim()}%") || EF.Functions.Like(x.Name, $"%{q.Search.Trim()}%"));
+            : db.Brands.Where(x => EF.Functions.ILike(x.Code, $"%{q.Search.Trim()}%") || EF.Functions.ILike(x.Name, $"%{q.Search.Trim()}%"));
         return await Page(src.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
     }
 
@@ -443,7 +443,7 @@ public sealed class ReferenceDataController(AppDbContext db,
     {
         var qry = db.CustomerAddresses.AsNoTracking();
         if (customerId.HasValue) qry = qry.Where(x => x.CustomerId == customerId);
-        if (!string.IsNullOrWhiteSpace(q.Search)) { var s = q.Search.Trim(); qry = qry.Where(x => x.Label.Contains(s) || x.Address.Contains(s)); }
+        if (!string.IsNullOrWhiteSpace(q.Search)) { var s = $"%{q.Search.Trim()}%"; qry = qry.Where(x => EF.Functions.ILike(x.Label, s) || EF.Functions.ILike(x.Address, s)); }
         return await Page(qry.OrderBy(x => x.Label).Select(x => new CustomerAddressDto(
             x.Id, x.CustomerId, x.Label, x.Address, x.City, x.Country, x.IsDefault, x.IsActive)), q, ct);
     }
@@ -477,7 +477,7 @@ public sealed class ReferenceDataController(AppDbContext db,
     {
         IQueryable<ItemPrice> qry = db.ItemPrices.AsNoTracking().Include(x => x.Item).Include(x => x.PriceTier);
         if (itemId.HasValue) qry = qry.Where(x => x.ItemId == itemId);
-        if (!string.IsNullOrWhiteSpace(q.Search)) { var s = q.Search.Trim(); qry = qry.Where(x => x.Item!.Sku.Contains(s) || x.PriceTier!.Code.Contains(s)); }
+        if (!string.IsNullOrWhiteSpace(q.Search)) { var s = $"%{q.Search.Trim()}%"; qry = qry.Where(x => EF.Functions.ILike(x.Item!.Sku, s) || EF.Functions.ILike(x.PriceTier!.Code, s)); }
         return await Page(qry.OrderBy(x => x.Item!.Sku).Select(x => new ItemPriceDto(
             x.Id, x.ItemId, x.Item!.Sku, x.PriceTierId, x.PriceTier!.Code, x.Price, x.IsActive)), q, ct);
     }
@@ -519,7 +519,7 @@ public sealed class ReferenceDataController(AppDbContext db,
     {
         IQueryable<ItemDiscount> qry = db.ItemDiscounts.AsNoTracking().Include(x => x.Item).Include(x => x.DiscountCode);
         if (itemId.HasValue) qry = qry.Where(x => x.ItemId == itemId);
-        if (!string.IsNullOrWhiteSpace(q.Search)) { var s = q.Search.Trim(); qry = qry.Where(x => x.Item!.Sku.Contains(s) || x.DiscountCode!.Name.Contains(s)); }
+        if (!string.IsNullOrWhiteSpace(q.Search)) { var s = $"%{q.Search.Trim()}%"; qry = qry.Where(x => EF.Functions.ILike(x.Item!.Sku, s) || EF.Functions.ILike(x.DiscountCode!.Name, s)); }
         return await Page(qry.OrderBy(x => x.Item!.Sku).ThenBy(x => x.DiscountCode!.Code)
             .Select(x => new ItemDiscountDto(x.Id, x.ItemId, x.Item!.Sku, x.DiscountCodeId, x.DiscountCode!.Name,
                 x.DiscountPercent, x.StartDateUtc, x.EndDateUtc, x.IsActive)), q, ct);
@@ -604,7 +604,7 @@ public sealed class ReferenceDataController(AppDbContext db,
         if (string.IsNullOrWhiteSpace(search)) return src;
         var like = $"%{search.Trim()}%";
         if (typeof(T).GetProperty("Code") != null && typeof(T).GetProperty("Name") != null)
-            return src.Where(x => EF.Functions.Like(EF.Property<string>(x, "Code"), like) || EF.Functions.Like(EF.Property<string>(x, "Name"), like));
+            return src.Where(x => EF.Functions.ILike(EF.Property<string>(x, "Code"), like) || EF.Functions.ILike(EF.Property<string>(x, "Name"), like));
         return src;
     }
 

@@ -107,7 +107,7 @@ public sealed class MasterDataController(AppDbContext db,
         if (!string.IsNullOrWhiteSpace(q.Search))
         {
             var s = q.Search.Trim();
-            src = src.Where(x => EF.Functions.Like(x.Sku, $"%{s}%") || EF.Functions.Like(x.Name, $"%{s}%"));
+            var like = $"%{s}%"; src = src.Where(x => EF.Functions.ILike(x.Sku, like) || EF.Functions.ILike(x.Name, like));
         }
         var total = await src.CountAsync(ct);
         var items = await src.OrderBy(x => x.Sku)
@@ -348,7 +348,7 @@ public sealed class MasterDataController(AppDbContext db,
     {
         if (string.IsNullOrWhiteSpace(search)) return src;
         var like = $"%{search.Trim()}%";
-        return src.Where(x => EF.Functions.Like(EF.Property<string>(x, "Code"), like) || EF.Functions.Like(EF.Property<string>(x, "Name"), like));
+        return src.Where(x => EF.Functions.ILike(EF.Property<string>(x, "Code"), like) || EF.Functions.ILike(EF.Property<string>(x, "Name"), like));
     }
 
     private static CustomerDto ProjectCustomer(Domain.MasterData.Customer x) => new(
