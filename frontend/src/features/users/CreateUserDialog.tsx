@@ -49,6 +49,17 @@ export function CreateUserDialog({ open, onClose, currentUser }: Props) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const reset = () => {
+    setFullName("");
+    setEmail("");
+    setPassword("");
+    setRoleId(1);
+    setHasCustom(false);
+    setModules(ALL_MODULES.map((m) => ({ module: m.key, canEdit: false, canDelete: false, enabled: false })));
+    setReports([]);
+    setError(null);
+  };
+
   const handleSave = async () => {
     if (!fullName.trim() || !email.trim() || !password.trim()) {
       setError("Name, email, and password are required.");
@@ -61,7 +72,6 @@ export function CreateUserDialog({ open, onClose, currentUser }: Props) {
     setSaving(true);
     setError(null);
     try {
-      // Create the user
       await api.post("users", {
         json: {
           fullName: fullName.trim(),
@@ -73,6 +83,7 @@ export function CreateUserDialog({ open, onClose, currentUser }: Props) {
           reports: hasCustom ? reports : [],
         },
       }).json();
+      reset();
       onClose();
     } catch (err: any) {
       let msg = err.message;
@@ -87,14 +98,7 @@ export function CreateUserDialog({ open, onClose, currentUser }: Props) {
   };
 
   const handleClose = () => {
-    setFullName("");
-    setEmail("");
-    setPassword("");
-    setRoleId(1);
-    setHasCustom(false);
-    setModules(ALL_MODULES.map((m) => ({ module: m.key, canEdit: false, canDelete: false, enabled: false })));
-    setReports([]);
-    setError(null);
+    reset();
     onClose();
   };
 

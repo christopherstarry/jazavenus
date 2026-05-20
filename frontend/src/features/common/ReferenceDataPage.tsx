@@ -84,12 +84,16 @@ export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: [apiPath] }); },
   });
 
-  function openCreate() {
+  function resetForm() {
     const init: Record<string, string> = {};
     fields.forEach((f) => { if (f.type !== "checkbox") init[f.key] = ""; });
     setForm(init);
     setIsActive(true);
     setEditing(null);
+  }
+
+  function openCreate() {
+    resetForm();
     setDialogOpen(true);
   }
 
@@ -211,7 +215,7 @@ export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields
           </>
         )}
 
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <Dialog open={dialogOpen} onOpenChange={(o) => { if (!o) resetForm(); setDialogOpen(o); }}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>{editing ? `Edit ${title}` : `New ${title}`}</DialogTitle>
