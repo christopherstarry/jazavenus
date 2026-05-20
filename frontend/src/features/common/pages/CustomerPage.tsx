@@ -57,9 +57,14 @@ export function CustomerPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["master/customers"] }),
   });
 
-  function openCreate() {
+  function resetForm() {
     setForm({ code: "", name: "", taxId: "", email: "", phone: "", billingAddress: "", shippingAddress: "", city: "", country: "" });
-    setCreditLimit("0"); setPaymentTermsDays("30"); setIsActive(true); setEditing(null); setDialogOpen(true);
+    setCreditLimit("0"); setPaymentTermsDays("30"); setIsActive(true); setEditing(null);
+  }
+
+  function openCreate() {
+    resetForm();
+    setDialogOpen(true);
   }
 
   function openEdit(row: CustomerDto) {
@@ -143,7 +148,7 @@ export function CustomerPage() {
           </>
         )}
 
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <Dialog open={dialogOpen} onOpenChange={(o) => { if (!o) resetForm(); setDialogOpen(o); }}>
           <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-2xl">{editing ? "Edit Customer" : "New Customer"}</DialogTitle>

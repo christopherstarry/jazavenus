@@ -66,10 +66,15 @@ export function ItemPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["master/items"] }),
   });
 
-  function openCreate() {
+  function resetForm() {
     setForm({ sku: "", name: "", barcode: "", description: "", currency: "IDR" });
     setCategoryId(""); setUnitId(""); setStandardCost("0"); setStandardPrice("0");
-    setReorderLevel(""); setReorderQuantity(""); setIsActive(true); setEditing(null); setDialogOpen(true);
+    setReorderLevel(""); setReorderQuantity(""); setIsActive(true); setEditing(null);
+  }
+
+  function openCreate() {
+    resetForm();
+    setDialogOpen(true);
   }
 
   function openEdit(row: ItemDto) {
@@ -164,7 +169,7 @@ export function ItemPage() {
           </>
         )}
 
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <Dialog open={dialogOpen} onOpenChange={(o) => { if (!o) resetForm(); setDialogOpen(o); }}>
           <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-2xl">{editing ? "Edit Item" : "New Item"}</DialogTitle>

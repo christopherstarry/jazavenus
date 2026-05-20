@@ -50,7 +50,8 @@ export function SupplierPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["master/suppliers"] }),
   });
 
-  function openCreate() { setForm({ code: "", name: "", taxId: "", email: "", phone: "", address: "", city: "" }); setEditing(null); setDialogOpen(true); }
+  function resetForm() { setForm({ code: "", name: "", taxId: "", email: "", phone: "", address: "", city: "" }); setEditing(null); }
+  function openCreate() { resetForm(); setDialogOpen(true); }
 
   function openEdit(row: SupplierDto) { setForm({ code: row.code, name: row.name, taxId: row.taxId ?? "", email: row.email ?? "", phone: row.phone ?? "", address: row.address ?? "", city: row.city ?? "" }); setEditing(row); setDialogOpen(true); }
 
@@ -123,7 +124,7 @@ export function SupplierPage() {
           </>
         )}
 
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <Dialog open={dialogOpen} onOpenChange={(o) => { if (!o) resetForm(); setDialogOpen(o); }}>
           <DialogContent className="sm:max-w-lg">
             <DialogHeader>
               <DialogTitle>{editing ? "Edit Supplier" : "New Supplier"}</DialogTitle>
