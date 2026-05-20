@@ -321,4 +321,22 @@ SELECT gen_random_uuid(), i."Id", dc."Id", 0, true, false, now()
 FROM "Items" i, "DiscountCodes" dc WHERE i."Sku" = '02-7' AND dc."Code" = 'B'
 ON CONFLICT DO NOTHING;
 
+-- Locations (sample bins for main warehouses)
+INSERT INTO "Locations" ("Id", "WarehouseId", "Code", "Name", "IsActive", "IsDeleted", "CreatedAtUtc")
+SELECT gen_random_uuid(), w."Id", 'A-01', 'Rak A1', true, false, now()
+FROM "Warehouses" w WHERE w."Code" = '001'
+UNION ALL
+SELECT gen_random_uuid(), w."Id", 'A-02', 'Rak A2', true, false, now()
+FROM "Warehouses" w WHERE w."Code" = '001'
+UNION ALL
+SELECT gen_random_uuid(), w."Id", 'B-01', 'Rak B1', true, false, now()
+FROM "Warehouses" w WHERE w."Code" = '001'
+UNION ALL
+SELECT gen_random_uuid(), w."Id", 'RET-01', 'Retur Rak 1', true, false, now()
+FROM "Warehouses" w WHERE w."Code" = '101'
+UNION ALL
+SELECT gen_random_uuid(), w."Id", 'RET-02', 'Retur Rak 2', true, false, now()
+FROM "Warehouses" w WHERE w."Code" = '101'
+ON CONFLICT DO NOTHING;
+
 PRINT 'Seed data inserted successfully.';
