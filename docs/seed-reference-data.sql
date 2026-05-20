@@ -253,73 +253,52 @@ FROM "Customers" c WHERE c."Code" = '000000001000'
 ON CONFLICT DO NOTHING;
 
 -- Items (10 rows)
-INSERT INTO "Items" ("Id", "Sku", "Name", "Barcode", "Description", "CategoryId", "UnitId", "StandardCost", "StandardPrice", "Currency", "IsActive", "IsDeleted", "CreatedAtUtc")
-SELECT gen_random_uuid(), '02-7', 'GATSBY STYLING POMADE 75 GR SILVER/SUPREME GREASE', NULL, 'GATSBY STYLING POMADE 75 GR SILVER,COKLAT', c."Id", u."Id", 0, 24861, 'IDR', true, false, now()
-FROM "Categories" c, "Units" u WHERE c."Code" = '03' AND u."Code" = 'PCS'
-UNION ALL
-SELECT gen_random_uuid(), '02-8', 'GATSBY STYLING POMADE 75 GR COKLAT /HOLD', NULL, 'GATSBY STYLING POMADE 75 GR SILVER,COKLAT', c."Id", u."Id", 0, 25607, 'IDR', true, false, now()
-FROM "Categories" c, "Units" u WHERE c."Code" = '03' AND u."Code" = 'PCS'
-UNION ALL
-SELECT gen_random_uuid(), 'A6-4', 'HENNA BROWN (WO)', NULL, 'HENNA EAGLE BROWN (LAMA) (WO)', c."Id", u."Id", 0, 0, 'IDR', true, false, now()
-FROM "Categories" c, "Units" u WHERE c."Code" = '03' AND u."Code" = 'PCS'
-UNION ALL
-SELECT gen_random_uuid(), 'AA0-10', 'CASABLANCA ROLL ON BIRU AQUA / WOMEN', NULL, 'CASABLANCA ROLL ON (BIRU TUA, AQUA, CKLT, GOLD, HITAM, ORANGE, PINK, PUTIH, SILVER, UNGU)', c."Id", u."Id", 0, 0, 'IDR', true, false, now()
-FROM "Categories" c, "Units" u WHERE c."Code" = '04' AND u."Code" = 'PCS'
-UNION ALL
-SELECT gen_random_uuid(), 'AA0-11', 'CASABLANCA ROLL ON MERAH', NULL, 'CASABLANCA ROLL ON (BIRU TUA, AQUA, CKLT, GOLD, HITAM, ORANGE, PINK, PUTIH, SILVER, UNGU)', c."Id", u."Id", 0, 0, 'IDR', true, false, now()
-FROM "Categories" c, "Units" u WHERE c."Code" = '03' AND u."Code" = 'PCS'
-UNION ALL
-SELECT gen_random_uuid(), 'AA0-7', 'CASABLANCA ROLL ON ORANGE/WO', NULL, 'CASABLANCA ROLL ON ORANGE/WO', c."Id", u."Id", 0, 0, 'IDR', true, false, now()
-FROM "Categories" c, "Units" u WHERE c."Code" = '03' AND u."Code" = 'PCS'
-UNION ALL
-SELECT gen_random_uuid(), 'AA0-8', 'CASABLANCA ROLL ON UNGU', NULL, 'CASABLANCA ROLL ON (BIRU TUA, AQUA, CKLT, GOLD, HITAM, ORANGE, PINK, PUTIH, SILVER, UNGU)', c."Id", u."Id", 0, 0, 'IDR', true, false, now()
-FROM "Categories" c, "Units" u WHERE c."Code" = '03' AND u."Code" = 'PCS'
-UNION ALL
-SELECT gen_random_uuid(), 'AA0-9', 'CASABLANCA ROLL ON COKLAT', NULL, 'CASABLANCA ROLL ON (BIRU TUA, AQUA, CKLT, GOLD, HITAM, ORANGE, PINK, PUTIH, SILVER, UNGU)', c."Id", u."Id", 0, 0, 'IDR', true, false, now()
-FROM "Categories" c, "Units" u WHERE c."Code" = '04' AND u."Code" = 'PCS'
-UNION ALL
-SELECT gen_random_uuid(), 'AC-0012', 'MERAK PEACOCK 6 GR (WO)', '1111111', 'MERAK PEACOCK 6 GR (WO)', c."Id", u."Id", 0, 0, 'IDR', true, false, now()
-FROM "Categories" c, "Units" u WHERE c."Code" = '04' AND u."Code" = 'PCS'
-UNION ALL
-SELECT gen_random_uuid(), 'AC-2', 'NATURE EKSTRAK TTO & LIME 140ML', NULL, 'NATURE EKSTRAK TTO & LIME 140ML', c."Id", u."Id", 0, 0, 'IDR', true, false, now()
-FROM "Categories" c, "Units" u WHERE c."Code" = '03' AND u."Code" = 'PCS'
-ON CONFLICT DO NOTHING;
+DO $$
+DECLARE
+  cat3_id uuid; cat4_id uuid; unit_id uuid;
+BEGIN
+  SELECT "Id" INTO cat3_id FROM "Categories" WHERE "Code" = '03';
+  SELECT "Id" INTO cat4_id FROM "Categories" WHERE "Code" = '04';
+  SELECT "Id" INTO unit_id FROM "Units" WHERE "Code" = 'PCS';
+  INSERT INTO "Items" ("Id","Sku","Name","Barcode","CategoryId","UnitId","StandardCost","StandardPrice","Currency","IsActive","IsDeleted","CreatedAtUtc")
+    VALUES (gen_random_uuid(),'02-7','GATSBY STYLING POMADE 75 GR SILVER/SUPREME GREASE',NULL,cat3_id,unit_id,0,24861,'IDR',true,false,now()) ON CONFLICT ("Sku") WHERE "IsDeleted" = false DO NOTHING;
+  INSERT INTO "Items" ("Id","Sku","Name","Barcode","CategoryId","UnitId","StandardCost","StandardPrice","Currency","IsActive","IsDeleted","CreatedAtUtc")
+    VALUES (gen_random_uuid(),'02-8','GATSBY STYLING POMADE 75 GR COKLAT /HOLD',NULL,cat3_id,unit_id,0,25607,'IDR',true,false,now()) ON CONFLICT ("Sku") WHERE "IsDeleted" = false DO NOTHING;
+  INSERT INTO "Items" ("Id","Sku","Name","Barcode","CategoryId","UnitId","StandardCost","StandardPrice","Currency","IsActive","IsDeleted","CreatedAtUtc")
+    VALUES (gen_random_uuid(),'A6-4','HENNA BROWN (WO)',NULL,cat3_id,unit_id,0,0,'IDR',true,false,now()) ON CONFLICT ("Sku") WHERE "IsDeleted" = false DO NOTHING;
+  INSERT INTO "Items" ("Id","Sku","Name","Barcode","CategoryId","UnitId","StandardCost","StandardPrice","Currency","IsActive","IsDeleted","CreatedAtUtc")
+    VALUES (gen_random_uuid(),'AA0-10','CASABLANCA ROLL ON BIRU AQUA / WOMEN',NULL,cat4_id,unit_id,0,0,'IDR',true,false,now()) ON CONFLICT ("Sku") WHERE "IsDeleted" = false DO NOTHING;
+  INSERT INTO "Items" ("Id","Sku","Name","Barcode","CategoryId","UnitId","StandardCost","StandardPrice","Currency","IsActive","IsDeleted","CreatedAtUtc")
+    VALUES (gen_random_uuid(),'AA0-11','CASABLANCA ROLL ON MERAH',NULL,cat3_id,unit_id,0,0,'IDR',true,false,now()) ON CONFLICT ("Sku") WHERE "IsDeleted" = false DO NOTHING;
+  INSERT INTO "Items" ("Id","Sku","Name","Barcode","CategoryId","UnitId","StandardCost","StandardPrice","Currency","IsActive","IsDeleted","CreatedAtUtc")
+    VALUES (gen_random_uuid(),'AA0-7','CASABLANCA ROLL ON ORANGE/WO',NULL,cat3_id,unit_id,0,0,'IDR',true,false,now()) ON CONFLICT ("Sku") WHERE "IsDeleted" = false DO NOTHING;
+  INSERT INTO "Items" ("Id","Sku","Name","Barcode","CategoryId","UnitId","StandardCost","StandardPrice","Currency","IsActive","IsDeleted","CreatedAtUtc")
+    VALUES (gen_random_uuid(),'AA0-8','CASABLANCA ROLL ON UNGU',NULL,cat3_id,unit_id,0,0,'IDR',true,false,now()) ON CONFLICT ("Sku") WHERE "IsDeleted" = false DO NOTHING;
+  INSERT INTO "Items" ("Id","Sku","Name","Barcode","CategoryId","UnitId","StandardCost","StandardPrice","Currency","IsActive","IsDeleted","CreatedAtUtc")
+    VALUES (gen_random_uuid(),'AA0-9','CASABLANCA ROLL ON COKLAT',NULL,cat4_id,unit_id,0,0,'IDR',true,false,now()) ON CONFLICT ("Sku") WHERE "IsDeleted" = false DO NOTHING;
+  INSERT INTO "Items" ("Id","Sku","Name","Barcode","CategoryId","UnitId","StandardCost","StandardPrice","Currency","IsActive","IsDeleted","CreatedAtUtc")
+    VALUES (gen_random_uuid(),'AC-0012','MERAK PEACOCK 6 GR (WO)','1111111',cat4_id,unit_id,0,0,'IDR',true,false,now()) ON CONFLICT ("Sku") WHERE "IsDeleted" = false DO NOTHING;
+  INSERT INTO "Items" ("Id","Sku","Name","Barcode","CategoryId","UnitId","StandardCost","StandardPrice","Currency","IsActive","IsDeleted","CreatedAtUtc")
+    VALUES (gen_random_uuid(),'AC-2','NATURE EKSTRAK TTO & LIME 140ML',NULL,cat3_id,unit_id,0,0,'IDR',true,false,now()) ON CONFLICT ("Sku") WHERE "IsDeleted" = false DO NOTHING;
+END $$;
 
 -- Item Prices (5 rows)
-INSERT INTO "ItemPrices" ("Id", "ItemId", "PriceTierId", "Price", "IsActive", "IsDeleted", "CreatedAtUtc")
-SELECT gen_random_uuid(), i."Id", pt."Id", 24861, true, false, now()
-FROM "Items" i, "PriceTiers" pt WHERE i."Sku" = '02-7' AND pt."Code" = 'HETOLD'
-UNION ALL
-SELECT gen_random_uuid(), i."Id", pt."Id", 25607, true, false, now()
-FROM "Items" i, "PriceTiers" pt WHERE i."Sku" = '02-7' AND pt."Code" = 'HETOLD2'
-UNION ALL
-SELECT gen_random_uuid(), i."Id", pt."Id", 26104, true, false, now()
-FROM "Items" i, "PriceTiers" pt WHERE i."Sku" = '02-7' AND pt."Code" = 'HETOLD3'
-UNION ALL
-SELECT gen_random_uuid(), i."Id", pt."Id", 27347, true, false, now()
-FROM "Items" i, "PriceTiers" pt WHERE i."Sku" = '02-7' AND pt."Code" = 'HETOLD4'
-UNION ALL
-SELECT gen_random_uuid(), i."Id", pt."Id", 31076, true, false, now()
-FROM "Items" i, "PriceTiers" pt WHERE i."Sku" = '02-7' AND pt."Code" = 'HETOLD5'
-ON CONFLICT DO NOTHING;
-
--- Item Discounts (5 rows)
-INSERT INTO "ItemDiscounts" ("Id", "ItemId", "DiscountCodeId", "DiscountPercent", "IsActive", "IsDeleted", "CreatedAtUtc")
-SELECT gen_random_uuid(), i."Id", dc."Id", 0, true, false, now()
-FROM "Items" i, "DiscountCodes" dc WHERE i."Sku" = '0001-2' AND dc."Code" = 'A'
-UNION ALL
-SELECT gen_random_uuid(), i."Id", dc."Id", 0, true, false, now()
-FROM "Items" i, "DiscountCodes" dc WHERE i."Sku" = '0001-2' AND dc."Code" = 'B'
-UNION ALL
-SELECT gen_random_uuid(), i."Id", dc."Id", 0, true, false, now()
-FROM "Items" i, "DiscountCodes" dc WHERE i."Sku" = '0001-2' AND dc."Code" = 'C'
-UNION ALL
-SELECT gen_random_uuid(), i."Id", dc."Id", 0, true, false, now()
-FROM "Items" i, "DiscountCodes" dc WHERE i."Sku" = '02-7' AND dc."Code" = 'A'
-UNION ALL
-SELECT gen_random_uuid(), i."Id", dc."Id", 0, true, false, now()
-FROM "Items" i, "DiscountCodes" dc WHERE i."Sku" = '02-7' AND dc."Code" = 'B'
-ON CONFLICT DO NOTHING;
+DO $$
+DECLARE
+  item_id uuid; pt_id uuid;
+BEGIN
+  SELECT "Id" INTO item_id FROM "Items" WHERE "Sku" = '02-7';
+  SELECT "Id" INTO pt_id FROM "PriceTiers" WHERE "Code" = 'HETOLD';
+  INSERT INTO "ItemPrices" ("Id","ItemId","PriceTierId","Price","IsActive","IsDeleted","CreatedAtUtc") VALUES (gen_random_uuid(),item_id,pt_id,24861,true,false,now()) ON CONFLICT DO NOTHING;
+  SELECT "Id" INTO pt_id FROM "PriceTiers" WHERE "Code" = 'HETOLD2';
+  INSERT INTO "ItemPrices" ("Id","ItemId","PriceTierId","Price","IsActive","IsDeleted","CreatedAtUtc") VALUES (gen_random_uuid(),item_id,pt_id,25607,true,false,now()) ON CONFLICT DO NOTHING;
+  SELECT "Id" INTO pt_id FROM "PriceTiers" WHERE "Code" = 'HETOLD3';
+  INSERT INTO "ItemPrices" ("Id","ItemId","PriceTierId","Price","IsActive","IsDeleted","CreatedAtUtc") VALUES (gen_random_uuid(),item_id,pt_id,26104,true,false,now()) ON CONFLICT DO NOTHING;
+  SELECT "Id" INTO pt_id FROM "PriceTiers" WHERE "Code" = 'HETOLD4';
+  INSERT INTO "ItemPrices" ("Id","ItemId","PriceTierId","Price","IsActive","IsDeleted","CreatedAtUtc") VALUES (gen_random_uuid(),item_id,pt_id,27347,true,false,now()) ON CONFLICT DO NOTHING;
+  SELECT "Id" INTO pt_id FROM "PriceTiers" WHERE "Code" = 'HETOLD5';
+  INSERT INTO "ItemPrices" ("Id","ItemId","PriceTierId","Price","IsActive","IsDeleted","CreatedAtUtc") VALUES (gen_random_uuid(),item_id,pt_id,31076,true,false,now()) ON CONFLICT DO NOTHING;
+END $$;
 
 -- Locations (sample bins for main warehouses)
 INSERT INTO "Locations" ("Id", "WarehouseId", "Code", "Name", "IsActive", "IsDeleted", "CreatedAtUtc")
