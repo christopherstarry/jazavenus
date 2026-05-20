@@ -193,17 +193,17 @@ ON CONFLICT DO NOTHING;
 -- =============================================================================
 
 -- Suppliers
-INSERT INTO "Suppliers" ("Id", "Code", "Name", "IsActive", "IsDeleted", "CreatedAtUtc") VALUES
-  (gen_random_uuid(), '103', 'DEVA INDUSTRIES PT', true, false, now()),
-  (gen_random_uuid(), '104', 'CITRA ALAM AROMINDO PT', true, false, now()),
-  (gen_random_uuid(), '105', 'WICAKSANA OVERSEAS INTERNATIONAL Tbk (AWAL)', true, false, now()),
-  (gen_random_uuid(), '106', 'PESONA AMARANTHINE COSMETIQUES PT', true, false, now()),
-  (gen_random_uuid(), '107', 'PT SAI / COTY', true, false, now()),
-  (gen_random_uuid(), '108', 'JAYA BAKTI RAHARJA PT', true, false, now()),
-  (gen_random_uuid(), '110', 'SUKSES MAKMUR JAYA', true, false, now()),
-  (gen_random_uuid(), '111', 'JAVINCI COSMETICS CV', true, false, now()),
-  (gen_random_uuid(), '112', 'AURA CANTIK PT (VLCC)', true, false, now()),
-  (gen_random_uuid(), '113', 'PT. KHARISMA SUKSES PERSADA', true, false, now())
+INSERT INTO "Suppliers" ("Id", "Code", "Name", "PaymentTermsDays", "IsActive", "IsDeleted", "CreatedAtUtc") VALUES
+  (gen_random_uuid(), '103', 'DEVA INDUSTRIES PT', 30, true, false, now()),
+  (gen_random_uuid(), '104', 'CITRA ALAM AROMINDO PT', 30, true, false, now()),
+  (gen_random_uuid(), '105', 'WICAKSANA OVERSEAS INTERNATIONAL Tbk (AWAL)', 30, true, false, now()),
+  (gen_random_uuid(), '106', 'PESONA AMARANTHINE COSMETIQUES PT', 30, true, false, now()),
+  (gen_random_uuid(), '107', 'PT SAI / COTY', 30, true, false, now()),
+  (gen_random_uuid(), '108', 'JAYA BAKTI RAHARJA PT', 30, true, false, now()),
+  (gen_random_uuid(), '110', 'SUKSES MAKMUR JAYA', 30, true, false, now()),
+  (gen_random_uuid(), '111', 'JAVINCI COSMETICS CV', 30, true, false, now()),
+  (gen_random_uuid(), '112', 'AURA CANTIK PT (VLCC)', 30, true, false, now()),
+  (gen_random_uuid(), '113', 'PT. KHARISMA SUKSES PERSADA', 30, true, false, now())
 ON CONFLICT DO NOTHING;
 
 -- Warehouses
@@ -220,18 +220,18 @@ INSERT INTO "Warehouses" ("Id", "Code", "Name", "Address", "IsActive", "IsDelete
   (gen_random_uuid(), '328', 'KONSINYASI YOGYA SUNDA', 'JL.SUNDA NO.56-62', true, false, now())
 ON CONFLICT DO NOTHING;
 
--- Customers (10 rows, mapped to our simplified Customer entity)
-INSERT INTO "Customers" ("Id", "Code", "Name", "Phone", "BillingAddress", "City", "CreditLimit", "IsActive", "IsDeleted", "CreatedAtUtc") VALUES
-  (gen_random_uuid(), '00000000100', 'DIDIN TK (P7/BL-KASUS IRA)', '0264-208451', 'JL.RAYA SADANG-SUBANG CISATRI CIBATU', 'PURWAKARTA', 0, true, false, now()),
-  (gen_random_uuid(), '000000001000', 'AZZAKI SALON (P/BL)', '081220292787', 'JL.RAYA MAJALAYA-RANCAEKEK', 'BANDUNG', 0, true, false, now()),
-  (gen_random_uuid(), '0000000010000', 'BANDI TK (P4/PRG=0.5) (SUCI)', '087730304570', 'JL SUKAMANTRI I RT 01/10 BLKNG CIHAUR GEULIS', 'BANDUNG', 5000000, true, false, now()),
-  (gen_random_uuid(), '0000000010001', 'ASEP SOPYAN (PDLRNG)', '085722635304', 'LUAR PSR GEDONG 5 RT 02/07 NO 26B', 'PADALARANG', 50000000, true, false, now()),
-  (gen_random_uuid(), '0000000010002', 'IBIS BRAGA (BRAGA) (P3/GF)', '082262262099', 'JL BRAGA KEC SUMUR BANDUNG', 'BANDUNG', 5000000, true, false, now()),
-  (gen_random_uuid(), '0000000010003', 'NN COSM (PDLRG)', '082118924712', 'PSR CURUG AGUNG C1.1 PADALARANG', 'PADALARANG', 50000000, true, false, now()),
-  (gen_random_uuid(), '0000000010004', 'FIRDAUS TK (KATAPANG)', '08996944490', 'KP PATROL RT 03/04 SUKA MUKTI KATAPANG', 'KATAPANG', 5000000, true, false, now()),
-  (gen_random_uuid(), '0000000010005', 'ESA TK (SOREANG)', '082217083798', 'JL SOREANG-BANJARAN NO.332 DPN TOKO KUE', 'SOREANG', 500000, true, false, now()),
-  (gen_random_uuid(), '0000000010006', 'Y-3 (COD-ANTAPANI)', NULL, 'JL SINDANG SARI III NO 16 ANTAPANI', 'BANDUNG', 50000, true, false, now()),
-  (gen_random_uuid(), '0000000010007', 'UMI TK (ANTRI)', '081220554957', 'PSR ANTRI BLOK 46-47 CIMAHI', 'CIMAHI', 500000, true, false, now())
+-- Customers (10 rows)
+INSERT INTO "Customers" ("Id", "Code", "Name", "Phone", "BillingAddress", "City", "CreditLimit", "PaymentTermsDays", "IsActive", "IsDeleted", "CreatedAtUtc") VALUES
+  (gen_random_uuid(), '00000000100', 'DIDIN TK (P7/BL-KASUS IRA)', '0264-208451', 'JL.RAYA SADANG-SUBANG CISATRI CIBATU', 'PURWAKARTA', 0, 0, true, false, now()),
+  (gen_random_uuid(), '000000001000', 'AZZAKI SALON (P/BL)', '081220292787', 'JL.RAYA MAJALAYA-RANCAEKEK', 'BANDUNG', 0, 0, true, false, now()),
+  (gen_random_uuid(), '0000000010000', 'BANDI TK (P4/PRG=0.5) (SUCI)', '087730304570', 'JL SUKAMANTRI I RT 01/10 BLKNG CIHAUR GEULIS', 'BANDUNG', 5000000, 0, true, false, now()),
+  (gen_random_uuid(), '0000000010001', 'ASEP SOPYAN (PDLRNG)', '085722635304', 'LUAR PSR GEDONG 5 RT 02/07 NO 26B', 'PADALARANG', 50000000, 0, true, false, now()),
+  (gen_random_uuid(), '0000000010002', 'IBIS BRAGA (BRAGA) (P3/GF)', '082262262099', 'JL BRAGA KEC SUMUR BANDUNG', 'BANDUNG', 5000000, 0, true, false, now()),
+  (gen_random_uuid(), '0000000010003', 'NN COSM (PDLRG)', '082118924712', 'PSR CURUG AGUNG C1.1 PADALARANG', 'PADALARANG', 50000000, 0, true, false, now()),
+  (gen_random_uuid(), '0000000010004', 'FIRDAUS TK (KATAPANG)', '08996944490', 'KP PATROL RT 03/04 SUKA MUKTI KATAPANG', 'KATAPANG', 5000000, 0, true, false, now()),
+  (gen_random_uuid(), '0000000010005', 'ESA TK (SOREANG)', '082217083798', 'JL SOREANG-BANJARAN NO.332 DPN TOKO KUE', 'SOREANG', 500000, 0, true, false, now()),
+  (gen_random_uuid(), '0000000010006', 'Y-3 (COD-ANTAPANI)', NULL, 'JL SINDANG SARI III NO 16 ANTAPANI', 'BANDUNG', 50000, 0, true, false, now()),
+  (gen_random_uuid(), '0000000010007', 'UMI TK (ANTRI)', '081220554957', 'PSR ANTRI BLOK 46-47 CIMAHI', 'CIMAHI', 500000, 0, true, false, now())
 ON CONFLICT DO NOTHING;
 
 -- Customer Addresses (5 rows)
@@ -253,35 +253,35 @@ FROM "Customers" c WHERE c."Code" = '000000001000'
 ON CONFLICT DO NOTHING;
 
 -- Items (10 rows)
-INSERT INTO "Items" ("Id", "Sku", "Name", "Barcode", "Description", "CategoryId", "UnitId", "StandardPrice", "IsActive", "IsDeleted", "CreatedAtUtc")
-SELECT gen_random_uuid(), '02-7', 'GATSBY STYLING POMADE 75 GR SILVER/SUPREME GREASE', NULL, 'GATSBY STYLING POMADE 75 GR SILVER,COKLAT', c."Id", u."Id", 24861, true, false, now()
+INSERT INTO "Items" ("Id", "Sku", "Name", "Barcode", "Description", "CategoryId", "UnitId", "StandardCost", "StandardPrice", "Currency", "IsActive", "IsDeleted", "CreatedAtUtc")
+SELECT gen_random_uuid(), '02-7', 'GATSBY STYLING POMADE 75 GR SILVER/SUPREME GREASE', NULL, 'GATSBY STYLING POMADE 75 GR SILVER,COKLAT', c."Id", u."Id", 0, 24861, 'IDR', true, false, now()
 FROM "Categories" c, "Units" u WHERE c."Code" = '03' AND u."Code" = 'PCS'
 UNION ALL
-SELECT gen_random_uuid(), '02-8', 'GATSBY STYLING POMADE 75 GR COKLAT /HOLD', NULL, 'GATSBY STYLING POMADE 75 GR SILVER,COKLAT', c."Id", u."Id", 25607, true, false, now()
+SELECT gen_random_uuid(), '02-8', 'GATSBY STYLING POMADE 75 GR COKLAT /HOLD', NULL, 'GATSBY STYLING POMADE 75 GR SILVER,COKLAT', c."Id", u."Id", 0, 25607, 'IDR', true, false, now()
 FROM "Categories" c, "Units" u WHERE c."Code" = '03' AND u."Code" = 'PCS'
 UNION ALL
-SELECT gen_random_uuid(), 'A6-4', 'HENNA BROWN (WO)', NULL, 'HENNA EAGLE BROWN (LAMA) (WO)', c."Id", u."Id", 0, true, false, now()
+SELECT gen_random_uuid(), 'A6-4', 'HENNA BROWN (WO)', NULL, 'HENNA EAGLE BROWN (LAMA) (WO)', c."Id", u."Id", 0, 0, 'IDR', true, false, now()
 FROM "Categories" c, "Units" u WHERE c."Code" = '03' AND u."Code" = 'PCS'
 UNION ALL
-SELECT gen_random_uuid(), 'AA0-10', 'CASABLANCA ROLL ON BIRU AQUA / WOMEN', NULL, 'CASABLANCA ROLL ON (BIRU TUA, AQUA, CKLT, GOLD, HITAM, ORANGE, PINK, PUTIH, SILVER, UNGU)', c."Id", u."Id", 0, true, false, now()
+SELECT gen_random_uuid(), 'AA0-10', 'CASABLANCA ROLL ON BIRU AQUA / WOMEN', NULL, 'CASABLANCA ROLL ON (BIRU TUA, AQUA, CKLT, GOLD, HITAM, ORANGE, PINK, PUTIH, SILVER, UNGU)', c."Id", u."Id", 0, 0, 'IDR', true, false, now()
 FROM "Categories" c, "Units" u WHERE c."Code" = '04' AND u."Code" = 'PCS'
 UNION ALL
-SELECT gen_random_uuid(), 'AA0-11', 'CASABLANCA ROLL ON MERAH', NULL, 'CASABLANCA ROLL ON (BIRU TUA, AQUA, CKLT, GOLD, HITAM, ORANGE, PINK, PUTIH, SILVER, UNGU)', c."Id", u."Id", 0, true, false, now()
+SELECT gen_random_uuid(), 'AA0-11', 'CASABLANCA ROLL ON MERAH', NULL, 'CASABLANCA ROLL ON (BIRU TUA, AQUA, CKLT, GOLD, HITAM, ORANGE, PINK, PUTIH, SILVER, UNGU)', c."Id", u."Id", 0, 0, 'IDR', true, false, now()
 FROM "Categories" c, "Units" u WHERE c."Code" = '03' AND u."Code" = 'PCS'
 UNION ALL
-SELECT gen_random_uuid(), 'AA0-7', 'CASABLANCA ROLL ON ORANGE/WO', NULL, 'CASABLANCA ROLL ON ORANGE/WO', c."Id", u."Id", 0, true, false, now()
+SELECT gen_random_uuid(), 'AA0-7', 'CASABLANCA ROLL ON ORANGE/WO', NULL, 'CASABLANCA ROLL ON ORANGE/WO', c."Id", u."Id", 0, 0, 'IDR', true, false, now()
 FROM "Categories" c, "Units" u WHERE c."Code" = '03' AND u."Code" = 'PCS'
 UNION ALL
-SELECT gen_random_uuid(), 'AA0-8', 'CASABLANCA ROLL ON UNGU', NULL, 'CASABLANCA ROLL ON (BIRU TUA, AQUA, CKLT, GOLD, HITAM, ORANGE, PINK, PUTIH, SILVER, UNGU)', c."Id", u."Id", 0, true, false, now()
+SELECT gen_random_uuid(), 'AA0-8', 'CASABLANCA ROLL ON UNGU', NULL, 'CASABLANCA ROLL ON (BIRU TUA, AQUA, CKLT, GOLD, HITAM, ORANGE, PINK, PUTIH, SILVER, UNGU)', c."Id", u."Id", 0, 0, 'IDR', true, false, now()
 FROM "Categories" c, "Units" u WHERE c."Code" = '03' AND u."Code" = 'PCS'
 UNION ALL
-SELECT gen_random_uuid(), 'AA0-9', 'CASABLANCA ROLL ON COKLAT', NULL, 'CASABLANCA ROLL ON (BIRU TUA, AQUA, CKLT, GOLD, HITAM, ORANGE, PINK, PUTIH, SILVER, UNGU)', c."Id", u."Id", 0, true, false, now()
+SELECT gen_random_uuid(), 'AA0-9', 'CASABLANCA ROLL ON COKLAT', NULL, 'CASABLANCA ROLL ON (BIRU TUA, AQUA, CKLT, GOLD, HITAM, ORANGE, PINK, PUTIH, SILVER, UNGU)', c."Id", u."Id", 0, 0, 'IDR', true, false, now()
 FROM "Categories" c, "Units" u WHERE c."Code" = '04' AND u."Code" = 'PCS'
 UNION ALL
-SELECT gen_random_uuid(), 'AC-0012', 'MERAK PEACOCK 6 GR (WO)', '1111111', 'MERAK PEACOCK 6 GR (WO)', c."Id", u."Id", 0, true, false, now()
+SELECT gen_random_uuid(), 'AC-0012', 'MERAK PEACOCK 6 GR (WO)', '1111111', 'MERAK PEACOCK 6 GR (WO)', c."Id", u."Id", 0, 0, 'IDR', true, false, now()
 FROM "Categories" c, "Units" u WHERE c."Code" = '04' AND u."Code" = 'PCS'
 UNION ALL
-SELECT gen_random_uuid(), 'AC-2', 'NATURE EKSTRAK TTO & LIME 140ML', NULL, 'NATURE EKSTRAK TTO & LIME 140ML', c."Id", u."Id", 0, true, false, now()
+SELECT gen_random_uuid(), 'AC-2', 'NATURE EKSTRAK TTO & LIME 140ML', NULL, 'NATURE EKSTRAK TTO & LIME 140ML', c."Id", u."Id", 0, 0, 'IDR', true, false, now()
 FROM "Categories" c, "Units" u WHERE c."Code" = '03' AND u."Code" = 'PCS'
 ON CONFLICT DO NOTHING;
 
