@@ -149,32 +149,27 @@ import { SettingsPanel } from "#/features/settings/SettingsPanel";
 import { ManageUsersPage } from "#/features/users/ManageUsersPage";
 import { AuditHistoryPage } from "#/features/audit/AuditHistoryPage";
 import { ErrorLogsPage } from "#/features/errors/ErrorLogsPage";
-import { ClassOutletPage } from "#/features/customers/ClassOutletPage";
-import { GroupOutletPage } from "#/features/customers/GroupOutletPage";
-import { MarketTypePage } from "#/features/customers/MarketTypePage";
-import { ChannelOutletPage } from "#/features/customers/ChannelOutletPage";
-import { OutletTypePage } from "#/features/customers/OutletTypePage";
-import { SalesmanPage } from "#/features/customers/SalesmanPage";
-import { SalesAreaPage } from "#/features/customers/SalesAreaPage";
-import { LocationOutletPage } from "#/features/customers/LocationOutletPage";
-import { CollectorPage } from "#/features/customers/CollectorPage";
 import { MasterCustomerPage } from "#/features/customers/MasterCustomerPage";
 import { TaxNoRegistrationPage } from "#/features/tax/TaxNoRegistrationPage";
-import { TermOfPaymentPage } from "#/features/master/TermOfPaymentPage";
-import { TypeOfCostsPage } from "#/features/master/TypeOfCostsPage";
-import { BankPage } from "#/features/master/BankPage";
-import { BrandPage } from "#/features/master/BrandPage";
-import {
-  ProductCategoryPage,
-  SubProductCategoryPage,
-  ProductPricePage,
-  ProductDiscountPage,
-} from "#/features/master/ProductCatalogMasters";
-import {
-  WarehouseTypePage,
-  UnitOfMeasurePage,
-} from "#/features/master/ProductWarehouseMasters";
-import { WarehouseLocationPage } from "#/features/master/WarehouseLocationPage";
+import { BrandPage } from "#/features/common/pages/BrandPage";
+import { BankPage } from "#/features/common/pages/BankPage";
+import { SalesmanPage } from "#/features/common/pages/SalesmanPage";
+import { CollectorPage } from "#/features/common/pages/CollectorPage";
+import { SalesAreaPage } from "#/features/common/pages/SalesAreaPage";
+import { OutletTypePage } from "#/features/common/pages/OutletTypePage";
+import { GroupOutletPage } from "#/features/common/pages/GroupOutletPage";
+import { MarketTypePage } from "#/features/common/pages/MarketTypePage";
+import { ChannelOutletPage } from "#/features/common/pages/ChannelOutletPage";
+import { LocationOutletPage } from "#/features/common/pages/LocationOutletPage";
+import { CategoryPage } from "#/features/common/pages/CategoryPage";
+import { SubCategoryPage } from "#/features/common/pages/SubCategoryPage";
+import { PriceTierPage } from "#/features/common/pages/PriceTierPage";
+import { DiscountCodePage } from "#/features/common/pages/DiscountCodePage";
+import { WarehouseTypePage } from "#/features/common/pages/WarehouseTypePage";
+import { UnitOfMeasurePage } from "#/features/common/pages/UnitOfMeasurePage";
+import { WarehousePage } from "#/features/common/pages/WarehousePage";
+import { PaymentTermPage } from "#/features/common/pages/PaymentTermPage";
+import { CostTypePage } from "#/features/common/pages/CostTypePage";
 import {
   IncomingTransactionBpbPage,
   InterWarehouseTransactionPage,
@@ -306,7 +301,7 @@ export const TREE: ModuleNode[] = [
             id: "master.customer.class-outlet",
             path: "/master/customer/class-outlet",
             label: "Table of Class Outlet",
-            Component: ClassOutletPage,
+            Component: LocationOutletPage,
           },
           {
             id: "master.customer.group-outlet",
@@ -372,7 +367,7 @@ export const TREE: ModuleNode[] = [
         label: "Type Of Costs",
         description: "Cost categories",
         divider: true,
-        Component: TypeOfCostsPage,
+            Component: CostTypePage,
       },
       {
         id: "master.principle",
@@ -386,7 +381,7 @@ export const TREE: ModuleNode[] = [
         path: "/master/term-of-payment",
         label: "Table of Term Of Payment",
         description: "Payment terms (net 30, net 60, …)",
-        Component: TermOfPaymentPage,
+            Component: PaymentTermPage,
       },
       {
         id: "master.bank",
@@ -424,25 +419,25 @@ export const TREE: ModuleNode[] = [
             id: "master.product.category",
             path: "/master/product/category",
             label: "Table of Product Category",
-            Component: ProductCategoryPage,
+            Component: CategoryPage,
           },
           {
             id: "master.product.subcategory",
             path: "/master/product/sub-category",
             label: "Table of Sub Product Category",
-            Component: SubProductCategoryPage,
+            Component: SubCategoryPage,
           },
           {
             id: "master.product.price",
             path: "/master/product/price",
             label: "Table of Price",
-            Component: ProductPricePage,
+            Component: PriceTierPage,
           },
           {
             id: "master.product.discount",
             path: "/master/product/discount",
             label: "Table of Discount",
-            Component: ProductDiscountPage,
+            Component: DiscountCodePage,
           },
           {
             id: "master.product.master-product",
@@ -454,7 +449,7 @@ export const TREE: ModuleNode[] = [
             id: "master.product.warehouse-loc",
             path: "/master/product/warehouse-location",
             label: "Table of Warehouse Location",
-            Component: WarehouseLocationPage,
+            Component: WarehousePage,
           },
           {
             id: "master.product.warehouse-type",
