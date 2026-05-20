@@ -103,7 +103,34 @@ export function CustomerPage() {
 
         {q.data && q.data.items.length > 0 && (
           <>
-            <div className="overflow-x-auto -mx-4 sm:mx-0">
+            {/* Mobile cards */}
+            <div className="flex flex-col gap-3 sm:hidden">
+              {q.data.items.map((row) => (
+                <div key={row.id} className="rounded-lg border-2 border-border bg-card p-4 space-y-2" onClick={() => openEdit(row)}>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-base truncate">{row.code}</div>
+                      <div className="text-sm mt-0.5">{row.name}</div>
+                      {row.city && <div className="text-sm text-muted-foreground mt-0.5">{row.city}</div>}
+                    </div>
+                    <Badge tone={row.isActive ? "success" : "destructive"} className="shrink-0 text-xs">
+                      {row.isActive ? "Active" : "Locked"}
+                    </Badge>
+                  </div>
+                  <div className="flex gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
+                    <Button variant="outline" size="sm" className="h-10 flex-1 text-sm" onClick={() => openEdit(row)}>
+                      <Pencil className="h-4 w-4 mr-1" /> Edit
+                    </Button>
+                    <Button variant="outline" size="sm" className="h-10 flex-1 text-sm text-destructive border-destructive/40 hover:bg-destructive/10" onClick={() => handleDelete(row)}>
+                      <Trash2 className="h-4 w-4 mr-1" /> Delete
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden sm:block overflow-x-auto -mx-4 sm:mx-0">
               <div className="min-w-[500px]">
                 <Table>
                   <TableHeader>

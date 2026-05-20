@@ -155,7 +155,45 @@ export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields
 
         {q.data && q.data.items.length > 0 && (
           <>
-            <div className="overflow-x-auto -mx-4 sm:mx-0">
+            {/* Mobile card layout */}
+            <div className="flex flex-col gap-3 sm:hidden">
+              {q.data.items.map((row) => (
+                <div key={String(row.id)} className="rounded-lg border-2 border-border bg-card p-4 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      {columns.length > 0 && (
+                        <div className="font-bold text-base truncate">
+                          {columns[0]!.render
+                            ? columns[0]!.render(row[columns[0]!.key], row)
+                            : String(row[columns[0]!.key] ?? "")}
+                        </div>
+                      )}
+                      {columns.slice(1).map((col) => (
+                        <div key={col.key} className="text-sm text-muted-foreground truncate mt-0.5">
+                          {col.label}: {col.render ? col.render(row[col.key], row) : String(row[col.key] ?? "")}
+                        </div>
+                      ))}
+                    </div>
+                    {!hideStatus && (
+                      <Badge tone={row.isActive !== false ? "success" : "destructive"} className="shrink-0 text-xs">
+                        {row.isActive !== false ? "Active" : "Locked"}
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex gap-2 pt-1">
+                    <Button variant="outline" size="sm" className="h-10 flex-1 text-sm" onClick={() => openEdit(row)}>
+                      <Pencil className="h-4 w-4 mr-1" /> Edit
+                    </Button>
+                    <Button variant="outline" size="sm" className="h-10 flex-1 text-sm text-destructive border-destructive/40 hover:bg-destructive/10" onClick={() => handleDelete(row)}>
+                      <Trash2 className="h-4 w-4 mr-1" /> Delete
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop table layout */}
+            <div className="hidden sm:block overflow-x-auto -mx-4 sm:mx-0">
               <div className="inline-block min-w-full align-middle">
                 <Table>
                   <TableHeader>
