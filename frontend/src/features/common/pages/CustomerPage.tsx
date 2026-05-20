@@ -136,8 +136,10 @@ export function CustomerPage() {
         await api.put(`master/customers/${editing.id}`, { json: dto }).json();
         queryClient.invalidateQueries({ queryKey: ["master/customers"] });
       } else {
-        await api.post("master/customers", { json: dto }).json();
+        const created = await api.post("master/customers", { json: dto }).json<CustomerDto>();
         queryClient.invalidateQueries({ queryKey: ["master/customers"] });
+        openEdit(created);
+        return;
       }
       setDialogOpen(false);
     } catch (err: any) {
@@ -363,7 +365,7 @@ export function CustomerPage() {
             {/* ===== CUSTOMER ADDRESSES ===== */}
             <div className={`${sectionHead} justify-between`}>
               <span><MapPin className="h-5 w-5" /> Customer Addresses</span>
-              {editing && <Button variant="outline" size="sm" className="h-10 text-sm" onClick={openAddAddr}><Plus className="h-4 w-4 mr-1" /> Add</Button>}
+              <Button variant="outline" size="sm" className="h-10 text-sm" onClick={openAddAddr}><Plus className="h-4 w-4 mr-1" /> Add</Button>
             </div>
             <div className="mb-6 space-y-2">
               {addresses.length === 0 && <p className="text-sm text-muted-foreground py-2">No addresses added yet.</p>}
@@ -384,7 +386,7 @@ export function CustomerPage() {
             {/* ===== BRAND DISCOUNTS ===== */}
             <div className={`${sectionHead} justify-between`}>
               <span><Tag className="h-5 w-5" /> Brand Discounts</span>
-              {editing && <Button variant="outline" size="sm" className="h-10 text-sm" onClick={openAddBd}><Plus className="h-4 w-4 mr-1" /> Add</Button>}
+              <Button variant="outline" size="sm" className="h-10 text-sm" onClick={openAddBd}><Plus className="h-4 w-4 mr-1" /> Add</Button>
             </div>
             <div className="mb-4">
               {brandDiscs.length === 0 && <p className="text-sm text-muted-foreground py-2">No brand discounts added yet.</p>}
