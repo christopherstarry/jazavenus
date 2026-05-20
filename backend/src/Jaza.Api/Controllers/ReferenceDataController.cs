@@ -26,10 +26,11 @@ public sealed class ReferenceDataController(AppDbContext db,
     // ---------- Brands ----------
     [HttpGet("brands")]
     public async Task<PagedResult<RefDto>> ListBrands([FromQuery] PagedRequest q, CancellationToken ct)
-        {
-    var src = SearchRef(db.Brands, q.Search);
-    return await Page(src.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
-}
+    {
+        var src = string.IsNullOrWhiteSpace(q.Search) ? db.Brands.AsQueryable()
+            : db.Brands.Where(x => EF.Functions.Like(x.Code, $"%{q.Search.Trim()}%") || EF.Functions.Like(x.Name, $"%{q.Search.Trim()}%"));
+        return await Page(src.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+    }
 
     [HttpPost("brands"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<ActionResult<RefDto>> CreateBrand([FromBody] RefUpsertDto dto, CancellationToken ct)
@@ -601,8 +602,10 @@ public sealed class ReferenceDataController(AppDbContext db,
     private static IQueryable<T> SearchRef<T>(IQueryable<T> src, string? search) where T : class
     {
         if (string.IsNullOrWhiteSpace(search)) return src;
-        var s = search.Trim();
-        return src.Where(x => EF.Property<string>(x, "Code").Contains(s) || EF.Property<string>(x, "Name").Contains(s));
+        var like = $"%{search.Trim()}%";
+        if (typeof(T).GetProperty("Code") != null && typeof(T).GetProperty("Name") != null)
+            return src.Where(x => EF.Functions.Like(EF.Property<string>(x, "Code"), like) || EF.Functions.Like(EF.Property<string>(x, "Name"), like));
+        return src;
     }
 
     private static void SetProp(object obj, string name, object value)

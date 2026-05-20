@@ -347,8 +347,8 @@ public sealed class MasterDataController(AppDbContext db,
     private static IQueryable<T> SearchRef<T>(IQueryable<T> src, string? search) where T : class
     {
         if (string.IsNullOrWhiteSpace(search)) return src;
-        var s = search.Trim();
-        return src.Where(x => EF.Property<string>(x, "Code").Contains(s) || EF.Property<string>(x, "Name").Contains(s));
+        var like = $"%{search.Trim()}%";
+        return src.Where(x => EF.Functions.Like(EF.Property<string>(x, "Code"), like) || EF.Functions.Like(EF.Property<string>(x, "Name"), like));
     }
 
     private static CustomerDto ProjectCustomer(Domain.MasterData.Customer x) => new(
