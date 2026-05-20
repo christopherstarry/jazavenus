@@ -1,18 +1,19 @@
 import { useAuth } from "#/lib/auth";
 import { ReferenceDataPage, type RefColumn, type RefField } from "#/features/common/ReferenceDataPage";
 
+function genCode(): string { return crypto.randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase(); }
+
 const columns: RefColumn[] = [
-  { key: "code", label: "Reg No", className: "font-mono w-[100px]" },
+  { key: "code", label: "Code", className: "font-mono w-[120px]", render: (v) => String(v).slice(0, 8) },
   { key: "name", label: "Name" },
 ];
 
 const fields: RefField[] = [
-  { key: "code", label: "Registration No", required: true, placeholder: "e.g. 1", className: "max-w-[10rem]" },
-  { key: "name", label: "Description", required: true, placeholder: "Description" },
+  { key: "name", label: "Name", required: true, placeholder: "Name" },
 ];
 
 export function TaxRegistrationPage() {
   const { user } = useAuth();
   const canDelete = user?.isDeveloper || user?.roles.includes("SuperAdmin");
-  return <ReferenceDataPage title="Tax Registrations" apiPath="master/tax-registrations" columns={columns} fields={fields} emptyMessage="No tax registrations found."  canDelete={canDelete} />;
+  return <ReferenceDataPage title="Tax Registrations" apiPath="master/tax-registrations" columns={columns} fields={fields} transformDto={(dto) => ({ ...dto, code: genCode() })} canDelete={canDelete} />;
 }

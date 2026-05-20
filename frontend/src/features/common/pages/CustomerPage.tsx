@@ -32,7 +32,7 @@ export function CustomerPage() {
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<CustomerDto | null>(null);
-  const [form, setForm] = useState({ code: "", name: "", taxId: "", email: "", phone: "", billingAddress: "", shippingAddress: "", city: "", country: "" });
+  const [form, setForm] = useState({ name: "", taxId: "", email: "", phone: "", billingAddress: "", shippingAddress: "", city: "", country: "" });
   const [creditLimit, setCreditLimit] = useState("0");
   const [paymentTermsDays, setPaymentTermsDays] = useState("30");
   const [isActive, setIsActive] = useState(true);
@@ -58,8 +58,10 @@ export function CustomerPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["master/customers"] }),
   });
 
+  function genCode(): string { return crypto.randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase(); }
+
   function resetForm() {
-    setForm({ code: "", name: "", taxId: "", email: "", phone: "", billingAddress: "", shippingAddress: "", city: "", country: "" });
+    setForm({ name: "", taxId: "", email: "", phone: "", billingAddress: "", shippingAddress: "", city: "", country: "" });
     setCreditLimit("0"); setPaymentTermsDays("30"); setIsActive(true); setEditing(null);
   }
 
@@ -69,7 +71,7 @@ export function CustomerPage() {
   }
 
   function openEdit(row: CustomerDto) {
-    setForm({ code: row.code, name: row.name, taxId: row.taxId ?? "", email: row.email ?? "", phone: row.phone ?? "", billingAddress: row.billingAddress ?? "", shippingAddress: row.shippingAddress ?? "", city: row.city ?? "", country: row.country ?? "" });
+    setForm({ name: row.name, taxId: row.taxId ?? "", email: row.email ?? "", phone: row.phone ?? "", billingAddress: row.billingAddress ?? "", shippingAddress: row.shippingAddress ?? "", city: row.city ?? "", country: row.country ?? "" });
     setCreditLimit(String(row.creditLimit)); setPaymentTermsDays(String(row.paymentTermsDays)); setIsActive(row.isActive); setEditing(row); setDialogOpen(true);
   }
 
@@ -80,7 +82,8 @@ export function CustomerPage() {
 
   function handleSave() {
     const dto: Record<string, unknown> = { ...form, creditLimit: Number(creditLimit), paymentTermsDays: Number(paymentTermsDays), isActive };
-    if (editing) updateMut.mutate({ id: editing.id, dto }); else createMut.mutate(dto);
+    if (editing) { dto.code = editing.code; updateMut.mutate({ id: editing.id, dto }); }
+    else { dto.code = genCode(); createMut.mutate(dto); }
   }
 
   const isPending = createMut.isPending || updateMut.isPending;
@@ -189,7 +192,7 @@ export function CustomerPage() {
               <DialogDescription className="text-base">Fill in the customer details below.</DialogDescription>
             </DialogHeader>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 py-4">
-              {([["code", "Code *"], ["name", "Name *"], ["taxId", "Tax ID"], ["email", "Email"], ["phone", "Phone"]] as const).map(([key, label]) => (
+              {([["name", "Name *"], ["taxId", "Tax ID"], ["email", "Email"], ["phone", "Phone"]] as const).map(([key, label]) => (
                 <div key={key} className="space-y-1.5">
                   <Label htmlFor={`c-${key}`} className="text-base font-medium">{label}</Label>
                   <input id={`c-${key}`} value={form[key]} onChange={(e) => setForm((p) => ({ ...p, [key]: e.target.value }))} className={inputLg} autoComplete="off" />
@@ -229,7 +232,7 @@ export function CustomerPage() {
             </div>
             <DialogFooter className="flex-col sm:flex-row gap-3 pt-2">
               <Button variant="outline" onClick={() => setDialogOpen(false)} size="lg" className="w-full sm:w-auto text-base min-h-[48px]">Cancel</Button>
-              <Button onClick={handleSave} disabled={!form.code || !form.name || isPending} size="lg" className="w-full sm:w-auto text-base min-h-[48px]">
+              <Button onClick={handleSave} disabled={!form.name || isPending} size="lg" className="w-full sm:w-auto text-base min-h-[48px]">
                 {isPending ? "Saving…" : editing ? "Update Customer" : "Create Customer"}
               </Button>
             </DialogFooter>
