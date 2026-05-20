@@ -2,143 +2,142 @@
 -- Jaza Venus — Sample Data Extraction Script (SQL Server)
 -- =============================================================================
 -- Run this against the OLD `sales` database.
---
--- STEP 1: Run the DIAGNOSTIC section below to see actual column names.
--- STEP 2: Then run the DATA section.
+-- Column names verified against INFORMATION_SCHEMA (2026-05-19).
 -- =============================================================================
 
 USE sales;
 GO
 
--- =============================================================================
--- STEP 1 — DIAGNOSTIC: List actual columns for each legacy table
--- =============================================================================
--- Run this first to see the REAL column names. Copy the output and send it
--- to the developer so they can fix the script below.
--- =============================================================================
-
-SELECT '=== All tables found in sales ===' AS Info;
-SELECT TABLE_SCHEMA, TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' ORDER BY TABLE_NAME;
-
+PRINT '=== SALES database — Sample Data ===';
 PRINT '';
-PRINT '--- Column details for each expected table ---';
-SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH
-FROM INFORMATION_SCHEMA.COLUMNS
-WHERE TABLE_NAME IN (
-    'Brand', 'Bank', 'Area', 'Salesman', 'Collector',
-    'WarehouseType', 'OutletType', 'GroupOutlet', 'GroupOutletType',
-    'TradeType', 'SubTradeType', 'DistributionType',
-    'CostType', 'Manufacturing', 'Category', 'SubCategory',
-    'Uom', 'PaymentTerm', 'Price', 'Discount', 'TaxNo',
-    'Customer', 'CustomerAddress', 'Supplier', 'Item', 'Warehouse',
-    'ItemPrice', 'ItemDiscount'
-)
-ORDER BY TABLE_NAME, ORDINAL_POSITION;
-
-PRINT '';
-PRINT '=== END OF DIAGNOSTIC ===';
-PRINT '=== Copy the output above and share it ===';
-GO
 
 -- =============================================================================
--- STEP 2 — DATA EXTRACTION
--- =============================================================================
--- After the diagnostic shows the real column names, fix any column references
--- below that threw errors, then run this section.
+-- 1.  SIMPLE LOOKUP TABLES  (3-5 rows each)
 -- =============================================================================
 
-/*
-PRINT '--- SAMPLE DATA ---';
-
--- ========================
---  LOOKUP TABLES
--- ========================
-
--- Brand
+-- Brand (589 rows)
 SELECT TOP 5 'Brand' AS Tbl, BrandCode AS Code, Dscription AS Name FROM Brand ORDER BY BrandCode;
 
--- Bank
+-- Bank (35 rows)
 SELECT TOP 5 'Bank' AS Tbl, BankCode AS Code, BankName AS Name FROM Bank ORDER BY BankCode;
 
--- Area
+-- Area (16 rows)
 SELECT TOP 5 'Area' AS Tbl, AreaCode AS Code, Dscription AS Name FROM Area ORDER BY AreaCode;
 
--- Salesman
-SELECT TOP 5 'Salesman' AS Tbl, SlPrsnCode AS Code, SlPrsnName AS Name FROM Salesman ORDER BY SlPrsnCode;
+-- Salesman (256 rows)
+SELECT TOP 5 'Salesman' AS Tbl, SlPrsnCode AS Code, SlPrsnName AS Name, SlTarget, SlAmount FROM Salesman ORDER BY SlPrsnCode;
 
--- Collector
-SELECT TOP 5 'Collector' AS Tbl, ClctrCode AS Code, ClctrName AS Name FROM Collector ORDER BY ClctrCode;
+-- Collector (1 row)
+SELECT 'Collector' AS Tbl, ClctrCode AS Code, ClctrName AS Name FROM Collector;
 
--- PaymentTerm
-SELECT TOP 5 'PaymentTerm' AS Tbl, TermCode AS Code, Dscription AS Name, DueDays FROM PaymentTerm ORDER BY TermCode;
+-- WarehouseType (3 rows)
+SELECT TOP 3 'WarehouseType' AS Tbl, WhsType AS Code, Dscription AS Name, CHECKONHAND FROM WarehouseType ORDER BY WhsType;
 
--- Price / PriceTier
-SELECT TOP 5 'Price' AS Tbl, PriceCode AS Code, Dscription AS Name, Factor FROM Price ORDER BY PriceCode;
+-- OutletType (22 rows)
+SELECT TOP 5 'OutletType' AS Tbl, OutletType AS Code, Dscription AS Name FROM OutletType ORDER BY OutletType;
 
--- Discount / DiscountCode
-SELECT TOP 5 'Discount' AS Tbl, DiscCode AS Code, Dscription AS Name FROM Discount ORDER BY DiscCode;
+-- GroupOutlet (4 rows)
+SELECT TOP 4 'GroupOutlet' AS Tbl, GrpOltCode AS Code, Dscription AS Name FROM GroupOutlet ORDER BY GrpOltCode;
 
--- Uom
-SELECT TOP 5 'Uom' AS Tbl, Code, Dscription AS Name FROM Uom ORDER BY Code;
+-- GroupOutletType (10 rows)
+SELECT TOP 5 'GroupOutletType' AS Tbl, GrpOltTypeCode AS Code, Dscription AS Name FROM GroupOutletType ORDER BY GrpOltTypeCode;
 
--- Category
+-- TradeType (4 rows)
+SELECT TOP 4 'TradeType' AS Tbl, TradeType AS Code, Dscription AS Name FROM TradeType ORDER BY TradeType;
+
+-- SubTradeType (4 rows)
+SELECT TOP 4 'SubTradeType' AS Tbl, SubTradeType AS Code, Dscription AS Name FROM SubTradeType ORDER BY SubTradeType;
+
+-- DistributionType (3 rows)
+SELECT TOP 3 'DistributionType' AS Tbl, DstrbnType AS Code, Dscription AS Name FROM DistributionType ORDER BY DstrbnType;
+
+-- Category (8 rows)
 SELECT TOP 5 'Category' AS Tbl, CatgryCode AS Code, Dscription AS Name FROM Category ORDER BY CatgryCode;
 
--- Manufacturing
-SELECT TOP 5 'Manufacturing' AS Tbl, MnfctrCode AS Code, Dscription AS Name FROM Manufacturing ORDER BY MnfctrCode;
+-- SubCategory (7 rows)
+SELECT TOP 5 'SubCategory' AS Tbl, SubCatCode AS Code, Dscription AS Name FROM SubCategory ORDER BY SubCatCode;
 
--- TaxNo
-SELECT TOP 5 'TaxNo' AS Tbl, RegisterNo, RegisterDate FROM TaxNo ORDER BY RegisterNo;
+-- Manufacturing (4 rows)
+SELECT TOP 4 'Manufacturing' AS Tbl, MnfctrCode AS Code, Dscription AS Name FROM Manufacturing ORDER BY MnfctrCode;
 
--- ========================
---  MASTER RECORDS
--- ========================
+-- PaymentTerm (6 rows)
+SELECT TOP 5 'PaymentTerm' AS Tbl, TermCode AS Code, Dscription AS Name, DueDay AS NetDays FROM PaymentTerm ORDER BY TermCode;
 
--- Customer
+-- Price / PriceTier (22 rows)
+SELECT TOP 5 'Price' AS Tbl, PriceCode AS Code, Dscription AS Name, Factor FROM Price ORDER BY PriceCode;
+
+-- Discount / DiscountCode (3 rows)
+SELECT TOP 3 'Discount' AS Tbl, DiscCode AS Code, Dscription AS Name FROM Discount ORDER BY DiscCode;
+
+-- TaxNo / TaxRegistration (7 rows)
+SELECT TOP 5 'TaxNo' AS Tbl, RegistrationNo, RegisterDate, Ref1, Ref2, FromNo, ToNo, NoCounted, NoUsed FROM TaxNo ORDER BY RegistrationNo;
+
+-- Uom / Unit of Measure (43 rows)  -- ⚠ UOM is int, DSCRIPTION is char(100)
+SELECT TOP 5 'Uom' AS Tbl, UOM AS Code, DSCRIPTION AS Name FROM Uom ORDER BY UOM;
+
+-- =============================================================================
+-- 2.  MASTER RECORDS  (10 rows each)
+-- =============================================================================
+
+-- Customer (17,539 rows)
 SELECT TOP 10 'Customer' AS Tbl,
-    CustmrCode AS Code, CustmrName AS Name, Address, City, CredLimit AS CreditLimit
+    CustmrCode AS Code, CustmrName AS Name, NPWPNumber AS TaxId, Email, Phone1,
+    Address, City, CredLimit AS CreditLimit, TermCode AS PaymentTermCode,
+    SlPrsnCode AS SalesmanCode, ClctrCode AS CollectorCode,
+    TradeType, SubTradeType, OutletType, DstrbnType AS DistributionType,
+    GrpOltCode AS OutletGroupCode, GrpOltTypeCode AS OutletGroupTypeCode,
+    PriceCode, DiscCode, WhsCode, Locked AS IsLocked
 FROM Customer ORDER BY CustmrCode;
 
--- Supplier
+-- CustomerAddress (17,576 rows)   -- ⚠ No Id column; FK is CustmrCode
+SELECT TOP 10 'CustomerAddress' AS Tbl,
+    CustmrCode AS CustomerCode, AddrCode AS AddressCode, AddrName AS Label,
+    Address, City, Phone1, Email
+FROM CustomerAddress ORDER BY CustmrCode, AddrCode;
+
+-- Supplier (173 rows)
 SELECT TOP 10 'Supplier' AS Tbl,
-    SuppCode AS Code, SuppName AS Name, Address, City
+    SuppCode AS Code, SuppName AS Name, NPWPNumber AS TaxId, Email, Phone1,
+    Address, City, TermCode AS PaymentTermCode, PriceCode
 FROM Supplier ORDER BY SuppCode;
 
--- Item / Product
+-- Item / Product (6,714 rows)
 SELECT TOP 10 'Item' AS Tbl,
-    ItemCode AS Code, Dscription AS Name, CodeBars AS Barcode, Aliasku AS Alias
+    ItemCode AS Code, Dscription AS Name, CodeBars AS Barcode, Aliasku AS Alias,
+    BrandCode, CatgryCode AS CategoryCode, SubCatCode AS SubCategoryCode,
+    MnfctrCode AS ManufacturerCode, ClassCode, UOM AS UnitOfMeasure,
+    SalesItem AS IsSalable, PurchItem AS IsPurchasable, ReturnItem AS IsReturnable,
+    ReorderQty, MinLevel, MaxLevel, OnHand, Locked AS IsLocked
 FROM Item ORDER BY ItemCode;
 
--- Warehouse
+-- Warehouse (15 rows)
 SELECT TOP 10 'Warehouse' AS Tbl,
-    WhsCode AS Code, Dscription AS Name, Address
+    WhsCode AS Code, Dscription AS Name, Address, City, WhsType, Locked AS IsLocked
 FROM Warehouse ORDER BY WhsCode;
 
--- WarehouseType
-SELECT TOP 3 'WarehouseType' AS Tbl, WhsType AS Code, Dscription AS Name FROM WarehouseType ORDER BY WhsType;
+-- =============================================================================
+-- 3.  PRICING TABLES  (5 rows each — these are LARGE)
+-- =============================================================================
 
--- ========================
---  RELATIONAL
--- ========================
-
--- CustomerAddress
-SELECT TOP 10 'CustomerAddress' AS Tbl,
-    c.CustmrCode AS CustomerCode, a.AddrCode AS AddressCode, a.AddrName AS Label, a.Address
-FROM CustomerAddress a
-JOIN Customer c ON a.CustomerId = c.Id
-ORDER BY c.CustmrCode;
-
--- ItemPrice
+-- ItemPrice (147,708 rows)   -- ⚠ No Id column; FK is ItemCode (varchar)
 SELECT TOP 5 'ItemPrice' AS Tbl,
-    i.ItemCode, ip.PriceCode, ip.Price
-FROM ItemPrice ip
-JOIN Item i ON ip.ItemId = i.Id
-ORDER BY i.ItemCode;
+    ItemCode, PriceCode, Price, CurrentPrice, StartDate, EndDate
+FROM ItemPrice ORDER BY ItemCode, PriceCode;
 
--- ItemDiscount
+-- ItemDiscount (22,437 rows) -- ⚠ No Id column; FK is ItemCode (varchar)
 SELECT TOP 5 'ItemDiscount' AS Tbl,
-    i.ItemCode, id.DiscCode, id.Disc
-FROM ItemDiscount id
-JOIN Item i ON id.ItemId = i.Id
-ORDER BY i.ItemCode;
-*/
+    ItemCode, DiscCode, Discount
+FROM ItemDiscount ORDER BY ItemCode, DiscCode;
+
+-- =============================================================================
+-- 4.  TABLES FROM OTHER schemas  (check if they exist)
+-- =============================================================================
+
+-- ⚠ CostType table does NOT exist in the sales database.
+-- It was listed in the audit-log entity map but no legacy table was found.
+
+-- ⚠ SubCategory has NO CategoryId FK column — it's a standalone lookup.
+-- The relationship to Category is by matching SubCatCode pattern only.
+
+PRINT '';
+PRINT '=== DONE ===';
