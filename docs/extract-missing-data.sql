@@ -50,12 +50,32 @@ SELECT TOP 5 'ItemDiscount' AS Tbl,
     ItemCode, DiscCode, Discount
 FROM ItemDiscount ORDER BY ItemCode, DiscCode;
 
--- 6. Locations (warehouse bins — if table exists)
-SELECT TOP 5 'Location' AS Tbl,
-    w.WhsCode AS WarehouseCode, l.Code, l.Name
-FROM Location l
-JOIN Warehouse w ON l.WarehouseId = w.Id
-ORDER BY w.WhsCode, l.Code;
+-- 6. Locations (warehouse bins — search for location-like tables)
+PRINT '--- Searching for location/bin data ---';
+SELECT 'Tables with location-related columns:' AS Info;
+
+-- Find tables with "loc" columns
+SELECT TABLE_NAME, COLUMN_NAME
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE COLUMN_NAME LIKE '%Loc%' OR COLUMN_NAME LIKE '%loc%'
+   OR COLUMN_NAME LIKE '%Rak%' OR COLUMN_NAME LIKE '%Bin%'
+ORDER BY TABLE_NAME;
+
+-- Check Inventory/StockTracking for location data
+PRINT '';
+PRINT '--- Inventory table columns ---';
+SELECT COLUMN_NAME, DATA_TYPE
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME IN ('Inventory', 'InvTracking', 'StockTracking')
+ORDER BY TABLE_NAME, ORDINAL_POSITION;
+
+-- Try querying inventory locations directly
+PRINT '';
+PRINT '--- Sample inventory rows with non-null location ---';
+SELECT TOP 10 'Inventory' AS Tbl, WhsCode, ItemCode, Location, OnHand
+FROM Inventory
+WHERE Location IS NOT NULL AND Location != ''
+ORDER BY WhsCode, ItemCode;
 
 PRINT '';
 PRINT '=== DONE ===';
