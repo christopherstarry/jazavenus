@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Search, Plus, ChevronLeft, ChevronRight, Pencil, Trash2, Database } from "lucide-react";
 import { api } from "#/lib/api";
+import { useAuth } from "#/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { Input } from "#/components/ui/input";
 import { Button } from "#/components/ui/button";
@@ -67,6 +68,8 @@ export function SupplierPage() {
   }
 
   const isPending = createMut.isPending || updateMut.isPending;
+  const { user } = useAuth();
+  const canDelete = user?.isDeveloper || user?.roles.includes("SuperAdmin");
 
   return (
     <Card>
@@ -100,9 +103,11 @@ export function SupplierPage() {
                     <Button variant="outline" size="sm" className="h-10 flex-1 text-sm" onClick={() => openEdit(row)}>
                       <Pencil className="h-4 w-4 mr-1" /> Edit
                     </Button>
-                    <Button variant="outline" size="sm" className="h-10 flex-1 text-sm text-destructive border-destructive/40 hover:bg-destructive/10" onClick={() => handleDelete(row)}>
-                      <Trash2 className="h-4 w-4 mr-1" /> Delete
-                    </Button>
+                    {canDelete && (
+                      <Button variant="outline" size="sm" className="h-10 flex-1 text-sm text-destructive border-destructive/40 hover:bg-destructive/10" onClick={() => handleDelete(row)}>
+                        <Trash2 className="h-4 w-4 mr-1" /> Delete
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -130,7 +135,9 @@ export function SupplierPage() {
                       <TableCell>
                         <div className="flex gap-1">
                           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(row)} title="Edit"><Pencil className="h-4 w-4" /></Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDelete(row)} title="Delete"><Trash2 className="h-4 w-4" /></Button>
+                          {canDelete && (
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDelete(row)} title="Delete"><Trash2 className="h-4 w-4" /></Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>

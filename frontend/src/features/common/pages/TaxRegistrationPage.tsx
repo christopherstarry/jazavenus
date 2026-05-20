@@ -1,3 +1,4 @@
+import { useAuth } from "#/lib/auth";
 import { ReferenceDataPage, type RefColumn, type RefField } from "#/features/common/ReferenceDataPage";
 
 const columns: RefColumn[] = [
@@ -11,5 +12,7 @@ const fields: RefField[] = [
 ];
 
 export function TaxRegistrationPage() {
-  return <ReferenceDataPage title="Tax Registrations" apiPath="master/tax-registrations" columns={columns} fields={fields} emptyMessage="No tax registrations found." />;
+  const { user } = useAuth();
+  const canDelete = user?.isDeveloper || user?.roles.includes("SuperAdmin");
+  return <ReferenceDataPage title="Tax Registrations" apiPath="master/tax-registrations" columns={columns} fields={fields} emptyMessage="No tax registrations found."  canDelete={canDelete} />;
 }

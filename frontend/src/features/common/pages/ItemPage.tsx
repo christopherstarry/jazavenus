@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Search, Plus, ChevronLeft, ChevronRight, Pencil, Trash2, Database, Lock } from "lucide-react";
 import { api } from "#/lib/api";
+import { useAuth } from "#/lib/auth";
 import { Badge } from "#/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { Input } from "#/components/ui/input";
@@ -102,6 +103,8 @@ export function ItemPage() {
   }
 
   const isPending = createMut.isPending || updateMut.isPending;
+  const { user } = useAuth();
+  const canDelete = user?.isDeveloper || user?.roles.includes("SuperAdmin");
   const catOptions = cats.data?.items ?? [];
   const unitOptions = units.data?.items ?? [];
 
@@ -142,9 +145,11 @@ export function ItemPage() {
                     <Button variant="outline" size="sm" className="h-10 flex-1 text-sm" onClick={() => openEdit(row)}>
                       <Pencil className="h-4 w-4 mr-1" /> Edit
                     </Button>
-                    <Button variant="outline" size="sm" className="h-10 flex-1 text-sm text-destructive border-destructive/40 hover:bg-destructive/10" onClick={() => handleDelete(row)}>
-                      <Trash2 className="h-4 w-4 mr-1" /> Delete
-                    </Button>
+                    {canDelete && (
+                      <Button variant="outline" size="sm" className="h-10 flex-1 text-sm text-destructive border-destructive/40 hover:bg-destructive/10" onClick={() => handleDelete(row)}>
+                        <Trash2 className="h-4 w-4 mr-1" /> Delete
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -177,7 +182,9 @@ export function ItemPage() {
                         <TableCell className="py-3">
                           <div className="flex gap-2">
                             <Button variant="ghost" size="icon" className="h-10 w-10" onClick={(e) => { e.stopPropagation(); openEdit(row); }} title="Edit"><Pencil className="h-5 w-5" /></Button>
-                            <Button variant="ghost" size="icon" className="h-10 w-10 text-destructive hover:text-destructive" onClick={(e) => { e.stopPropagation(); handleDelete(row); }} title="Delete"><Trash2 className="h-5 w-5" /></Button>
+                            {canDelete && (
+                              <Button variant="ghost" size="icon" className="h-10 w-10 text-destructive hover:text-destructive" onClick={(e) => { e.stopPropagation(); handleDelete(row); }} title="Delete"><Trash2 className="h-5 w-5" /></Button>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>

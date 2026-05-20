@@ -1,3 +1,4 @@
+import { useAuth } from "#/lib/auth";
 import { ReferenceDataPage, type RefColumn, type RefField } from "#/features/common/ReferenceDataPage";
 
 const columns: RefColumn[] = [
@@ -13,5 +14,7 @@ const fields: RefField[] = [
 ];
 
 export function DiscountCodePage() {
-  return <ReferenceDataPage title="Discount Codes" apiPath="master/discount-codes" columns={columns} fields={fields} />;
+  const { user } = useAuth();
+  const canDelete = user?.isDeveloper || user?.roles.includes("SuperAdmin");
+  return <ReferenceDataPage title="Discount Codes" apiPath="master/discount-codes" columns={columns} fields={fields}  canDelete={canDelete} />;
 }

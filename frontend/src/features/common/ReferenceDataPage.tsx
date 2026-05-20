@@ -39,9 +39,10 @@ interface Props {
   transformDto?: (dto: Record<string, unknown>) => Record<string, unknown>;
   emptyMessage?: string;
   hideStatus?: boolean;
+  canDelete?: boolean;
 }
 
-export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields, transformDto, emptyMessage, hideStatus }: Props) {
+export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields, transformDto, emptyMessage, hideStatus, canDelete = true }: Props) {
   const queryClient = useQueryClient();
   const { confirm, dialog: confirmDialog } = useConfirm();
   const [page, setPage] = useState(1);
@@ -184,9 +185,11 @@ export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields
                     <Button variant="outline" size="sm" className="h-10 flex-1 text-sm" onClick={() => openEdit(row)}>
                       <Pencil className="h-4 w-4 mr-1" /> Edit
                     </Button>
-                    <Button variant="outline" size="sm" className="h-10 flex-1 text-sm text-destructive border-destructive/40 hover:bg-destructive/10" onClick={() => handleDelete(row)}>
-                      <Trash2 className="h-4 w-4 mr-1" /> Delete
-                    </Button>
+                    {canDelete && (
+                      <Button variant="outline" size="sm" className="h-10 flex-1 text-sm text-destructive border-destructive/40 hover:bg-destructive/10" onClick={() => handleDelete(row)}>
+                        <Trash2 className="h-4 w-4 mr-1" /> Delete
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -225,9 +228,11 @@ export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields
                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(row)} title="Edit">
                               <Pencil className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDelete(row)} title="Delete">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            {canDelete && (
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDelete(row)} title="Delete">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>

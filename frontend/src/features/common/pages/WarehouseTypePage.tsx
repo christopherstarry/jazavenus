@@ -1,3 +1,4 @@
+import { useAuth } from "#/lib/auth";
 import { ReferenceDataPage, type RefColumn, type RefField } from "#/features/common/ReferenceDataPage";
 
 const columns: RefColumn[] = [
@@ -11,5 +12,7 @@ const fields: RefField[] = [
 ];
 
 export function WarehouseTypePage() {
-  return <ReferenceDataPage title="Warehouse Types" apiPath="master/warehouse-types" columns={columns} fields={fields} />;
+  const { user } = useAuth();
+  const canDelete = user?.isDeveloper || user?.roles.includes("SuperAdmin");
+  return <ReferenceDataPage title="Warehouse Types" apiPath="master/warehouse-types" columns={columns} fields={fields}  canDelete={canDelete} />;
 }
