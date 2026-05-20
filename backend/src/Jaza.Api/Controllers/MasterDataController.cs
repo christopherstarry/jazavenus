@@ -183,28 +183,103 @@ public sealed class MasterDataController(AppDbContext db,
 
     [HttpGet("customers")]
     public async Task<PagedResult<CustomerDto>> ListCustomers([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.Customers.OrderBy(x => x.Code)
-            .Select(x => new CustomerDto(x.Id, x.Code, x.Name, x.TaxId, x.Email, x.Phone,
-                x.BillingAddress, x.ShippingAddress, x.City, x.Country, x.CreditLimit, x.PaymentTermsDays, x.IsActive)), q, ct);
+        => await Page(db.Customers.OrderBy(x => x.Code).Select(x => ProjectCustomer(x)), q, ct);
+
+    [HttpGet("customers/{id:guid}")]
+    public async Task<ActionResult<CustomerDto>> GetCustomer(Guid id, CancellationToken ct)
+    {
+        var x = await db.Customers.FirstOrDefaultAsync(c => c.Id == id, ct) ?? throw new KeyNotFoundException();
+        return ProjectCustomer(x);
+    }
 
     [HttpPost("customers"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<ActionResult<CustomerDto>> CreateCustomer([FromBody] CustomerUpsertDto dto, CancellationToken ct)
     {
         await custVal.ValidateAndThrowAsync(dto, ct);
+        if (dto.TradeType != "01" && !string.IsNullOrWhiteSpace(dto.IdNo))
+        {
+            var exists = await db.Customers.AnyAsync(c => c.IdNo == dto.IdNo && c.IsActive, ct);
+            if (exists) return Conflict(new ProblemDetails { Title = "duplicate_id_no", Detail = "Customer with this NIK already exists." });
+        }
         var e = dto.Adapt<Customer>(); db.Customers.Add(e); await db.SaveChangesAsync(ct);
-        return new CustomerDto(e.Id, e.Code, e.Name, e.TaxId, e.Email, e.Phone, e.BillingAddress, e.ShippingAddress, e.City, e.Country, e.CreditLimit, e.PaymentTermsDays, e.IsActive);
+        return CreatedAtAction(nameof(GetCustomer), new { id = e.Id }, ProjectCustomer(e));
     }
 
     [HttpPut("customers/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<IActionResult> UpdateCustomer(Guid id, [FromBody] CustomerUpsertDto dto, CancellationToken ct)
     {
         await custVal.ValidateAndThrowAsync(dto, ct);
+        if (dto.TradeType != "01" && !string.IsNullOrWhiteSpace(dto.IdNo))
+        {
+            var exists = await db.Customers.AnyAsync(c => c.IdNo == dto.IdNo && c.Id != id && c.IsActive, ct);
+            if (exists) return Conflict(new ProblemDetails { Title = "duplicate_id_no", Detail = "Customer with this NIK already exists." });
+        }
         var e = await db.Customers.FirstOrDefaultAsync(x => x.Id == id, ct) ?? throw new KeyNotFoundException();
         dto.Adapt(e); await db.SaveChangesAsync(ct); return NoContent();
     }
 
     [HttpDelete("customers/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeleteCustomer(Guid id, CancellationToken ct) => await SoftDelete<Customer>(id, ct);
+
+    // ---------- Customer Addresses ----------
+    [HttpGet("customers/{customerId:guid}/addresses")]
+    public async Task<PagedResult<CustomerAddressDto>> ListAddresses(Guid customerId, [FromQuery] PagedRequest q, CancellationToken ct)
+        => await Page(db.CustomerAddresses.Where(a => a.CustomerId == customerId).OrderBy(a => a.Label)
+            .Select(a => new CustomerAddressDto(a.Id, a.CustomerId, a.Label, a.Address, a.City, a.Country, a.IsDefault, a.IsActive)), q, ct);
+
+    [HttpPost("customers/{customerId:guid}/addresses"), Authorize(Policy = Policies.RequireAdmin)]
+    public async Task<ActionResult<CustomerAddressDto>> CreateAddress(Guid customerId, [FromBody] CustomerAddressUpsertDto dto, CancellationToken ct)
+    {
+        if (!await db.Customers.AnyAsync(c => c.Id == customerId, ct)) return NotFound();
+        var e = new CustomerAddress { CustomerId = customerId, Label = dto.Label, Address = dto.Address, City = dto.City, Country = dto.Country, IsDefault = dto.IsDefault };
+        db.CustomerAddresses.Add(e); await db.SaveChangesAsync(ct);
+        return new CustomerAddressDto(e.Id, e.CustomerId, e.Label, e.Address, e.City, e.Country, e.IsDefault, e.IsActive);
+    }
+
+    [HttpPut("customers/{customerId:guid}/addresses/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    public async Task<IActionResult> UpdateAddress(Guid customerId, Guid id, [FromBody] CustomerAddressUpsertDto dto, CancellationToken ct)
+    {
+        var e = await db.CustomerAddresses.FirstOrDefaultAsync(a => a.Id == id && a.CustomerId == customerId, ct) ?? throw new KeyNotFoundException();
+        e.Label = dto.Label; e.Address = dto.Address; e.City = dto.City; e.Country = dto.Country; e.IsDefault = dto.IsDefault; e.IsActive = dto.IsActive;
+        await db.SaveChangesAsync(ct); return NoContent();
+    }
+
+    [HttpDelete("customers/{customerId:guid}/addresses/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
+    public async Task<IActionResult> DeleteAddress(Guid customerId, Guid id, CancellationToken ct)
+    {
+        var e = await db.CustomerAddresses.FirstOrDefaultAsync(a => a.Id == id && a.CustomerId == customerId, ct);
+        if (e is null) return NotFound(); db.CustomerAddresses.Remove(e); await db.SaveChangesAsync(ct); return NoContent();
+    }
+
+    // ---------- Brand Discounts ----------
+    [HttpGet("customers/{customerId:guid}/brand-discounts")]
+    public async Task<PagedResult<BrandDiscountDto>> ListBrandDiscounts(Guid customerId, [FromQuery] PagedRequest q, CancellationToken ct)
+        => await Page(db.Set<BrandDiscount>().Where(b => b.CustomerId == customerId).OrderBy(b => b.BrandCode)
+            .Select(b => new BrandDiscountDto(b.Id, b.CustomerId, b.BrandCode, b.DiscountPercent, b.DiscountPercent2, b.PriceCode, b.IsActive)), q, ct);
+
+    [HttpPost("customers/{customerId:guid}/brand-discounts"), Authorize(Policy = Policies.RequireAdmin)]
+    public async Task<ActionResult<BrandDiscountDto>> CreateBrandDiscount(Guid customerId, [FromBody] BrandDiscountUpsertDto dto, CancellationToken ct)
+    {
+        if (!await db.Customers.AnyAsync(c => c.Id == customerId, ct)) return NotFound();
+        var e = new BrandDiscount { CustomerId = customerId, BrandCode = dto.BrandCode, DiscountPercent = dto.DiscountPercent, DiscountPercent2 = dto.DiscountPercent2, PriceCode = dto.PriceCode };
+        db.Add(e); await db.SaveChangesAsync(ct);
+        return new BrandDiscountDto(e.Id, e.CustomerId, e.BrandCode, e.DiscountPercent, e.DiscountPercent2, e.PriceCode, e.IsActive);
+    }
+
+    [HttpPut("customers/{customerId:guid}/brand-discounts/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    public async Task<IActionResult> UpdateBrandDiscount(Guid customerId, Guid id, [FromBody] BrandDiscountUpsertDto dto, CancellationToken ct)
+    {
+        var e = await db.Set<BrandDiscount>().FirstOrDefaultAsync(b => b.Id == id && b.CustomerId == customerId, ct) ?? throw new KeyNotFoundException();
+        e.BrandCode = dto.BrandCode; e.DiscountPercent = dto.DiscountPercent; e.DiscountPercent2 = dto.DiscountPercent2; e.PriceCode = dto.PriceCode; e.IsActive = dto.IsActive;
+        await db.SaveChangesAsync(ct); return NoContent();
+    }
+
+    [HttpDelete("customers/{customerId:guid}/brand-discounts/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
+    public async Task<IActionResult> DeleteBrandDiscount(Guid customerId, Guid id, CancellationToken ct)
+    {
+        var e = await db.Set<BrandDiscount>().FirstOrDefaultAsync(b => b.Id == id && b.CustomerId == customerId, ct);
+        if (e is null) return NotFound(); db.Remove(e); await db.SaveChangesAsync(ct); return NoContent();
+    }
 
     [HttpGet("warehouses")]
     public async Task<PagedResult<WarehouseDto>> ListWarehouses([FromQuery] PagedRequest q, CancellationToken ct)
@@ -256,6 +331,19 @@ public sealed class MasterDataController(AppDbContext db,
 
     [HttpDelete("locations/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeleteLocation(Guid id, CancellationToken ct) => await SoftDelete<Location>(id, ct);
+
+    private static CustomerDto ProjectCustomer(Domain.MasterData.Customer x) => new(
+        x.Id, x.Code, x.Name,
+        x.IdNo, x.TaxId, x.Email, x.Phone, x.Phone2, x.Fax, x.ContactPerson,
+        x.BillingAddress, x.ShippingAddress, x.City, x.Country,
+        x.CreditLimit, x.PaymentTermsDays,
+        x.AreaCode, x.SalesmanCode, x.CollectorCode,
+        x.DistributionType, x.TradeType, x.SubTradeType, x.OutletType,
+        x.GroupOutletCode, x.GroupOutletTypeCode,
+        x.PriceCode, x.DiscountCode, x.WarehouseCode,
+        x.NPWPDate, x.PKPNumber, x.PKPDate,
+        x.Notes, x.RegisteredAt,
+        x.IsActive);
 
     // ---------- Helpers ----------
     private static async Task<PagedResult<T>> Page<T>(IQueryable<T> src, PagedRequest q, CancellationToken ct)

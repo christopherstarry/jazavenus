@@ -50,6 +50,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<TaxRegistration> TaxRegistrations => Set<TaxRegistration>();
     public DbSet<SubCategory> SubCategories => Set<SubCategory>();
     public DbSet<CustomerAddress> CustomerAddresses => Set<CustomerAddress>();
+    public DbSet<BrandDiscount> BrandDiscounts => Set<BrandDiscount>();
     public DbSet<ItemPrice> ItemPrices => Set<ItemPrice>();
     public DbSet<ItemDiscount> ItemDiscounts => Set<ItemDiscount>();
 
@@ -216,6 +217,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
 
         b.Entity<Supplier>().HasIndex(x => x.Code).IsUnique().HasFilter(NotSoftDeletedFilter);
         b.Entity<Customer>().HasIndex(x => x.Code).IsUnique().HasFilter(NotSoftDeletedFilter);
+        b.Entity<Customer>().HasIndex(x => x.IdNo).HasFilter(NotSoftDeletedFilter + " AND \"IdNo\" IS NOT NULL");
         b.Entity<Warehouse>().HasIndex(x => x.Code).IsUnique().HasFilter(NotSoftDeletedFilter);
         b.Entity<Location>().HasIndex(x => new { x.WarehouseId, x.Code }).IsUnique().HasFilter(NotSoftDeletedFilter);
 
@@ -259,7 +261,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             e.ToTable("CustomerAddresses");
             e.Property(x => x.Label).HasMaxLength(64).IsRequired();
             e.Property(x => x.Address).HasMaxLength(500).IsRequired();
-            e.HasOne(x => x.Customer).WithMany().HasForeignKey(x => x.CustomerId);
+            e.HasOne(x => x.Customer).WithMany(c => c.Addresses).HasForeignKey(x => x.CustomerId);
             e.HasIndex(x => x.CustomerId);
         });
 
@@ -277,6 +279,15 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             e.HasOne(x => x.Item).WithMany().HasForeignKey(x => x.ItemId);
             e.HasOne(x => x.DiscountCode).WithMany().HasForeignKey(x => x.DiscountCodeId);
             e.HasIndex(x => new { x.ItemId, x.DiscountCodeId });
+        });
+
+        b.Entity<BrandDiscount>(e =>
+        {
+            e.ToTable("BrandDiscounts");
+            e.HasOne(x => x.Customer).WithMany(c => c.BrandDiscounts).HasForeignKey(x => x.CustomerId);
+            e.HasIndex(x => x.CustomerId);
+            e.Property(x => x.BrandCode).HasMaxLength(32).IsRequired();
+            e.Property(x => x.PriceCode).HasMaxLength(32);
         });
     }
 

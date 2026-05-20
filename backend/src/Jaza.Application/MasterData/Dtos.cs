@@ -23,12 +23,34 @@ public sealed record SupplierDto(Guid Id, string Code, string Name, string? TaxI
 public sealed record SupplierUpsertDto(string Code, string Name, string? TaxId, string? Email, string? Phone,
     string? Address, string? City, string? Country, int PaymentTermsDays = 30, bool IsActive = true);
 
-public sealed record CustomerDto(Guid Id, string Code, string Name, string? TaxId, string? Email, string? Phone,
+public sealed record CustomerDto(Guid Id, string Code, string Name,
+    string? IdNo, string? TaxId, string? Email, string? Phone, string? Phone2, string? Fax, string? ContactPerson,
     string? BillingAddress, string? ShippingAddress, string? City, string? Country,
-    decimal CreditLimit, int PaymentTermsDays, bool IsActive);
-public sealed record CustomerUpsertDto(string Code, string Name, string? TaxId, string? Email, string? Phone,
+    decimal CreditLimit, int PaymentTermsDays,
+    string? AreaCode, string? SalesmanCode, string? CollectorCode,
+    string? DistributionType, string? TradeType, string? SubTradeType, string? OutletType,
+    string? GroupOutletCode, string? GroupOutletTypeCode,
+    string? PriceCode, string? DiscountCode, string? WarehouseCode,
+    DateTime? NPWPDate, string? PKPNumber, DateTime? PKPDate,
+    string? Notes, DateTime? RegisteredAt,
+    bool IsActive);
+public sealed record CustomerUpsertDto(string Code, string Name,
+    string? IdNo, string? TaxId, string? Email, string? Phone, string? Phone2, string? Fax, string? ContactPerson,
     string? BillingAddress, string? ShippingAddress, string? City, string? Country,
-    decimal CreditLimit = 0, int PaymentTermsDays = 30, bool IsActive = true);
+    decimal CreditLimit = 0, int PaymentTermsDays = 30,
+    string? AreaCode = null, string? SalesmanCode = null, string? CollectorCode = null,
+    string? DistributionType = null, string? TradeType = null, string? SubTradeType = null, string? OutletType = null,
+    string? GroupOutletCode = null, string? GroupOutletTypeCode = null,
+    string? PriceCode = null, string? DiscountCode = null, string? WarehouseCode = null,
+    DateTime? NPWPDate = null, string? PKPNumber = null, DateTime? PKPDate = null,
+    string? Notes = null, DateTime? RegisteredAt = null,
+    bool IsActive = true);
+
+public sealed record CustomerAddressDto(Guid Id, Guid CustomerId, string Label, string Address, string? City, string? Country, bool IsDefault, bool IsActive);
+public sealed record CustomerAddressUpsertDto(Guid CustomerId, string Label, string Address, string? City, string? Country = null, bool IsDefault = false, bool IsActive = true);
+
+public sealed record BrandDiscountDto(Guid Id, Guid CustomerId, string BrandCode, decimal DiscountPercent, decimal DiscountPercent2, string? PriceCode, bool IsActive);
+public sealed record BrandDiscountUpsertDto(Guid CustomerId, string BrandCode, decimal DiscountPercent = 0, decimal DiscountPercent2 = 0, string? PriceCode = null, bool IsActive = true);
 
 public sealed record WarehouseDto(Guid Id, string Code, string Name, string? Address, bool IsActive);
 public sealed record WarehouseUpsertDto(string Code, string Name, string? Address, bool IsActive = true);
@@ -55,10 +77,6 @@ public sealed record DiscountCodeUpsertDto(string Code, string Name, decimal Dis
 // SubCategory (code + name + categoryId)
 public sealed record SubCategoryDto(Guid Id, string Code, string Name, Guid CategoryId, string? CategoryName, bool IsActive);
 public sealed record SubCategoryUpsertDto(string Code, string Name, Guid CategoryId, bool IsActive = true);
-
-// CustomerAddress
-public sealed record CustomerAddressDto(Guid Id, Guid CustomerId, string Label, string Address, string? City, string? Country, bool IsDefault, bool IsActive);
-public sealed record CustomerAddressUpsertDto(Guid CustomerId, string Label, string Address, string? City, string? Country, bool IsDefault = false, bool IsActive = true);
 
 // ItemPrice (item + price tier + price)
 public sealed record ItemPriceDto(Guid Id, Guid ItemId, string? ItemSku, Guid PriceTierId, string? PriceTierCode, decimal Price, bool IsActive);

@@ -58,6 +58,8 @@ public sealed class CustomerUpsertValidator : AbstractValidator<CustomerUpsertDt
         RuleFor(x => x.Email).EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.Email));
         RuleFor(x => x.PaymentTermsDays).InclusiveBetween(0, 365);
         RuleFor(x => x.CreditLimit).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.IdNo).Matches("^[0-9]{16}$").When(x => x.TradeType != "01" && !string.IsNullOrWhiteSpace(x.IdNo));
+        RuleFor(x => x.IdNo).MaximumLength(16);
     }
 }
 

@@ -994,6 +994,74 @@ namespace Jaza.Infrastructure.Persistence.Migrations
                     b.ToTable("Brands", (string)null);
                 });
 
+            modelBuilder.Entity("Jaza.Domain.MasterData.BrandDiscount", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BrandCode")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("now() at time zone 'utc'");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("DiscountPercent")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)");
+
+                    b.Property<decimal>("DiscountPercent2")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("LegacyId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("PriceCode")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("BrandDiscounts", (string)null);
+                });
+
             modelBuilder.Entity("Jaza.Domain.MasterData.Collector", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1120,6 +1188,9 @@ namespace Jaza.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("AreaCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("BillingAddress")
                         .HasColumnType("text");
 
@@ -1128,6 +1199,12 @@ namespace Jaza.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CollectorCode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ContactPerson")
                         .HasColumnType("text");
 
                     b.Property<string>("Country")
@@ -1151,7 +1228,25 @@ namespace Jaza.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("DeletedByUserId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("DiscountCode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DistributionType")
+                        .HasColumnType("text");
+
                     b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Fax")
+                        .HasColumnType("text");
+
+                    b.Property<string>("GroupOutletCode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("GroupOutletTypeCode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("IdNo")
                         .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
@@ -1163,8 +1258,23 @@ namespace Jaza.Infrastructure.Persistence.Migrations
                     b.Property<int?>("LegacyId")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime?>("NPWPDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("OutletType")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("PKPDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PKPNumber")
                         .HasColumnType("text");
 
                     b.Property<int>("PaymentTermsDays")
@@ -1173,16 +1283,34 @@ namespace Jaza.Infrastructure.Persistence.Migrations
                     b.Property<string>("Phone")
                         .HasColumnType("text");
 
+                    b.Property<string>("Phone2")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PriceCode")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("RegisteredAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<uint>("RowVersion")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("xid")
                         .HasColumnName("xmin");
 
+                    b.Property<string>("SalesmanCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("ShippingAddress")
                         .HasColumnType("text");
 
+                    b.Property<string>("SubTradeType")
+                        .HasColumnType("text");
+
                     b.Property<string>("TaxId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TradeType")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
@@ -1191,11 +1319,17 @@ namespace Jaza.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("UpdatedByUserId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("WarehouseCode")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Code")
                         .IsUnique()
                         .HasFilter("\"IsDeleted\" = false");
+
+                    b.HasIndex("IdNo")
+                        .HasFilter("\"IsDeleted\" = false AND \"IdNo\" IS NOT NULL");
 
                     b.ToTable("Customers");
                 });
@@ -3535,10 +3669,21 @@ namespace Jaza.Infrastructure.Persistence.Migrations
                     b.Navigation("Invoice");
                 });
 
+            modelBuilder.Entity("Jaza.Domain.MasterData.BrandDiscount", b =>
+                {
+                    b.HasOne("Jaza.Domain.MasterData.Customer", "Customer")
+                        .WithMany("BrandDiscounts")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+                });
+
             modelBuilder.Entity("Jaza.Domain.MasterData.CustomerAddress", b =>
                 {
                     b.HasOne("Jaza.Domain.MasterData.Customer", "Customer")
-                        .WithMany()
+                        .WithMany("Addresses")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -3844,6 +3989,13 @@ namespace Jaza.Infrastructure.Persistence.Migrations
                     b.Navigation("Lines");
 
                     b.Navigation("Payments");
+                });
+
+            modelBuilder.Entity("Jaza.Domain.MasterData.Customer", b =>
+                {
+                    b.Navigation("Addresses");
+
+                    b.Navigation("BrandDiscounts");
                 });
 
             modelBuilder.Entity("Jaza.Domain.MasterData.Warehouse", b =>
