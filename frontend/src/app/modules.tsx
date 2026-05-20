@@ -129,9 +129,7 @@ export function trailFor(pathname: string): ModuleNode[] {
  * ───────────────────────────────────────────────────────────────────────── */
 
 import { DashboardPage } from "#/features/dashboard/DashboardPage";
-import { ItemsPage } from "#/features/items/ItemsPage";
 import { CustomersPage } from "#/features/customers/CustomersPage";
-import { SuppliersPage } from "#/features/suppliers/SuppliersPage";
 import {
   PurchaseOrderPage,
   ReceivingEntryPage,
@@ -150,7 +148,9 @@ import { ManageUsersPage } from "#/features/users/ManageUsersPage";
 import { AuditHistoryPage } from "#/features/audit/AuditHistoryPage";
 import { ErrorLogsPage } from "#/features/errors/ErrorLogsPage";
 import { MasterCustomerPage } from "#/features/customers/MasterCustomerPage";
-import { TaxNoRegistrationPage } from "#/features/tax/TaxNoRegistrationPage";
+import { TaxRegistrationPage } from "#/features/common/pages/TaxRegistrationPage";
+import { SupplierPage } from "#/features/common/pages/SupplierPage";
+import { ItemsPage } from "#/features/items/ItemsPage";
 import { BrandPage } from "#/features/common/pages/BrandPage";
 import { BankPage } from "#/features/common/pages/BankPage";
 import { SalesmanPage } from "#/features/common/pages/SalesmanPage";
@@ -374,7 +374,7 @@ export const TREE: ModuleNode[] = [
         path: "/master/principle",
         label: "Principle",
         description: "Principal companies / suppliers",
-        Component: SuppliersPage,
+            Component: SupplierPage,
       },
       {
         id: "master.term-of-payment",
@@ -395,7 +395,7 @@ export const TREE: ModuleNode[] = [
         path: "/master/tax-no-registration",
         label: "Tax No Registration",
         description: "Tax registrations",
-        Component: TaxNoRegistrationPage,
+            Component: TaxRegistrationPage,
       },
 
       /* Product + its tabs */

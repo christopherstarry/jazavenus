@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Search, Plus, ChevronLeft, ChevronRight, Pencil, Trash2, Database } from "lucide-react";
 import { api } from "#/lib/api";
+import { Badge } from "#/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { Input } from "#/components/ui/input";
 import { Button } from "#/components/ui/button";
@@ -17,7 +18,7 @@ export interface RefField {
   key: string;
   label: string;
   required?: boolean;
-  type?: "text" | "number";
+  type?: "text" | "number" | "checkbox";
   placeholder?: string;
   className?: string;
 }
@@ -37,9 +38,10 @@ interface Props {
   extraFields?: (dto: Record<string, unknown>, set: (k: string, v: unknown) => void) => React.ReactNode;
   transformDto?: (dto: Record<string, unknown>) => Record<string, unknown>;
   emptyMessage?: string;
+  hideStatus?: boolean;
 }
 
-export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields, transformDto, emptyMessage }: Props) {
+export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields, transformDto, emptyMessage, hideStatus }: Props) {
   const queryClient = useQueryClient();
   const { confirm, dialog: confirmDialog } = useConfirm();
   const [page, setPage] = useState(1);
@@ -47,6 +49,7 @@ export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Record<string, unknown> | null>(null);
   const [form, setForm] = useState<Record<string, string>>({});
+  const [isActive, setIsActive] = useState(true);
 
   const pageSize = 20;
 
@@ -83,16 +86,18 @@ export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields
 
   function openCreate() {
     const init: Record<string, string> = {};
-    fields.forEach((f) => { init[f.key] = ""; });
+    fields.forEach((f) => { if (f.type !== "checkbox") init[f.key] = ""; });
     setForm(init);
+    setIsActive(true);
     setEditing(null);
     setDialogOpen(true);
   }
 
   function openEdit(row: Record<string, unknown>) {
     const init: Record<string, string> = {};
-    fields.forEach((f) => { init[f.key] = String(row[f.key] ?? ""); });
+    fields.forEach((f) => { if (f.type !== "checkbox") init[f.key] = String(row[f.key] ?? ""); });
     setForm(init);
+    setIsActive(row.isActive !== false);
     setEditing(row);
     setDialogOpen(true);
   }
@@ -105,8 +110,10 @@ export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields
   async function handleSave() {
     const dto: Record<string, unknown> = {};
     fields.forEach((f) => {
+      if (f.type === "checkbox") return;
       dto[f.key] = f.type === "number" ? Number(form[f.key]) : form[f.key];
     });
+    dto.isActive = isActive;
     if (editing) {
       updateMut.mutate({ id: String(editing.id), dto });
     } else {
@@ -152,6 +159,7 @@ export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields
                       {columns.map((col) => (
                         <TableHead key={col.key} className={col.className ?? ""}>{col.label}</TableHead>
                       ))}
+                      {!hideStatus && <TableHead className="w-[80px]">Status</TableHead>}
                       <TableHead className="w-[80px]"></TableHead>
                     </TableRow>
                   </TableHeader>
@@ -163,6 +171,13 @@ export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields
                             {col.render ? col.render(row[col.key], row) : String(row[col.key] ?? "")}
                           </TableCell>
                         ))}
+                        {!hideStatus && (
+                          <TableCell>
+                            <Badge tone={row.isActive !== false ? "success" : "destructive"} className="text-xs">
+                              {row.isActive !== false ? "Active" : "Locked"}
+                            </Badge>
+                          </TableCell>
+                        )}
                         <TableCell>
                           <div className="flex gap-1">
                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(row)} title="Edit">
@@ -218,6 +233,17 @@ export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields
                 </div>
               ))}
               {extraFields?.(form, (k, v) => setForm((p) => ({ ...p, [k]: String(v) })))}
+              {!hideStatus && (
+                <label className="flex items-center gap-2 cursor-pointer pt-2">
+                  <input
+                    type="checkbox"
+                    checked={isActive}
+                    onChange={(e) => setIsActive(e.target.checked)}
+                    className="h-5 w-5 rounded border-2 border-input accent-primary"
+                  />
+                  <span className="text-sm font-medium">{isActive ? "Active" : "Locked"}</span>
+                </label>
+              )}
             </div>
             <DialogFooter className="flex-col sm:flex-row gap-2">
               <Button variant="outline" onClick={() => setDialogOpen(false)} className="w-full sm:w-auto">Cancel</Button>
