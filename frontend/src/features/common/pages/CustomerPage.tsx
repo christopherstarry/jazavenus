@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, Plus, ChevronLeft, ChevronRight, Pencil, Trash2, Database, Lock, MapPin, Tag } from "lucide-react";
+import { Search, Plus, ChevronLeft, ChevronRight, Pencil, Trash2, Database, Lock, MapPin, Tag, Calendar } from "lucide-react";
 import { api } from "#/lib/api";
 import { useAuth } from "#/lib/auth";
 import { Badge } from "#/components/ui/badge";
@@ -37,6 +37,7 @@ interface BrandDiscDto { id: string; customerId: string; brandCode: string; disc
 const inputLg = "min-h-[48px] text-base rounded-[var(--radius)] border-2 border-input bg-background px-3 w-full focus-visible:outline-none focus-visible:border-ring";
 const selectLg = "min-h-[48px] text-base rounded-[var(--radius)] border-2 border-input bg-background px-3 w-full cursor-pointer appearance-none focus-visible:outline-none focus-visible:border-ring";
 const sectionHead = "text-lg font-bold text-primary border-b-2 pb-2 mb-4 flex items-center gap-2";
+const dateLg = "w-full min-h-[48px] bg-transparent pl-10 pr-3 text-base font-medium cursor-pointer appearance-none [&::-webkit-calendar-picker-indicator]:hidden";
 
 function F({ label, children }: { label: string; children: React.ReactNode }) {
   return <div className="space-y-1"><Label className="text-sm font-medium">{label}</Label>{children}</div>;
@@ -66,6 +67,9 @@ export function CustomerPage() {
   const [mCredit, setMCredit] = useState("0"); const [mNotes, setMNotes] = useState("");
   const [mRegDate, setMRegDate] = useState("");
   const [mIsActive, setMIsActive] = useState(true);
+  const npwpDateRef = useRef<HTMLInputElement>(null);
+  const pkpDateRef = useRef<HTMLInputElement>(null);
+  const regDateRef = useRef<HTMLInputElement>(null);
 
   // Secondary info
   const [sArea, setSArea] = useState(""); const [sSalesman, setSSalesman] = useState("");
@@ -320,11 +324,26 @@ export function CustomerPage() {
               <F label="Email"><input type="email" value={mEmail} onChange={(e) => setMEmail(e.target.value)} className={inputLg} /></F>
               <F label="Contact Person"><input value={mContact} onChange={(e) => setMContact(e.target.value)} className={inputLg} /></F>
               <F label="NPWP / Tax ID"><input value={mTaxId} onChange={(e) => setMTaxId(e.target.value)} className={inputLg} /></F>
-              <F label="NPWP Date"><input type="date" value={mNpwpDate} onChange={(e) => setMNpwpDate(e.target.value)} className={inputLg} /></F>
+              <F label="NPWP Date">
+                <div className="relative flex items-center min-h-[48px] rounded-[var(--radius)] border-2 border-input bg-background cursor-pointer" onClick={() => npwpDateRef.current?.showPicker()}>
+                  <Calendar className="absolute left-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <input ref={npwpDateRef} type="date" value={mNpwpDate} onChange={(e) => setMNpwpDate(e.target.value)} className={dateLg} />
+                </div>
+              </F>
               <F label="PKP No"><input value={mPkpNo} onChange={(e) => setMPkpNo(e.target.value)} className={inputLg} /></F>
-              <F label="PKP Date"><input type="date" value={mPkpDate} onChange={(e) => setMPkpDate(e.target.value)} className={inputLg} /></F>
+              <F label="PKP Date">
+                <div className="relative flex items-center min-h-[48px] rounded-[var(--radius)] border-2 border-input bg-background cursor-pointer" onClick={() => pkpDateRef.current?.showPicker()}>
+                  <Calendar className="absolute left-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <input ref={pkpDateRef} type="date" value={mPkpDate} onChange={(e) => setMPkpDate(e.target.value)} className={dateLg} />
+                </div>
+              </F>
               <F label="Credit Limit"><input type="number" value={mCredit} onChange={(e) => setMCredit(e.target.value)} className={inputLg} /></F>
-              <F label="Register Date"><input type="date" value={mRegDate} onChange={(e) => setMRegDate(e.target.value)} className={inputLg} /></F>
+              <F label="Register Date">
+                <div className="relative flex items-center min-h-[48px] rounded-[var(--radius)] border-2 border-input bg-background cursor-pointer" onClick={() => regDateRef.current?.showPicker()}>
+                  <Calendar className="absolute left-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <input ref={regDateRef} type="date" value={mRegDate} onChange={(e) => setMRegDate(e.target.value)} className={dateLg} />
+                </div>
+              </F>
               <div className="sm:col-span-2 lg:col-span-3 space-y-1">
                 <Label className="text-sm font-medium">Billing Address</Label>
                 <textarea value={mBilling} onChange={(e) => setMBilling(e.target.value)} className={`${inputLg} min-h-[80px] resize-y`} />
