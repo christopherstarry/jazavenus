@@ -29,7 +29,10 @@ public sealed class MasterDataController(AppDbContext db,
     // ---------- Units ----------
     [HttpGet("units")]
     public async Task<PagedResult<UnitDto>> ListUnits([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.Units.OrderBy(x => x.Code).Select(x => new UnitDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+    {
+        var src = SearchRef(db.Units, q.Search);
+        return await Page(src.OrderBy(x => x.Code).Select(x => new UnitDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+    }
 
     [HttpPost("units")]
     [Authorize(Policy = Policies.RequireAdmin)]
@@ -62,8 +65,11 @@ public sealed class MasterDataController(AppDbContext db,
     // ---------- Categories ----------
     [HttpGet("categories")]
     public async Task<PagedResult<CategoryDto>> ListCategories([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.Categories.OrderBy(x => x.Code)
+    {
+        var src = SearchRef(db.Categories, q.Search);
+        return await Page(src.OrderBy(x => x.Code)
             .Select(x => new CategoryDto(x.Id, x.Code, x.Name, x.ParentId, x.IsActive)), q, ct);
+    }
 
     [HttpPost("categories")]
     [Authorize(Policy = Policies.RequireAdmin)]
@@ -157,9 +163,12 @@ public sealed class MasterDataController(AppDbContext db,
     // ---------- Suppliers / Customers / Warehouses / Locations (compact) ----------
     [HttpGet("suppliers")]
     public async Task<PagedResult<SupplierDto>> ListSuppliers([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.Suppliers.OrderBy(x => x.Code)
+    {
+        var src = SearchRef(db.Suppliers, q.Search);
+        return await Page(src.OrderBy(x => x.Code)
             .Select(x => new SupplierDto(x.Id, x.Code, x.Name, x.TaxId, x.Email, x.Phone,
                 x.Address, x.City, x.Country, x.PaymentTermsDays, x.IsActive)), q, ct);
+    }
 
     [HttpPost("suppliers"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<ActionResult<SupplierDto>> CreateSupplier([FromBody] SupplierUpsertDto dto, CancellationToken ct)
@@ -283,8 +292,11 @@ public sealed class MasterDataController(AppDbContext db,
 
     [HttpGet("warehouses")]
     public async Task<PagedResult<WarehouseDto>> ListWarehouses([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.Warehouses.OrderBy(x => x.Code)
+    {
+        var src = SearchRef(db.Warehouses, q.Search);
+        return await Page(src.OrderBy(x => x.Code)
             .Select(x => new WarehouseDto(x.Id, x.Code, x.Name, x.Address, x.IsActive)), q, ct);
+    }
 
     [HttpPost("warehouses"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<ActionResult<WarehouseDto>> CreateWarehouse([FromBody] WarehouseUpsertDto dto, CancellationToken ct)
@@ -331,6 +343,13 @@ public sealed class MasterDataController(AppDbContext db,
 
     [HttpDelete("locations/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeleteLocation(Guid id, CancellationToken ct) => await SoftDelete<Location>(id, ct);
+
+    private static IQueryable<T> SearchRef<T>(IQueryable<T> src, string? search) where T : class
+    {
+        if (string.IsNullOrWhiteSpace(search)) return src;
+        var s = search.Trim();
+        return src.Where(x => EF.Property<string>(x, "Code").Contains(s) || EF.Property<string>(x, "Name").Contains(s));
+    }
 
     private static CustomerDto ProjectCustomer(Domain.MasterData.Customer x) => new(
         x.Id, x.Code, x.Name,

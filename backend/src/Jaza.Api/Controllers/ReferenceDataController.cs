@@ -26,7 +26,10 @@ public sealed class ReferenceDataController(AppDbContext db,
     // ---------- Brands ----------
     [HttpGet("brands")]
     public async Task<PagedResult<RefDto>> ListBrands([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.Brands.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+        {
+    var src = SearchRef(db.Brands, q.Search);
+    return await Page(src.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+}
 
     [HttpPost("brands"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<ActionResult<RefDto>> CreateBrand([FromBody] RefUpsertDto dto, CancellationToken ct)
@@ -42,7 +45,10 @@ public sealed class ReferenceDataController(AppDbContext db,
     // ---------- Banks ----------
     [HttpGet("banks")]
     public async Task<PagedResult<RefDto>> ListBanks([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.Banks.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+        {
+    var src = SearchRef(db.Banks, q.Search);
+    return await Page(src.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+}
 
     [HttpPost("banks"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<ActionResult<RefDto>> CreateBank([FromBody] RefUpsertDto dto, CancellationToken ct)
@@ -58,7 +64,10 @@ public sealed class ReferenceDataController(AppDbContext db,
     // ---------- Salesmen ----------
     [HttpGet("salesmen")]
     public async Task<PagedResult<RefDto>> ListSalesmen([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.Salesmen.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+        {
+    var src = SearchRef(db.Salesmen, q.Search);
+    return await Page(src.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+}
 
     [HttpPost("salesmen"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<ActionResult<RefDto>> CreateSalesman([FromBody] RefUpsertDto dto, CancellationToken ct)
@@ -74,7 +83,10 @@ public sealed class ReferenceDataController(AppDbContext db,
     // ---------- Collectors ----------
     [HttpGet("collectors")]
     public async Task<PagedResult<RefDto>> ListCollectors([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.Collectors.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+        {
+    var src = SearchRef(db.Collectors, q.Search);
+    return await Page(src.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+}
 
     [HttpPost("collectors"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<ActionResult<RefDto>> CreateCollector([FromBody] RefUpsertDto dto, CancellationToken ct)
@@ -90,7 +102,10 @@ public sealed class ReferenceDataController(AppDbContext db,
     // ---------- Areas ----------
     [HttpGet("areas")]
     public async Task<PagedResult<RefDto>> ListAreas([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.Areas.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+        {
+    var src = SearchRef(db.Areas, q.Search);
+    return await Page(src.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+}
 
     [HttpPost("areas"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<ActionResult<RefDto>> CreateArea([FromBody] RefUpsertDto dto, CancellationToken ct)
@@ -106,7 +121,10 @@ public sealed class ReferenceDataController(AppDbContext db,
     // ---------- Warehouse Types ----------
     [HttpGet("warehouse-types")]
     public async Task<PagedResult<RefDto>> ListWarehouseTypes([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.WarehouseTypes.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+        {
+    var src = SearchRef(db.WarehouseTypes, q.Search);
+    return await Page(src.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+}
 
     [HttpPost("warehouse-types"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<ActionResult<RefDto>> CreateWarehouseType([FromBody] RefUpsertDto dto, CancellationToken ct)
@@ -122,7 +140,10 @@ public sealed class ReferenceDataController(AppDbContext db,
     // ---------- Outlet Types ----------
     [HttpGet("outlet-types")]
     public async Task<PagedResult<RefDto>> ListOutletTypes([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.OutletTypes.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+        {
+    var src = SearchRef(db.OutletTypes, q.Search);
+    return await Page(src.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+}
 
     [HttpPost("outlet-types"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<ActionResult<RefDto>> CreateOutletType([FromBody] RefUpsertDto dto, CancellationToken ct)
@@ -138,7 +159,10 @@ public sealed class ReferenceDataController(AppDbContext db,
     // ---------- Group Outlets ----------
     [HttpGet("outlet-groups")]
     public async Task<PagedResult<RefDto>> ListOutletGroups([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.GroupOutlets.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+        {
+    var src = SearchRef(db.GroupOutlets, q.Search);
+    return await Page(src.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+}
 
     [HttpPost("outlet-groups"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<ActionResult<RefDto>> CreateOutletGroup([FromBody] RefUpsertDto dto, CancellationToken ct)
@@ -154,7 +178,10 @@ public sealed class ReferenceDataController(AppDbContext db,
     // ---------- Group Outlet Types ----------
     [HttpGet("outlet-group-types")]
     public async Task<PagedResult<RefDto>> ListOutletGroupTypes([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.GroupOutletTypes.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+        {
+    var src = SearchRef(db.GroupOutletTypes, q.Search);
+    return await Page(src.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+}
 
     [HttpPost("outlet-group-types"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<ActionResult<RefDto>> CreateOutletGroupType([FromBody] RefUpsertDto dto, CancellationToken ct)
@@ -170,7 +197,10 @@ public sealed class ReferenceDataController(AppDbContext db,
     // ---------- Trade Types ----------
     [HttpGet("trade-types")]
     public async Task<PagedResult<RefDto>> ListTradeTypes([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.TradeTypes.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+        {
+    var src = SearchRef(db.TradeTypes, q.Search);
+    return await Page(src.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+}
 
     [HttpPost("trade-types"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<ActionResult<RefDto>> CreateTradeType([FromBody] RefUpsertDto dto, CancellationToken ct)
@@ -186,7 +216,10 @@ public sealed class ReferenceDataController(AppDbContext db,
     // ---------- Sub Trade Types ----------
     [HttpGet("sub-trade-types")]
     public async Task<PagedResult<RefDto>> ListSubTradeTypes([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.SubTradeTypes.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+        {
+    var src = SearchRef(db.SubTradeTypes, q.Search);
+    return await Page(src.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+}
 
     [HttpPost("sub-trade-types"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<ActionResult<RefDto>> CreateSubTradeType([FromBody] RefUpsertDto dto, CancellationToken ct)
@@ -202,7 +235,10 @@ public sealed class ReferenceDataController(AppDbContext db,
     // ---------- Distribution Types ----------
     [HttpGet("distribution-types")]
     public async Task<PagedResult<RefDto>> ListDistributionTypes([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.DistributionTypes.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+        {
+    var src = SearchRef(db.DistributionTypes, q.Search);
+    return await Page(src.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+}
 
     [HttpPost("distribution-types"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<ActionResult<RefDto>> CreateDistributionType([FromBody] RefUpsertDto dto, CancellationToken ct)
@@ -218,7 +254,10 @@ public sealed class ReferenceDataController(AppDbContext db,
     // ---------- Cost Types ----------
     [HttpGet("cost-types")]
     public async Task<PagedResult<RefDto>> ListCostTypes([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.CostTypes.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+        {
+    var src = SearchRef(db.CostTypes, q.Search);
+    return await Page(src.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+}
 
     [HttpPost("cost-types"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<ActionResult<RefDto>> CreateCostType([FromBody] RefUpsertDto dto, CancellationToken ct)
@@ -234,7 +273,10 @@ public sealed class ReferenceDataController(AppDbContext db,
     // ---------- Manufacturings ----------
     [HttpGet("manufacturers")]
     public async Task<PagedResult<RefDto>> ListManufacturers([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.Manufacturings.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+        {
+    var src = SearchRef(db.Manufacturings, q.Search);
+    return await Page(src.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+}
 
     [HttpPost("manufacturers"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<ActionResult<RefDto>> CreateManufacturer([FromBody] RefUpsertDto dto, CancellationToken ct)
@@ -250,7 +292,10 @@ public sealed class ReferenceDataController(AppDbContext db,
     // ---------- Tax Registrations ----------
     [HttpGet("tax-registrations")]
     public async Task<PagedResult<RefDto>> ListTaxRegistrations([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.TaxRegistrations.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+        {
+    var src = SearchRef(db.TaxRegistrations, q.Search);
+    return await Page(src.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+}
 
     [HttpPost("tax-registrations"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<ActionResult<RefDto>> CreateTaxRegistration([FromBody] RefUpsertDto dto, CancellationToken ct)
@@ -266,8 +311,11 @@ public sealed class ReferenceDataController(AppDbContext db,
     // ---------- Price Tiers ----------
     [HttpGet("price-tiers")]
     public async Task<PagedResult<PriceTierDto>> ListPriceTiers([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.PriceTiers.OrderBy(x => x.Code)
+    {
+        var src = SearchRef(db.PriceTiers, q.Search);
+        return await Page(src.OrderBy(x => x.Code)
             .Select(x => new PriceTierDto(x.Id, x.Code, x.Name, x.MarkupPercent, x.IsActive)), q, ct);
+    }
 
     [HttpPost("price-tiers"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<ActionResult<PriceTierDto>> CreatePriceTier([FromBody] PriceTierUpsertDto dto, CancellationToken ct)
@@ -295,8 +343,11 @@ public sealed class ReferenceDataController(AppDbContext db,
     // ---------- Discount Codes ----------
     [HttpGet("discount-codes")]
     public async Task<PagedResult<DiscountCodeDto>> ListDiscountCodes([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.DiscountCodes.OrderBy(x => x.Code)
+    {
+        var src = SearchRef(db.DiscountCodes, q.Search);
+        return await Page(src.OrderBy(x => x.Code)
             .Select(x => new DiscountCodeDto(x.Id, x.Code, x.Name, x.DiscountPercent, x.IsActive)), q, ct);
+    }
 
     [HttpPost("discount-codes"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<ActionResult<DiscountCodeDto>> CreateDiscountCode([FromBody] DiscountCodeUpsertDto dto, CancellationToken ct)
@@ -324,8 +375,11 @@ public sealed class ReferenceDataController(AppDbContext db,
     // ---------- Payment Terms ----------
     [HttpGet("payment-terms")]
     public async Task<PagedResult<PaymentTermDto>> ListPaymentTerms([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.PaymentTerms.OrderBy(x => x.Code)
+    {
+        var src = SearchRef(db.PaymentTerms, q.Search);
+        return await Page(src.OrderBy(x => x.Code)
             .Select(x => new PaymentTermDto(x.Id, x.Code, x.Name, x.NetDays, x.IsActive)), q, ct);
+    }
 
     [HttpPost("payment-terms"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<ActionResult<PaymentTermDto>> CreatePaymentTerm([FromBody] PaymentTermUpsertDto dto, CancellationToken ct)
@@ -353,8 +407,11 @@ public sealed class ReferenceDataController(AppDbContext db,
     // ---------- Sub Categories ----------
     [HttpGet("sub-categories")]
     public async Task<PagedResult<SubCategoryDto>> ListSubCategories([FromQuery] PagedRequest q, CancellationToken ct)
-        => await Page(db.SubCategories.OrderBy(x => x.Code)
+    {
+        var src = SearchRef(db.SubCategories, q.Search);
+        return await Page(src.OrderBy(x => x.Code)
             .Select(x => new SubCategoryDto(x.Id, x.Code, x.Name, x.CategoryId, x.Category!.Name, x.IsActive)), q, ct);
+    }
 
     [HttpPost("sub-categories"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<ActionResult<SubCategoryDto>> CreateSubCategory([FromBody] SubCategoryUpsertDto dto, CancellationToken ct)
@@ -385,6 +442,7 @@ public sealed class ReferenceDataController(AppDbContext db,
     {
         var qry = db.CustomerAddresses.AsNoTracking();
         if (customerId.HasValue) qry = qry.Where(x => x.CustomerId == customerId);
+        if (!string.IsNullOrWhiteSpace(q.Search)) { var s = q.Search.Trim(); qry = qry.Where(x => x.Label.Contains(s) || x.Address.Contains(s)); }
         return await Page(qry.OrderBy(x => x.Label).Select(x => new CustomerAddressDto(
             x.Id, x.CustomerId, x.Label, x.Address, x.City, x.Country, x.IsDefault, x.IsActive)), q, ct);
     }
@@ -418,6 +476,7 @@ public sealed class ReferenceDataController(AppDbContext db,
     {
         IQueryable<ItemPrice> qry = db.ItemPrices.AsNoTracking().Include(x => x.Item).Include(x => x.PriceTier);
         if (itemId.HasValue) qry = qry.Where(x => x.ItemId == itemId);
+        if (!string.IsNullOrWhiteSpace(q.Search)) { var s = q.Search.Trim(); qry = qry.Where(x => x.Item!.Sku.Contains(s) || x.PriceTier!.Code.Contains(s)); }
         return await Page(qry.OrderBy(x => x.Item!.Sku).Select(x => new ItemPriceDto(
             x.Id, x.ItemId, x.Item!.Sku, x.PriceTierId, x.PriceTier!.Code, x.Price, x.IsActive)), q, ct);
     }
@@ -459,6 +518,7 @@ public sealed class ReferenceDataController(AppDbContext db,
     {
         IQueryable<ItemDiscount> qry = db.ItemDiscounts.AsNoTracking().Include(x => x.Item).Include(x => x.DiscountCode);
         if (itemId.HasValue) qry = qry.Where(x => x.ItemId == itemId);
+        if (!string.IsNullOrWhiteSpace(q.Search)) { var s = q.Search.Trim(); qry = qry.Where(x => x.Item!.Sku.Contains(s) || x.DiscountCode!.Name.Contains(s)); }
         return await Page(qry.OrderBy(x => x.Item!.Sku).ThenBy(x => x.DiscountCode!.Code)
             .Select(x => new ItemDiscountDto(x.Id, x.ItemId, x.Item!.Sku, x.DiscountCodeId, x.DiscountCode!.Name,
                 x.DiscountPercent, x.StartDateUtc, x.EndDateUtc, x.IsActive)), q, ct);
@@ -536,6 +596,13 @@ public sealed class ReferenceDataController(AppDbContext db,
         db.Set<T>().Remove(e);
         await db.SaveChangesAsync(ct);
         return NoContent();
+    }
+
+    private static IQueryable<T> SearchRef<T>(IQueryable<T> src, string? search) where T : class
+    {
+        if (string.IsNullOrWhiteSpace(search)) return src;
+        var s = search.Trim();
+        return src.Where(x => EF.Property<string>(x, "Code").Contains(s) || EF.Property<string>(x, "Name").Contains(s));
     }
 
     private static void SetProp(object obj, string name, object value)
