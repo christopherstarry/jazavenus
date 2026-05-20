@@ -36,7 +36,7 @@ public sealed class ReferenceDataController(AppDbContext db,
     public async Task<IActionResult> UpdateBrand(Guid id, [FromBody] RefUpsertDto dto, CancellationToken ct)
         => await UpdateRef<Brand>(db.Brands, id, dto, ct);
 
-    [HttpDelete("brands/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    [HttpDelete("brands/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeleteBrand(Guid id, CancellationToken ct) => await SoftDelete<Brand>(id, ct);
 
     // ---------- Banks ----------
@@ -52,7 +52,7 @@ public sealed class ReferenceDataController(AppDbContext db,
     public async Task<IActionResult> UpdateBank(Guid id, [FromBody] RefUpsertDto dto, CancellationToken ct)
         => await UpdateRef<Bank>(db.Banks, id, dto, ct);
 
-    [HttpDelete("banks/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    [HttpDelete("banks/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeleteBank(Guid id, CancellationToken ct) => await SoftDelete<Bank>(id, ct);
 
     // ---------- Salesmen ----------
@@ -68,7 +68,7 @@ public sealed class ReferenceDataController(AppDbContext db,
     public async Task<IActionResult> UpdateSalesman(Guid id, [FromBody] RefUpsertDto dto, CancellationToken ct)
         => await UpdateRef<Salesman>(db.Salesmen, id, dto, ct);
 
-    [HttpDelete("salesmen/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    [HttpDelete("salesmen/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeleteSalesman(Guid id, CancellationToken ct) => await SoftDelete<Salesman>(id, ct);
 
     // ---------- Collectors ----------
@@ -84,7 +84,7 @@ public sealed class ReferenceDataController(AppDbContext db,
     public async Task<IActionResult> UpdateCollector(Guid id, [FromBody] RefUpsertDto dto, CancellationToken ct)
         => await UpdateRef<Collector>(db.Collectors, id, dto, ct);
 
-    [HttpDelete("collectors/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    [HttpDelete("collectors/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeleteCollector(Guid id, CancellationToken ct) => await SoftDelete<Collector>(id, ct);
 
     // ---------- Areas ----------
@@ -100,7 +100,7 @@ public sealed class ReferenceDataController(AppDbContext db,
     public async Task<IActionResult> UpdateArea(Guid id, [FromBody] RefUpsertDto dto, CancellationToken ct)
         => await UpdateRef<Area>(db.Areas, id, dto, ct);
 
-    [HttpDelete("areas/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    [HttpDelete("areas/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeleteArea(Guid id, CancellationToken ct) => await SoftDelete<Area>(id, ct);
 
     // ---------- Warehouse Types ----------
@@ -116,7 +116,7 @@ public sealed class ReferenceDataController(AppDbContext db,
     public async Task<IActionResult> UpdateWarehouseType(Guid id, [FromBody] RefUpsertDto dto, CancellationToken ct)
         => await UpdateRef<WarehouseType>(db.WarehouseTypes, id, dto, ct);
 
-    [HttpDelete("warehouse-types/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    [HttpDelete("warehouse-types/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeleteWarehouseType(Guid id, CancellationToken ct) => await SoftDelete<WarehouseType>(id, ct);
 
     // ---------- Outlet Types ----------
@@ -132,7 +132,7 @@ public sealed class ReferenceDataController(AppDbContext db,
     public async Task<IActionResult> UpdateOutletType(Guid id, [FromBody] RefUpsertDto dto, CancellationToken ct)
         => await UpdateRef<OutletType>(db.OutletTypes, id, dto, ct);
 
-    [HttpDelete("outlet-types/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    [HttpDelete("outlet-types/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeleteOutletType(Guid id, CancellationToken ct) => await SoftDelete<OutletType>(id, ct);
 
     // ---------- Group Outlets ----------
@@ -148,7 +148,7 @@ public sealed class ReferenceDataController(AppDbContext db,
     public async Task<IActionResult> UpdateOutletGroup(Guid id, [FromBody] RefUpsertDto dto, CancellationToken ct)
         => await UpdateRef<GroupOutlet>(db.GroupOutlets, id, dto, ct);
 
-    [HttpDelete("outlet-groups/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    [HttpDelete("outlet-groups/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeleteOutletGroup(Guid id, CancellationToken ct) => await SoftDelete<GroupOutlet>(id, ct);
 
     // ---------- Group Outlet Types ----------
@@ -164,7 +164,7 @@ public sealed class ReferenceDataController(AppDbContext db,
     public async Task<IActionResult> UpdateOutletGroupType(Guid id, [FromBody] RefUpsertDto dto, CancellationToken ct)
         => await UpdateRef<GroupOutletType>(db.GroupOutletTypes, id, dto, ct);
 
-    [HttpDelete("outlet-group-types/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    [HttpDelete("outlet-group-types/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeleteOutletGroupType(Guid id, CancellationToken ct) => await SoftDelete<GroupOutletType>(id, ct);
 
     // ---------- Trade Types ----------
@@ -180,7 +180,7 @@ public sealed class ReferenceDataController(AppDbContext db,
     public async Task<IActionResult> UpdateTradeType(Guid id, [FromBody] RefUpsertDto dto, CancellationToken ct)
         => await UpdateRef<TradeType>(db.TradeTypes, id, dto, ct);
 
-    [HttpDelete("trade-types/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    [HttpDelete("trade-types/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeleteTradeType(Guid id, CancellationToken ct) => await SoftDelete<TradeType>(id, ct);
 
     // ---------- Sub Trade Types ----------
@@ -196,7 +196,7 @@ public sealed class ReferenceDataController(AppDbContext db,
     public async Task<IActionResult> UpdateSubTradeType(Guid id, [FromBody] RefUpsertDto dto, CancellationToken ct)
         => await UpdateRef<SubTradeType>(db.SubTradeTypes, id, dto, ct);
 
-    [HttpDelete("sub-trade-types/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    [HttpDelete("sub-trade-types/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeleteSubTradeType(Guid id, CancellationToken ct) => await SoftDelete<SubTradeType>(id, ct);
 
     // ---------- Distribution Types ----------
@@ -212,7 +212,7 @@ public sealed class ReferenceDataController(AppDbContext db,
     public async Task<IActionResult> UpdateDistributionType(Guid id, [FromBody] RefUpsertDto dto, CancellationToken ct)
         => await UpdateRef<DistributionType>(db.DistributionTypes, id, dto, ct);
 
-    [HttpDelete("distribution-types/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    [HttpDelete("distribution-types/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeleteDistributionType(Guid id, CancellationToken ct) => await SoftDelete<DistributionType>(id, ct);
 
     // ---------- Cost Types ----------
@@ -228,7 +228,7 @@ public sealed class ReferenceDataController(AppDbContext db,
     public async Task<IActionResult> UpdateCostType(Guid id, [FromBody] RefUpsertDto dto, CancellationToken ct)
         => await UpdateRef<CostType>(db.CostTypes, id, dto, ct);
 
-    [HttpDelete("cost-types/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    [HttpDelete("cost-types/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeleteCostType(Guid id, CancellationToken ct) => await SoftDelete<CostType>(id, ct);
 
     // ---------- Manufacturings ----------
@@ -244,7 +244,7 @@ public sealed class ReferenceDataController(AppDbContext db,
     public async Task<IActionResult> UpdateManufacturer(Guid id, [FromBody] RefUpsertDto dto, CancellationToken ct)
         => await UpdateRef<Manufacturing>(db.Manufacturings, id, dto, ct);
 
-    [HttpDelete("manufacturers/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    [HttpDelete("manufacturers/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeleteManufacturer(Guid id, CancellationToken ct) => await SoftDelete<Manufacturing>(id, ct);
 
     // ---------- Tax Registrations ----------
@@ -260,7 +260,7 @@ public sealed class ReferenceDataController(AppDbContext db,
     public async Task<IActionResult> UpdateTaxRegistration(Guid id, [FromBody] RefUpsertDto dto, CancellationToken ct)
         => await UpdateRef<TaxRegistration>(db.TaxRegistrations, id, dto, ct);
 
-    [HttpDelete("tax-registrations/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    [HttpDelete("tax-registrations/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeleteTaxRegistration(Guid id, CancellationToken ct) => await SoftDelete<TaxRegistration>(id, ct);
 
     // ---------- Price Tiers ----------
@@ -289,7 +289,7 @@ public sealed class ReferenceDataController(AppDbContext db,
         return NoContent();
     }
 
-    [HttpDelete("price-tiers/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    [HttpDelete("price-tiers/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeletePriceTier(Guid id, CancellationToken ct) => await SoftDelete<PriceTier>(id, ct);
 
     // ---------- Discount Codes ----------
@@ -318,7 +318,7 @@ public sealed class ReferenceDataController(AppDbContext db,
         return NoContent();
     }
 
-    [HttpDelete("discount-codes/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    [HttpDelete("discount-codes/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeleteDiscountCode(Guid id, CancellationToken ct) => await SoftDelete<DiscountCode>(id, ct);
 
     // ---------- Payment Terms ----------
@@ -347,7 +347,7 @@ public sealed class ReferenceDataController(AppDbContext db,
         return NoContent();
     }
 
-    [HttpDelete("payment-terms/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    [HttpDelete("payment-terms/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeletePaymentTerm(Guid id, CancellationToken ct) => await SoftDelete<PaymentTerm>(id, ct);
 
     // ---------- Sub Categories ----------
@@ -376,7 +376,7 @@ public sealed class ReferenceDataController(AppDbContext db,
         return NoContent();
     }
 
-    [HttpDelete("sub-categories/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    [HttpDelete("sub-categories/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeleteSubCategory(Guid id, CancellationToken ct) => await SoftDelete<SubCategory>(id, ct);
 
     // ---------- Customer Addresses ----------
@@ -409,7 +409,7 @@ public sealed class ReferenceDataController(AppDbContext db,
         return NoContent();
     }
 
-    [HttpDelete("customer-addresses/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    [HttpDelete("customer-addresses/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeleteCustomerAddress(Guid id, CancellationToken ct) => await SoftDelete<CustomerAddress>(id, ct);
 
     // ---------- Item Prices ----------
@@ -450,7 +450,7 @@ public sealed class ReferenceDataController(AppDbContext db,
         return NoContent();
     }
 
-    [HttpDelete("item-prices/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    [HttpDelete("item-prices/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeleteItemPrice(Guid id, CancellationToken ct) => await SoftDelete<ItemPrice>(id, ct);
 
     // ---------- Item Discounts ----------
@@ -494,7 +494,7 @@ public sealed class ReferenceDataController(AppDbContext db,
         return NoContent();
     }
 
-    [HttpDelete("item-discounts/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    [HttpDelete("item-discounts/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeleteItemDiscount(Guid id, CancellationToken ct) => await SoftDelete<ItemDiscount>(id, ct);
 
     // ---------- Helpers ----------
