@@ -51,6 +51,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<SubCategory> SubCategories => Set<SubCategory>();
     public DbSet<CustomerAddress> CustomerAddresses => Set<CustomerAddress>();
     public DbSet<BrandDiscount> BrandDiscounts => Set<BrandDiscount>();
+    public DbSet<ClassOutlet> ClassOutlets => Set<ClassOutlet>();
     public DbSet<ItemPrice> ItemPrices => Set<ItemPrice>();
     public DbSet<ItemDiscount> ItemDiscounts => Set<ItemDiscount>();
 
@@ -238,6 +239,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
         MapSimple<TaxRegistration>(b, "TaxRegistrations");
         MapSimple<PriceTier>(b, "PriceTiers");
         MapSimple<DiscountCode>(b, "DiscountCodes");
+
+        MapSimple<ClassOutlet>(b, "ClassOutlets");
 
         b.Entity<PaymentTerm>(e =>
         {

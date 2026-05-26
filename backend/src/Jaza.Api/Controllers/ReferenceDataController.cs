@@ -252,6 +252,25 @@ public sealed class ReferenceDataController(AppDbContext db,
     [HttpDelete("distribution-types/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
     public async Task<IActionResult> DeleteDistributionType(Guid id, CancellationToken ct) => await SoftDelete<DistributionType>(id, ct);
 
+    // ---------- Class Outlets ----------
+    [HttpGet("class-outlets")]
+    public async Task<PagedResult<RefDto>> ListClassOutlets([FromQuery] PagedRequest q, CancellationToken ct)
+    {
+        var src = SearchRef(db.ClassOutlets, q.Search);
+        return await Page(src.OrderBy(x => x.Code).Select(x => new RefDto(x.Id, x.Code, x.Name, x.IsActive)), q, ct);
+    }
+
+    [HttpPost("class-outlets"), Authorize(Policy = Policies.RequireAdmin)]
+    public async Task<ActionResult<RefDto>> CreateClassOutlet([FromBody] RefUpsertDto dto, CancellationToken ct)
+        => await CreateRef(db.ClassOutlets, dto, () => new ClassOutlet { Code = dto.Code.Trim(), Name = dto.Name.Trim(), IsActive = dto.IsActive }, ct);
+
+    [HttpPut("class-outlets/{id:guid}"), Authorize(Policy = Policies.RequireAdmin)]
+    public async Task<IActionResult> UpdateClassOutlet(Guid id, [FromBody] RefUpsertDto dto, CancellationToken ct)
+        => await UpdateRef<ClassOutlet>(db.ClassOutlets, id, dto, ct);
+
+    [HttpDelete("class-outlets/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
+    public async Task<IActionResult> DeleteClassOutlet(Guid id, CancellationToken ct) => await SoftDelete<ClassOutlet>(id, ct);
+
     // ---------- Cost Types ----------
     [HttpGet("cost-types")]
     public async Task<PagedResult<RefDto>> ListCostTypes([FromQuery] PagedRequest q, CancellationToken ct)

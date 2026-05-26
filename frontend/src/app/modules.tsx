@@ -160,6 +160,7 @@ import { GroupOutletPage } from "#/features/common/pages/GroupOutletPage";
 import { MarketTypePage } from "#/features/common/pages/MarketTypePage";
 import { ChannelOutletPage } from "#/features/common/pages/ChannelOutletPage";
 import { LocationOutletPage } from "#/features/common/pages/LocationOutletPage";
+import { ClassOutletPage } from "#/features/common/pages/ClassOutletPage";
 import { CategoryPage } from "#/features/common/pages/CategoryPage";
 import { SubCategoryPage } from "#/features/common/pages/SubCategoryPage";
 import { PriceTierPage } from "#/features/common/pages/PriceTierPage";
@@ -307,7 +308,7 @@ export const TREE: ModuleNode[] = [
             id: "master.customer.class-outlet",
             path: "/master/customer/class-outlet",
             label: "Table of Class Outlet",
-            Component: LocationOutletPage,
+            Component: ClassOutletPage,
           },
           {
             id: "master.customer.group-outlet",

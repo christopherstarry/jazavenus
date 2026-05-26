@@ -103,8 +103,15 @@ INSERT INTO "SubTradeTypes" ("Id", "Code", "Name", "IsActive", "IsDeleted", "Cre
   (gen_random_uuid(), '03', 'STAR OUTLET', true, false, now())
 ON CONFLICT DO NOTHING;
 
--- Distribution Types (Class Outlet)
+-- Distribution Types (Location Outlet)
 INSERT INTO "DistributionTypes" ("Id", "Code", "Name", "IsActive", "IsDeleted", "CreatedAtUtc") VALUES
+  (gen_random_uuid(), '01', 'LOKASI TOKO DI JALAN UTAMA', true, false, now()),
+  (gen_random_uuid(), '02', 'LOKASI TOKO BUKAN DI JALAN UTAMA', true, false, now()),
+  (gen_random_uuid(), '03', 'LOKASI TOKO DI DALAM PASAR', true, false, now())
+ON CONFLICT DO NOTHING;
+
+-- Class Outlets (financial ranges)
+INSERT INTO "ClassOutlets" ("Id", "Code", "Name", "IsActive", "IsDeleted", "CreatedAtUtc") VALUES
   (gen_random_uuid(), '01', '< 250.000', true, false, now()),
   (gen_random_uuid(), '02', '>= 250.000 - 500.000', true, false, now()),
   (gen_random_uuid(), '03', '> 500.000 - 1 JT', true, false, now()),
