@@ -72,19 +72,19 @@ ON CONFLICT DO NOTHING;
 
 -- Outlet Groups
 INSERT INTO "GroupOutlets" ("Id", "Code", "Name", "IsActive", "IsDeleted", "CreatedAtUtc") VALUES
-  (gen_random_uuid(), '01', '>= 1 JT - < 5 JT', true, false, now()),
-  (gen_random_uuid(), '02', '>= 500.000 - < 1 JT', true, false, now()),
-  (gen_random_uuid(), '03', '>= 250.000 - < 500.000', true, false, now()),
-  (gen_random_uuid(), '04', '< 250.000', true, false, now())
+  (gen_random_uuid(), '01', 'Borma Group', true, false, now()),
+  (gen_random_uuid(), '02', 'Sat Group', true, false, now()),
+  (gen_random_uuid(), '03', 'Idm Group', true, false, now()),
+  (gen_random_uuid(), '04', 'Yogya Group', true, false, now())
 ON CONFLICT DO NOTHING;
 
 -- Outlet Group Types
 INSERT INTO "GroupOutletTypes" ("Id", "Code", "Name", "IsActive", "IsDeleted", "CreatedAtUtc") VALUES
   (gen_random_uuid(), 'A', 'YOGYA GROUP', true, false, now()),
-  (gen_random_uuid(), 'B', 'CAREFFOUR GROUP', true, false, now()),
-  (gen_random_uuid(), 'C', 'MATAHARI GROUP', true, false, now()),
-  (gen_random_uuid(), 'D', 'UNDEFINE GROUP', true, false, now()),
-  (gen_random_uuid(), 'E', 'BORMA GROUP', true, false, now())
+  (gen_random_uuid(), 'B', 'BORMA GROUP', true, false, now()),
+  (gen_random_uuid(), 'C', 'IDM GROUP', true, false, now()),
+  (gen_random_uuid(), 'D', 'SAT GROUP', true, false, now()),
+  (gen_random_uuid(), 'E', 'UNDEFINE GROUP', true, false, now())
 ON CONFLICT DO NOTHING;
 
 -- Trade Types
@@ -103,11 +103,13 @@ INSERT INTO "SubTradeTypes" ("Id", "Code", "Name", "IsActive", "IsDeleted", "Cre
   (gen_random_uuid(), '03', 'STAR OUTLET', true, false, now())
 ON CONFLICT DO NOTHING;
 
--- Distribution Types
+-- Distribution Types (Class Outlet)
 INSERT INTO "DistributionTypes" ("Id", "Code", "Name", "IsActive", "IsDeleted", "CreatedAtUtc") VALUES
-  (gen_random_uuid(), '01', 'LOKASI TOKO DI JALAN UTAMA', true, false, now()),
-  (gen_random_uuid(), '02', 'LOKASI TOKO BUKAN DI JALAN UTAMA', true, false, now()),
-  (gen_random_uuid(), '03', 'LOKASI TOKO DI DALAM PASAR', true, false, now())
+  (gen_random_uuid(), '01', '< 250.000', true, false, now()),
+  (gen_random_uuid(), '02', '>= 250.000 - 500.000', true, false, now()),
+  (gen_random_uuid(), '03', '> 500.000 - 1 JT', true, false, now()),
+  (gen_random_uuid(), '04', '>= 1 JT - < 5 JT', true, false, now()),
+  (gen_random_uuid(), '05', '> 5 JT', true, false, now())
 ON CONFLICT DO NOTHING;
 
 -- Categories
