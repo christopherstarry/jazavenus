@@ -55,6 +55,7 @@ desktop.ini
 *.bacpac
 *.mdf
 *.ldf
+backend/backups/
 
 # API wwwroot SPA build output (Vite publishes here on dotnet publish)
 backend/src/Jaza.Api/wwwroot/**

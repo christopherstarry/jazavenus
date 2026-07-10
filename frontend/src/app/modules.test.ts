@@ -40,13 +40,13 @@ describe("module tree", () => {
     expect(offenders).toEqual([]);
   });
 
-  it("includes a Dashboard root, System, Master Maintenance, Report and Tax Form", () => {
+  it("includes a Dashboard root, System, Master Maintenance, and Report", () => {
     const ids = new Set(all.map((m) => m.id));
     expect(ids).toContain("dashboard");
     expect(ids).toContain("system");
     expect(ids).toContain("master");
     expect(ids).toContain("report");
-    expect(ids).toContain("tax");
+    expect(ids).toContain("master.tax-no");
   });
 });
 
@@ -56,7 +56,7 @@ describe("findModuleByPath", () => {
   });
 
   it("returns a leaf when its exact path is hit", () => {
-    expect(findModuleByPath("/master/employee")?.id).toBe("master.employee");
+    expect(findModuleByPath("/master/bank")?.id).toBe("master.bank");
   });
 
   it("returns the deepest module for a nested path (longest prefix wins)", () => {
