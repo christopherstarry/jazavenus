@@ -65,7 +65,9 @@ JWT Bearer packages are **not** used — the interactive UI is cookie-based.
 
 ## Related documents
 
+- [architecture/diagrams.md](architecture/diagrams.md) — C4 context/container, domain map, deployment diagrams.
 - [http-api.md](http-api.md) — route catalogue.
 - [development.md](development.md) — how to run and test locally.
 - [security.md](security.md) — detailed controls.
 - [runbook.md](runbook.md) — production topology (Cloudflare → Caddy → API → PostgreSQL).
+- [parity/legacy-to-new-parity-matrix.md](parity/legacy-to-new-parity-matrix.md) — deployment readiness tracker.
