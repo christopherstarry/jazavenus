@@ -2,7 +2,12 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <Threshold>85</Threshold>
+    <ThresholdType>line</ThresholdType>
   </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Jaza.Application\Jaza.Application.csproj" />
     <ProjectReference Include="..\..\src\Jaza.Infrastructure\Jaza.Infrastructure.csproj" />

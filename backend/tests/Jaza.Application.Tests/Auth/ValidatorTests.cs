@@ -108,18 +108,19 @@ public sealed class ValidatorTests
     public void UpdatePreferences_RejectsBogusValues()
     {
         var v = new UpdatePreferencesValidator();
-        v.Validate(new UpdatePreferencesRequest("klingon", null, null)).IsValid.Should().BeFalse();
-        v.Validate(new UpdatePreferencesRequest(null, "tiny", null)).IsValid.Should().BeFalse();
-        v.Validate(new UpdatePreferencesRequest(null, null, "neon")).IsValid.Should().BeFalse();
+        v.Validate(new UpdatePreferencesRequest("klingon", null, null, null)).IsValid.Should().BeFalse();
+        v.Validate(new UpdatePreferencesRequest(null, "tiny", null, null)).IsValid.Should().BeFalse();
+        v.Validate(new UpdatePreferencesRequest(null, null, "neon", null)).IsValid.Should().BeFalse();
+        v.Validate(new UpdatePreferencesRequest(null, null, null, "INVALID")).IsValid.Should().BeFalse();
     }
 
     [Fact]
     public void UpdatePreferences_AcceptsAllValid()
     {
         var v = new UpdatePreferencesValidator();
-        v.Validate(new UpdatePreferencesRequest("id", "normal", "light")).IsValid.Should().BeTrue();
-        v.Validate(new UpdatePreferencesRequest("en", "large", "dark")).IsValid.Should().BeTrue();
-        v.Validate(new UpdatePreferencesRequest(null, null, null)).IsValid.Should().BeTrue();
+        v.Validate(new UpdatePreferencesRequest("id", "normal", "light", "DISTRIBUTIONBDG")).IsValid.Should().BeTrue();
+        v.Validate(new UpdatePreferencesRequest("en", "large", "dark", null)).IsValid.Should().BeTrue();
+        v.Validate(new UpdatePreferencesRequest(null, null, null, null)).IsValid.Should().BeTrue();
     }
 
     [Fact]

@@ -158,7 +158,7 @@ public sealed class AuthEndpointsTests(PostgresFixture fx)
         get1!.Language.Should().Be("id");
 
         var put = await client.PutAsJsonAsync("/api/auth/preferences",
-            new UpdatePreferencesRequest(Language: "en", TextSize: "large", Theme: "dark"));
+            new UpdatePreferencesRequest(Language: "en", TextSize: "large", Theme: "dark", Division: "DISTRIBUTIONBDG"));
         put.IsSuccessStatusCode.Should().BeTrue();
         var updated = await put.Content.ReadFromJsonAsync<PreferencesDto>();
         updated!.Language.Should().Be("en");

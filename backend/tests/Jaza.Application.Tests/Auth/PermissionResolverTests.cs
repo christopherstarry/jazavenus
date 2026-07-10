@@ -222,4 +222,57 @@ public sealed class PermissionResolverTests
         PermissionResolver.CanEdit(perms, Modules.Inventory).Should().BeFalse();
         PermissionResolver.CanDelete(perms, Modules.Inventory).Should().BeFalse();
     }
+
+    // ─── ModulePermissionHandler / ReportPermissionHandler parity ───────────────
+    // Handlers succeed when: perms.IsDeveloper || PermissionResolver.HasModuleAccess/CanViewReport.
+
+    [Theory]
+    [InlineData(Modules.Master, true)]
+    [InlineData(Modules.Sales, true)]
+    [InlineData(Modules.Inventory, false)]
+    public void ModuleHandlerLogic_GrantsWhenDeveloperOrModuleAccess(string module, bool expected)
+    {
+        var perms = PermissionResolver.Resolve(new PermissionResolver.UserPermissionInputs(
+            RoleId: Roles.Code.Admin,
+            HasCustomPermissions: true,
+            Modules: [new(Modules.Master, true, false), new(Modules.Sales, true, true)],
+            Reports: []));
+
+        var allowed = perms.IsDeveloper || PermissionResolver.HasModuleAccess(perms, module);
+        allowed.Should().Be(expected);
+    }
+
+    [Fact]
+    public void ModuleHandlerLogic_DeveloperAlwaysAllowed()
+    {
+        var perms = PermissionResolver.Resolve(new PermissionResolver.UserPermissionInputs(
+            RoleId: Roles.Code.Developer, HasCustomPermissions: false, Modules: [], Reports: []));
+
+        (perms.IsDeveloper || PermissionResolver.HasModuleAccess(perms, Modules.Inventory)).Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData(ReportTypes.Ar, true)]
+    [InlineData(ReportTypes.Sales, false)]
+    public void ReportHandlerLogic_GrantsWhenDeveloperOrReportAccess(string report, bool expected)
+    {
+        var perms = PermissionResolver.Resolve(new PermissionResolver.UserPermissionInputs(
+            RoleId: Roles.Code.Admin,
+            HasCustomPermissions: true,
+            Modules: [],
+            Reports: [ReportTypes.Ar]));
+
+        var allowed = perms.IsDeveloper || PermissionResolver.CanViewReport(perms, report);
+        allowed.Should().Be(expected);
+    }
+
+    [Fact]
+    public void ReportHandlerLogic_DeveloperSeesAllReports()
+    {
+        var perms = PermissionResolver.Resolve(new PermissionResolver.UserPermissionInputs(
+            RoleId: Roles.Code.Developer, HasCustomPermissions: false, Modules: [], Reports: []));
+
+        foreach (var r in ReportTypes.All)
+            (perms.IsDeveloper || PermissionResolver.CanViewReport(perms, r)).Should().BeTrue();
+    }
 }
