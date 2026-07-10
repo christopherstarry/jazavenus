@@ -1,0 +1,19 @@
+using Jaza.Api.Security;
+using Jaza.Application.Common;
+using Jaza.Application.Reports;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Jaza.Api.Controllers;
+
+[ApiController]
+[Tags("ArReports")]
+[Authorize(Policy = Policies.RequireOperator)]
+[RequireReport(ReportTypes.Ar)]
+[Route("api/reports/ar")]
+public sealed class ArReportsController(IReportQueryService reports) : ControllerBase
+{
+    [HttpGet("{reportKey}")]
+    public Task<ReportQueryResult> Get(string reportKey, [FromQuery] ReportQueryParams p, CancellationToken ct) =>
+        reports.ExecuteAsync(p.ToRequest($"{ReportTypes.Ar}:{reportKey}"), ct);
+}
