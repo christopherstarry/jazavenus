@@ -60,6 +60,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<ClassOutlet> ClassOutlets => Set<ClassOutlet>();
     public DbSet<ItemPrice> ItemPrices => Set<ItemPrice>();
     public DbSet<ItemDiscount> ItemDiscounts => Set<ItemDiscount>();
+    public DbSet<BpItem> BpItems => Set<BpItem>();
+    public DbSet<Penetration> Penetrations => Set<Penetration>();
 
     // Purchase
     public DbSet<PurchaseOrder> PurchaseOrders => Set<PurchaseOrder>();
@@ -337,6 +339,26 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             e.HasIndex(x => x.CustomerId);
             e.Property(x => x.BrandCode).HasMaxLength(32).IsRequired();
             e.Property(x => x.PriceCode).HasMaxLength(32);
+        });
+
+        b.Entity<BpItem>(e =>
+        {
+            e.ToTable("BpItems");
+            e.Property(x => x.SupplierItemCode).HasMaxLength(64).IsRequired();
+            e.Property(x => x.Uom).HasMaxLength(16);
+            e.HasOne(x => x.Supplier).WithMany().HasForeignKey(x => x.SupplierId);
+            e.HasOne(x => x.Item).WithMany().HasForeignKey(x => x.ItemId);
+            e.HasIndex(x => new { x.SupplierId, x.SupplierItemCode }).IsUnique().HasFilter(NotSoftDeletedFilter);
+        });
+
+        b.Entity<Penetration>(e =>
+        {
+            e.ToTable("Penetrations");
+            e.HasOne(x => x.Customer).WithMany().HasForeignKey(x => x.CustomerId);
+            e.HasOne(x => x.Item).WithMany().HasForeignKey(x => x.ItemId);
+            e.HasOne(x => x.Brand).WithMany().HasForeignKey(x => x.BrandId);
+            e.HasOne(x => x.Category).WithMany().HasForeignKey(x => x.CategoryId);
+            e.HasIndex(x => new { x.CustomerId, x.PeriodYear, x.PeriodMonth });
         });
     }
 

@@ -150,6 +150,28 @@ public sealed class ItemPriceUpsertValidator : AbstractValidator<ItemPriceUpsert
     }
 }
 
+public sealed class BpItemUpsertValidator : AbstractValidator<BpItemUpsertDto>
+{
+    public BpItemUpsertValidator()
+    {
+        RuleFor(x => x.SupplierId).NotEmpty();
+        RuleFor(x => x.SupplierItemCode).NotEmpty().MaximumLength(64);
+        RuleFor(x => x.ItemId).NotEmpty();
+        RuleFor(x => x.ConversionFactor).GreaterThan(0);
+    }
+}
+
+public sealed class PenetrationUpsertValidator : AbstractValidator<PenetrationUpsertDto>
+{
+    public PenetrationUpsertValidator()
+    {
+        RuleFor(x => x.CustomerId).NotEmpty();
+        RuleFor(x => x.TargetSkuCount).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.PeriodYear).GreaterThan(2000);
+        RuleFor(x => x.PeriodMonth).InclusiveBetween(1, 12);
+    }
+}
+
 public sealed class ItemDiscountUpsertValidator : AbstractValidator<ItemDiscountUpsertDto>
 {
     public ItemDiscountUpsertValidator()

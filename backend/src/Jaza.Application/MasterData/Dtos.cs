@@ -85,3 +85,16 @@ public sealed record ItemPriceUpsertDto(Guid ItemId, Guid PriceTierId, decimal P
 // ItemDiscount (item + discount code + rate + date range)
 public sealed record ItemDiscountDto(Guid Id, Guid ItemId, string? ItemSku, Guid DiscountCodeId, string? DiscountCodeName, decimal DiscountPercent, DateTime? StartDateUtc, DateTime? EndDateUtc, bool IsActive);
 public sealed record ItemDiscountUpsertDto(Guid ItemId, Guid DiscountCodeId, decimal DiscountPercent, DateTime? StartDateUtc, DateTime? EndDateUtc, bool IsActive = true);
+
+// BpItem (supplier item cross-reference)
+public sealed record BpItemDto(Guid Id, Guid SupplierId, string? SupplierCode, string SupplierItemCode,
+    Guid ItemId, string? ItemSku, string? Uom, decimal ConversionFactor, bool IsActive);
+public sealed record BpItemUpsertDto(Guid SupplierId, string SupplierItemCode, Guid ItemId,
+    string? Uom, decimal ConversionFactor = 1, bool IsActive = true);
+
+// Penetration (customer SKU-coverage target)
+public sealed record PenetrationDto(Guid Id, Guid CustomerId, string? CustomerName,
+    Guid? ItemId, string? ItemSku, Guid? BrandId, string? BrandCode, Guid? CategoryId, string? CategoryName,
+    int TargetSkuCount, int PeriodYear, int PeriodMonth);
+public sealed record PenetrationUpsertDto(Guid CustomerId, Guid? ItemId, Guid? BrandId, Guid? CategoryId,
+    int TargetSkuCount, int PeriodYear, int PeriodMonth);

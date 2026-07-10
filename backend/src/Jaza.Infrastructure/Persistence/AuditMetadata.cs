@@ -17,6 +17,8 @@ internal static class AuditMetadata
         [nameof(Item)] = "master",
         [nameof(ItemPrice)] = "master",
         [nameof(ItemDiscount)] = "master",
+        [nameof(BpItem)] = "master",
+        [nameof(Penetration)] = "master",
         [nameof(Supplier)] = "master",
         [nameof(Brand)] = "master",
         [nameof(ItemCategory)] = "master",
