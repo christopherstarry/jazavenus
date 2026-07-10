@@ -32,5 +32,7 @@ static void OverrideFromArgs(EtlOptions opts, string[] args)
             opts.LegacyConnectionString = a["--legacy-cs=".Length..];
         else if (a.StartsWith("--target-cs=", StringComparison.OrdinalIgnoreCase))
             opts.TargetConnectionString = a["--target-cs=".Length..];
+        else if (a.StartsWith("--division=", StringComparison.OrdinalIgnoreCase))
+            opts.Division = a["--division=".Length..];
     }
 }
