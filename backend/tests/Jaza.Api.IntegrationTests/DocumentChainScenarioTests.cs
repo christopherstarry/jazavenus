@@ -1,9 +1,9 @@
 using System.Net.Http.Json;
 using FluentAssertions;
+using Jaza.Api.Controllers.Inventory;
 using Jaza.Application.Common;
 using Jaza.Application.MasterData;
 using Jaza.Application.Outbound;
-using Jaza.Api.Controllers;
 using Jaza.Domain.Common;
 using Xunit;
 
