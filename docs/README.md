@@ -1,22 +1,22 @@
-# Jaza Venus — documentation index
+# Jaza Venus â€” documentation index
 
 ## Deployment readiness & parity
 
 | Document | Purpose |
 |----------|---------|
-| [parity/legacy-to-new-parity-matrix.md](parity/legacy-to-new-parity-matrix.md) | **Feature-by-feature status** — Implemented / Partial / Missing / Dropped |
+| [parity/legacy-to-new-parity-matrix.md](parity/legacy-to-new-parity-matrix.md) | **Feature-by-feature status** â€” Implemented / Partial / Missing / Dropped |
 | [brds/brd-parity-and-changes.md](brds/brd-parity-and-changes.md) | Legacy scope vs new app; phased delivery plan |
-| [database/database-review.md](database/database-review.md) | **DB verdict** — schema parity status; application gaps |
+| [database/database-review.md](database/database-review.md) | **DB verdict** â€” schema parity status; application gaps |
 | [database/implementation-status.md](database/implementation-status.md) | Table implementation tracker |
 | [database/table-catalog.md](database/table-catalog.md) | Column-level catalog from EF model |
-| [database/naming-conventions.md](database/naming-conventions.md) | Legacy → canonical → EF naming map |
+| [database/naming-conventions.md](database/naming-conventions.md) | Legacy â†’ canonical â†’ EF naming map |
 | [database/audit-and-history.md](database/audit-and-history.md) | Activity history schema and queries |
 | [database/migrations-changelog.md](database/migrations-changelog.md) | EF migration log |
 | [security/security-review.md](security/security-review.md) | Security audit findings and pre-go-live checklist |
 | [performance/performance-guide.md](performance/performance-guide.md) | Indexing, pagination, EF hygiene, Neon pooling |
 | [cutover-checklist.md](cutover-checklist.md) | Go-live checklist |
 
-**Current status:** Core backend skeleton (PO → GRN → SO → DO → Invoice → Payment) exists. Activity History now covers transactions (audit enhanced). Phase 2 parity **tables** migrated in EF; APIs still to wire. Most transaction UIs and reports are not API-wired.
+**Current status:** Core backend skeleton (PO â†’ GRN â†’ SO â†’ DO â†’ Invoice â†’ Payment) exists. Activity History now covers transactions (audit enhanced). Phase 2 parity **tables** migrated in EF; APIs still to wire. Most transaction UIs and reports are not API-wired.
 
 ---
 
@@ -45,16 +45,21 @@
 
 ## Product requirements (PRD)
 
+See **[modules/README.md](modules/README.md)** for the full module index.
+
 | Area | Location |
 |------|----------|
-| Guide | [prds/prd-guide.md](prds/prd-guide.md) |
-| Auth | [prds/auth/](prds/auth/) |
-| Master data | [prds/master-data/](prds/master-data/) |
-| Sales transactions | [prds/transactions/](prds/transactions/) |
-| Purchase | [prds/purchase/](prds/purchase/) |
-| Inventory | [prds/inventory/](prds/inventory/) |
-| A/R | [prds/ar/](prds/ar/) |
-| Reports catalog | [prds/reports/report-catalog.md](prds/reports/report-catalog.md) |
+| Guide | [modules/shared/prd-guide.md](modules/shared/prd-guide.md) |
+| **UI foundation** | [modules/shared/ui-foundation/](modules/shared/ui-foundation/) â€” lookup, toolbar, grid, dialogs |
+| **Localization** | [modules/shared/localization/i18n-framework.md](modules/shared/localization/i18n-framework.md) |
+| Auth | [modules/auth/prds/](modules/auth/prds/) |
+| Master data | [modules/master-data/prds/](modules/master-data/prds/) |
+| Sales transactions | [modules/sales/prds/](modules/sales/prds/) |
+| Purchase | [modules/purchase/prds/](modules/purchase/prds/) |
+| Inventory | [modules/inventory/prds/](modules/inventory/prds/) |
+| A/R | [modules/ar/prds/](modules/ar/prds/) |
+| **System utilities** | [modules/system/prds/](modules/system/prds/) â€” preferences, period-end, backup |
+| Reports | [modules/reports/prds/report-catalog.md](modules/reports/prds/report-catalog.md) â€” links to pattern + domain catalogs |
 
 ---
 
@@ -62,11 +67,11 @@
 
 | Area | Document |
 |------|----------|
-| Auth | [flow/auth/](flow/auth/) |
-| Sales | [flow/sales/overview.md](flow/sales/overview.md) |
-| Purchase | [flow/purchase/overview.md](flow/purchase/overview.md) |
-| Inventory | [flow/inventory/overview.md](flow/inventory/overview.md) |
-| A/R | [flow/ar/overview.md](flow/ar/overview.md) |
+| Auth | [modules/auth/flow/](modules/auth/flow/) |
+| Sales | [modules/sales/flow/overview.md](modules/sales/flow/overview.md) |
+| Purchase | [modules/purchase/flow/overview.md](modules/purchase/flow/overview.md) |
+| Inventory | [modules/inventory/flow/overview.md](modules/inventory/flow/overview.md) |
+| A/R | [modules/ar/flow/overview.md](modules/ar/flow/overview.md) |
 
 ---
 
@@ -82,9 +87,9 @@
 
 | Document | Purpose |
 |----------|---------|
-| [api/README.md](api/README.md) | **API documentation suite** — auth, authorization, modules, legacy map |
+| [api/README.md](api/README.md) | **API documentation suite** â€” auth, authorization, modules, legacy map |
 | [development.md](development.md) | Local setup, tests, publishing frontend into API |
-| [http-api.md](http-api.md) | Full HTTP route map — 34 controllers, links to [api/modules/](api/modules/) |
+| [http-api.md](http-api.md) | Full HTTP route map â€” 34 controllers, links to [api/modules/](api/modules/) |
 | [security.md](security.md) | Threat model, OWASP mapping, headers, MFA |
 | [security-performance-guide.md](security-performance-guide.md) | Combined security + performance notes |
 | [runbook.md](runbook.md) | Production deploy, backup/restore, rollback |
@@ -98,7 +103,7 @@
 | Document | Purpose |
 |----------|---------|
 | [discovery-checklist.md](discovery-checklist.md) | Phase 0: capture behaviour from legacy VB app |
-| [schema-mapping.md](schema-mapping.md) | Legacy SQL Server → new EF schema (ETL template) |
+| [schema-mapping.md](schema-mapping.md) | Legacy SQL Server â†’ new EF schema (ETL template) |
 | [migration-howto.md](migration-howto.md) | Running `Jaza.Migration` ETL console |
 | [legacy-schema-extract.sql](legacy-schema-extract.sql) | Legacy schema extract script |
 | [seed-reference-data.sql](seed-reference-data.sql) | Reference data seed |

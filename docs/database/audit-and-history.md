@@ -11,7 +11,7 @@ Every change to an `Entity` subclass is logged automatically by `AuditSaveChange
 
 **Access:** SuperAdmin and Developer only (`RequireSuperAdmin` policy includes both).
 
-**UI:** `/system/audit-history` — `AuditHistoryPage.tsx`
+**UI:** `/system/audit-history` â€” `AuditHistoryPage.tsx`
 
 ---
 
@@ -26,7 +26,7 @@ Every change to an `Entity` subclass is logged automatically by `AuditSaveChange
 | `IpAddress` | varchar? | Request IP |
 | `UserAgent` | varchar? | Browser agent |
 | `Action` | varchar(64) | See actions below |
-| `Entity` | varchar(64) | C# entity name (`SalesOrder`, `Item`, …) |
+| `Entity` | varchar(64) | C# entity name (`SalesOrder`, `Item`, â€¦) |
 | `EntityId` | uuid? | Affected record ID |
 | `EntityCode` | varchar(64)? | Document number or code at write time |
 | `Module` | varchar(32)? | `master`, `purchase`, `sales`, `inventory`, `ar`, `system` |
@@ -42,8 +42,8 @@ Every change to an `Entity` subclass is logged automatically by `AuditSaveChange
 | `Create` | New entity inserted |
 | `Update` | Entity modified (non-status-only) |
 | `Delete` | Soft-delete (`IsDeleted = true`) |
-| `Post` | `Status` → `Posted` on a document |
-| `Void` | `Status` → `Voided` |
+| `Post` | `Status` â†’ `Posted` on a document |
+| `Void` | `Status` â†’ `Voided` |
 | `Login.Success` / `Login.Failed` / `Login.Locked` | Auth events |
 | `Logout`, `Password.Changed`, `MFA.Enabled` | Security events |
 
@@ -56,7 +56,7 @@ Every change to an `Entity` subclass is logged automatically by `AuditSaveChange
 ]
 ```
 
-PRD originally specified a `changes` JSONB array — implemented as `ChangesJson` on `AuditLogs`, with `BeforeJson`/`AfterJson` retained for full snapshots.
+PRD originally specified a `changes` JSONB array â€” implemented as `ChangesJson` on `AuditLogs`, with `BeforeJson`/`AfterJson` retained for full snapshots.
 
 ---
 
@@ -72,11 +72,11 @@ Resolved in `AuditMetadata.EntityModules` by entity type name:
 
 | Module | Entities |
 |--------|----------|
-| `master` | Customer, Item, Supplier, Brand, … |
-| `purchase` | PurchaseOrder, GoodsReceiptNote, PurchaseReturn, … |
-| `sales` | SalesOrder, DeliveryOrder, Invoice, SalesReturn, CreditMemo, … |
-| `inventory` | StockMovement, StockOnHand, StockReceipt, StockTransfer, … |
-| `ar` | Payment, PaymentAllocation, PostDatedCheck, ArAdjustment, … |
+| `master` | Customer, Item, Supplier, Brand, â€¦ |
+| `purchase` | PurchaseOrder, GoodsReceiptNote, PurchaseReturn, â€¦ |
+| `sales` | SalesOrder, DeliveryOrder, Invoice, SalesReturn, CreditMemo, â€¦ |
+| `inventory` | StockMovement, StockOnHand, StockReceipt, StockTransfer, â€¦ |
+| `ar` | Payment, PaymentAllocation, PostDatedCheck, ArAdjustment, â€¦ |
 | `system` | CompanySettings, FiscalPeriod, User auth events |
 
 ---
@@ -87,10 +87,10 @@ Resolved in `AuditMetadata.EntityModules` by entity type name:
 
 | Query | Description |
 |-------|-------------|
-| `entity` | Display key (`sales_order`, `product`, …) |
+| `entity` | Display key (`sales_order`, `product`, â€¦) |
 | `entityId` | Filter by record UUID |
 | `action` | `Create`, `Update`, `Delete`, `Post`, `Void` |
-| `module` | `master`, `purchase`, `sales`, … |
+| `module` | `master`, `purchase`, `sales`, â€¦ |
 | `search` | User name, entity code, or notes (case-insensitive) |
 | `from` / `to` | Date range (UTC) |
 | `page` / `pageSize` | Pagination |
@@ -158,6 +158,6 @@ Registered in DI as scoped `ActionAuditService`. Auth controller writes directly
 
 ## Related
 
-- [prds/master-data/audit-history.md](../prds/master-data/audit-history.md)
+- [modules/master-data/prds/audit-history.md](../modules/master-data/prds/audit-history.md)
 - [implementation-status.md](implementation-status.md)
 - [naming-conventions.md](naming-conventions.md)

@@ -76,7 +76,7 @@ Content-Type: application/json
 | 403 | `mfa_required` | MFA enabled but code omitted |
 | 403 | `mfa_setup_required` | SuperAdmin without MFA (production) |
 | 423 | `account_locked` | Identity lockout active |
-| 429 | — | Login rate limit (10/min/IP) |
+| 429 | â€” | Login rate limit (10/min/IP) |
 
 Rate limit policy name: `login`.
 
@@ -110,7 +110,7 @@ Content-Type: application/json
 | Status | Meaning |
 |--------|---------|
 | 200 | New `accessToken`, `refreshToken`, `expiresAtUtc`; cookie re-issued |
-| 401 | `session_expired` — client must redirect to login |
+| 401 | `session_expired` â€” client must redirect to login |
 
 Rate limit: `refresh` policy (30/min/user).
 
@@ -136,10 +136,10 @@ Per-user UI settings stored in `user_preferences`:
 
 | Method | Path | Body fields |
 |--------|------|-------------|
-| GET | `/api/auth/preferences` | — |
+| GET | `/api/auth/preferences` | â€” |
 | PUT | `/api/auth/preferences` | `language`, `textSize`, `theme` (all optional patch) |
 
-Division for scoped users is also stored on preferences (`division` field) — see [conventions.md](conventions.md#division-scoping).
+Division for scoped users is also stored on preferences (`division` field) â€” see [conventions.md](conventions.md#division-scoping).
 
 ### Example
 
@@ -176,7 +176,7 @@ Bearer-only clients omit `X-XSRF-TOKEN`.
 
 ## Further reading
 
-- [../flow/auth/how-sign-in-works.md](../flow/auth/how-sign-in-works.md)
-- [../flow/auth/how-tokens-work.md](../flow/auth/how-tokens-work.md)
-- [../flow/auth/mfa-and-security.md](../flow/auth/mfa-and-security.md)
-- [modules/auth.md](modules/auth.md) — route table and examples
+- [../modules/auth/flow/how-sign-in-works.md](../modules/auth/flow/how-sign-in-works.md)
+- [../modules/auth/flow/how-tokens-work.md](../modules/auth/flow/how-tokens-work.md)
+- [../modules/auth/flow/mfa-and-security.md](../modules/auth/flow/mfa-and-security.md)
+- [modules/auth.md](modules/auth.md) â€” route table and examples

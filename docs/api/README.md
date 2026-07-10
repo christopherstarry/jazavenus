@@ -1,8 +1,8 @@
-# Jaza Venus HTTP API — documentation index
+# Jaza Venus HTTP API â€” documentation index
 
 The Jaza Venus backend exposes a REST API under `/api`. The browser SPA calls same-origin `/api`; local dev proxies to `https://localhost:5001` via Vite.
 
-**OpenAPI (Development):** [`/openapi/v1.json`](https://localhost:5001/openapi/v1.json) · **Scalar UI:** enabled when `ASPNETCORE_ENVIRONMENT=Development`
+**OpenAPI (Development):** [`/openapi/v1.json`](https://localhost:5001/openapi/v1.json) Â· **Scalar UI:** enabled when `ASPNETCORE_ENVIRONMENT=Development`
 
 **Generated artifacts:** run [`backend/scripts/export-api-docs.ps1`](../../backend/scripts/export-api-docs.ps1) to refresh [`generated/routes.md`](generated/routes.md) and [`endpoint-manifest.json`](endpoint-manifest.json).
 
@@ -16,7 +16,7 @@ The Jaza Venus backend exposes a REST API under `/api`. The browser SPA calls sa
 | Roles, modules, reports | [authorization.md](authorization.md) |
 | Errors & status codes | [errors.md](errors.md) |
 | Paging, division, documents | [conventions.md](conventions.md) |
-| VB6 → REST mapping | [legacy-endpoint-map.md](legacy-endpoint-map.md) |
+| VB6 â†’ REST mapping | [legacy-endpoint-map.md](legacy-endpoint-map.md) |
 | Test matrix & coverage | [testing-strategy.md](testing-strategy.md) |
 | Release notes | [changelog.md](changelog.md) |
 | Full route table (all controllers) | [../http-api.md](../http-api.md) |
@@ -64,7 +64,7 @@ Anonymous endpoints are explicit (`[AllowAnonymous]`): login, refresh, antiforge
 
 State-changing requests from cookie-authenticated browsers must include the antiforgery token:
 
-1. Call `GET /api/auth/antiforgery` (or login — both issue the cookie).
+1. Call `GET /api/auth/antiforgery` (or login â€” both issue the cookie).
 2. Read the `jaza.xsrf` cookie value.
 3. Send it as header `X-XSRF-TOKEN` on every `POST`, `PUT`, `PATCH`, `DELETE`.
 
@@ -94,12 +94,12 @@ List endpoints accept query parameters:
 
 | Parameter | Default | Max | Notes |
 |-----------|---------|-----|-------|
-| `page` | 1 | — | 1-based |
+| `page` | 1 | â€” | 1-based |
 | `pageSize` | 20 | 50 | Hard cap via `PagedRequest.Normalized()` |
-| `search` | — | — | Where supported |
-| `sort` | — | — | Where supported |
+| `search` | â€” | â€” | Where supported |
+| `sort` | â€” | â€” | Where supported |
 
-Response envelope: `PagedResult<T>` → `{ items, totalCount, page, pageSize, totalPages }`.
+Response envelope: `PagedResult<T>` â†’ `{ items, totalCount, page, pageSize, totalPages }`.
 
 Report endpoints use `page` / `pageSize` (max 500) via `ReportQueryParams`. See [conventions.md](conventions.md#pagination).
 
@@ -109,9 +109,9 @@ Report endpoints use `page` / `pageSize` (max 500) via `ReportQueryParams`. See 
 
 Unless overridden, endpoints require an authenticated user. Layered checks:
 
-1. **Role policy** — `RequireOperator` (any active user), `RequireAdmin`, `RequireSuperAdmin`, `RequireDeveloper`
-2. **Module permission** — `[RequireModule("master"|"purchase"|"sales"|"ar"|"inventory")]`
-3. **Report permission** — `[RequireReport("sales"|"inventory"|"purchase"|"ar")]`
+1. **Role policy** â€” `RequireOperator` (any active user), `RequireAdmin`, `RequireSuperAdmin`, `RequireDeveloper`
+2. **Module permission** â€” `[RequireModule("master"|"purchase"|"sales"|"ar"|"inventory")]`
+3. **Report permission** â€” `[RequireReport("sales"|"inventory"|"purchase"|"ar")]`
 
 See [authorization.md](authorization.md).
 
@@ -119,6 +119,6 @@ See [authorization.md](authorization.md).
 
 ## Related docs
 
-- Human-friendly auth flows: [../flow/auth/](../flow/auth/)
+- Human-friendly auth flows: [../modules/auth/flow/](../modules/auth/flow/)
 - Security review: [../security/security-review.md](../security/security-review.md)
 - Legacy parity matrix: [../parity/legacy-to-new-parity-matrix.md](../parity/legacy-to-new-parity-matrix.md)

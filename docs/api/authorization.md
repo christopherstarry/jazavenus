@@ -16,7 +16,7 @@ Jaza Venus layers **role policies**, **module permissions**, and **report permis
 Role hierarchy for policies (each policy includes all roles to its right):
 
 ```
-Developer ⊃ SuperAdmin ⊃ Admin ⊃ Sales
+Developer âŠƒ SuperAdmin âŠƒ Admin âŠƒ Sales
 ```
 
 ---
@@ -65,7 +65,7 @@ Stored per user in `user_report_permissions`. Report type keys:
 | Type | Key | Routes |
 |------|-----|--------|
 | Sales | `sales` | `/api/reports/sales/{reportKey}` |
-| Inventory | `inventory` | `/api/reports/inventory/{reportKey}`, `/api/reports/stock-card`, … |
+| Inventory | `inventory` | `/api/reports/inventory/{reportKey}`, `/api/reports/stock-card`, â€¦ |
 | Purchase | `purchase` | `/api/reports/purchase/{reportKey}` |
 | A/R | `ar` | `/api/reports/ar/{reportKey}`, `/api/reports/financial-summary` |
 
@@ -92,18 +92,18 @@ Cross-division access attempts return **403 Forbidden** via `IDivisionScopeServi
 
 ```
 Login / GET /api/auth/me
-        │
-        ▼
+        â”‚
+        â–¼
 PermissionResolver.ResolveAsync(userId)
-        │
-        ├─ Developer? → all modules + all reports
-        ├─ SuperAdmin? → all modules + all reports (no error logs)
-        └─ Other roles → DB module + report rows
-        │
-        ▼
+        â”‚
+        â”œâ”€ Developer? â†’ all modules + all reports
+        â”œâ”€ SuperAdmin? â†’ all modules + all reports (no error logs)
+        â””â”€ Other roles â†’ DB module + report rows
+        â”‚
+        â–¼
 JWT claims + LoginResponse.permissions
-        │
-        ▼
+        â”‚
+        â–¼
 [RequireModule] / [RequireReport] handlers on each request
 ```
 
@@ -134,6 +134,6 @@ See [errors.md](errors.md) for ProblemDetails shape.
 
 ## Further reading
 
-- [authentication.md](authentication.md) — login, tokens, CSRF
-- [conventions.md](conventions.md#division-scoping) — division header details
-- [../flow/auth/permissions.md](../flow/auth/permissions.md) — product-oriented permission guide
+- [authentication.md](authentication.md) â€” login, tokens, CSRF
+- [conventions.md](conventions.md#division-scoping) â€” division header details
+- [../modules/auth/flow/permissions.md](../modules/auth/flow/permissions.md) â€” product-oriented permission guide
