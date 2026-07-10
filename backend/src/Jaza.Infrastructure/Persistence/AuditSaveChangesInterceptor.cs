@@ -44,7 +44,6 @@ public sealed class AuditSaveChangesInterceptor(ICurrentUser currentUser) : Save
                     entry.Entity.UpdatedByUserId = userId;
                     break;
                 case EntityState.Deleted:
-                    // Convert hard-delete into soft-delete.
                     entry.State = EntityState.Modified;
                     entry.Entity.IsDeleted = true;
                     entry.Entity.DeletedAtUtc = now;
@@ -70,11 +69,9 @@ public sealed class AuditSaveChangesInterceptor(ICurrentUser currentUser) : Save
 
     private AuditLog? BuildAudit(EntityEntry<Entity> entry)
     {
-        var action = entry.State == EntityState.Added
-            ? "Create"
-            : entry.Entity.IsDeleted ? "Delete" : "Update";
-
         var entityName = entry.Entity.GetType().Name;
+        var action = ResolveAction(entry);
+
         var before = entry.State == EntityState.Added
             ? null
             : SerializeProperties(entry, original: true);
@@ -89,9 +86,34 @@ public sealed class AuditSaveChangesInterceptor(ICurrentUser currentUser) : Save
             Action = action,
             Entity = entityName,
             EntityId = entry.Entity.Id,
+            EntityCode = AuditMetadata.ResolveEntityCode(entry.Entity),
+            Module = AuditMetadata.ResolveModule(entityName),
+            ChangesJson = entry.State == EntityState.Modified && !entry.Entity.IsDeleted
+                ? AuditMetadata.BuildChangesJson(entry, original: false)
+                : null,
             BeforeJson = before,
             AfterJson = after,
         };
+    }
+
+    private static string ResolveAction(EntityEntry<Entity> entry)
+    {
+        if (entry.State == EntityState.Added) return "Create";
+        if (entry.Entity.IsDeleted) return "Delete";
+
+        var statusProp = entry.Properties.FirstOrDefault(p => p.Metadata.Name == "Status");
+        if (statusProp is { IsModified: true })
+        {
+            var orig = statusProp.OriginalValue?.ToString() ?? "";
+            var curr = statusProp.CurrentValue?.ToString() ?? "";
+            if (curr.Contains("Posted", StringComparison.Ordinal) &&
+                (orig.Contains("Draft", StringComparison.Ordinal) || string.IsNullOrEmpty(orig)))
+                return "Post";
+            if (curr.Contains("Voided", StringComparison.Ordinal))
+                return "Void";
+        }
+
+        return "Update";
     }
 
     private static string SerializeProperties(EntityEntry entry, bool original)
@@ -99,7 +121,7 @@ public sealed class AuditSaveChangesInterceptor(ICurrentUser currentUser) : Save
         var dict = new Dictionary<string, object?>();
         foreach (var p in entry.Properties)
         {
-            if (p.Metadata.Name == nameof(Entity.RowVersion)) continue;
+            if (p.Metadata.Name is "RowVersion" or "xmin") continue;
             dict[p.Metadata.Name] = original ? p.OriginalValue : p.CurrentValue;
         }
         return JsonSerializer.Serialize(dict, JsonOpts);

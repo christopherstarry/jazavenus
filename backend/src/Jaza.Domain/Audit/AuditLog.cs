@@ -22,6 +22,15 @@ public sealed class AuditLog
     public required string Entity { get; set; }
     public Guid? EntityId { get; set; }
 
+    /// <summary>Human-readable identifier at time of change (document number, customer code).</summary>
+    public string? EntityCode { get; set; }
+
+    /// <summary>Permission module: master, purchase, sales, inventory, ar, system.</summary>
+    public string? Module { get; set; }
+
+    /// <summary>Field-level diff array JSON for updates.</summary>
+    public string? ChangesJson { get; set; }
+
     public string? BeforeJson { get; set; }
     public string? AfterJson { get; set; }
     public string? Notes { get; set; }

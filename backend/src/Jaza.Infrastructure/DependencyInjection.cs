@@ -52,6 +52,7 @@ public static class DependencyInjection
 
         services.AddScoped<IDocumentNumberGenerator, DocumentNumberGenerator>();
         services.AddScoped<IStockService, StockService>();
+        services.AddScoped<IActionAuditService, ActionAuditService>();
         services.AddSingleton<ITotpService, TotpService>();
 
         // Auth services

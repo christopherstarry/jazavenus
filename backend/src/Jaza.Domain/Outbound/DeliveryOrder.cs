@@ -10,6 +10,7 @@ namespace Jaza.Domain.Outbound;
 public sealed class DeliveryOrder : Entity
 {
     public required string Number { get; set; }
+    public string Division { get; set; } = "";
     public DocumentStatus Status { get; set; } = DocumentStatus.Draft;
 
     public Guid? SalesOrderId { get; set; }
@@ -27,7 +28,7 @@ public sealed class DeliveryOrder : Entity
     public List<DeliveryOrderLine> Lines { get; set; } = [];
 }
 
-public sealed class DeliveryOrderLine : Entity
+public sealed class DeliveryOrderLine : Entity, IBaseDocumentLine
 {
     public Guid DeliveryOrderId { get; set; }
     public DeliveryOrder? DeliveryOrder { get; set; }
@@ -37,6 +38,11 @@ public sealed class DeliveryOrderLine : Entity
 
     public int LineNumber { get; set; }
 
+    public string? BaseDocumentType { get; set; }
+    public Guid? BaseDocumentId { get; set; }
+    public int? BaseLineNumber { get; set; }
+    public decimal? BaseQuantity { get; set; }
+
     public Guid ItemId { get; set; }
     public Item? Item { get; set; }
 
@@ -44,6 +50,8 @@ public sealed class DeliveryOrderLine : Entity
     public Location? Location { get; set; }
 
     public decimal Quantity { get; set; }
+    public decimal Discount2Percent { get; set; }
+    public decimal Discount3Percent { get; set; }
     /// <summary>Cost picked up from StockOnHand.AverageCost at the moment of posting (immutable thereafter).</summary>
     public decimal UnitCost { get; set; }
 }

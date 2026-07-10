@@ -20,6 +20,9 @@ public sealed class StockOnHand : Entity
 
     public decimal Quantity { get; set; }
 
+    /// <summary>Quantity reserved by open sales orders (legacy IsCommited).</summary>
+    public decimal CommittedQuantity { get; set; }
+
     /// <summary>Weighted-average unit cost. Used for COGS at issue time.</summary>
     public decimal AverageCost { get; set; }
 

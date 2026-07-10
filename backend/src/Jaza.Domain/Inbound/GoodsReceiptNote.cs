@@ -10,6 +10,7 @@ namespace Jaza.Domain.Inbound;
 public sealed class GoodsReceiptNote : Entity
 {
     public required string Number { get; set; }
+    public string Division { get; set; } = "";
     public DocumentStatus Status { get; set; } = DocumentStatus.Draft;
 
     public Guid? PurchaseOrderId { get; set; }
@@ -28,7 +29,7 @@ public sealed class GoodsReceiptNote : Entity
     public List<GoodsReceiptLine> Lines { get; set; } = [];
 }
 
-public sealed class GoodsReceiptLine : Entity
+public sealed class GoodsReceiptLine : Entity, IBaseDocumentLine
 {
     public Guid GoodsReceiptNoteId { get; set; }
     public GoodsReceiptNote? GoodsReceiptNote { get; set; }
@@ -38,6 +39,11 @@ public sealed class GoodsReceiptLine : Entity
 
     public int LineNumber { get; set; }
 
+    public string? BaseDocumentType { get; set; }
+    public Guid? BaseDocumentId { get; set; }
+    public int? BaseLineNumber { get; set; }
+    public decimal? BaseQuantity { get; set; }
+
     public Guid ItemId { get; set; }
     public Item? Item { get; set; }
 
@@ -46,6 +52,8 @@ public sealed class GoodsReceiptLine : Entity
 
     public decimal Quantity { get; set; }
     public decimal UnitCost { get; set; }
+    public decimal Discount2Percent { get; set; }
+    public decimal Discount3Percent { get; set; }
     public string? BatchOrSerial { get; set; }
     public DateTime? ExpiryDate { get; set; }
 }

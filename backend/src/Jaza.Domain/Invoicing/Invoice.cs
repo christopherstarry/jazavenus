@@ -1,3 +1,4 @@
+using Jaza.Domain.Ar;
 using Jaza.Domain.Common;
 using Jaza.Domain.MasterData;
 using Jaza.Domain.Outbound;
@@ -16,7 +17,12 @@ public enum InvoiceStatus
 public sealed class Invoice : Entity
 {
     public required string Number { get; set; }
+    public string Division { get; set; } = "";
     public InvoiceStatus Status { get; set; } = InvoiceStatus.Draft;
+
+    public string? TaxSerial { get; set; }
+    public DateTime? PostedAtUtc { get; set; }
+    public Guid? PostedByUserId { get; set; }
 
     public Guid CustomerId { get; set; }
     public Customer? Customer { get; set; }
@@ -32,20 +38,36 @@ public sealed class Invoice : Entity
 
     public List<InvoiceLine> Lines { get; set; } = [];
     public List<Payment> Payments { get; set; } = [];
+    public List<PaymentAllocation> PaymentAllocations { get; set; } = [];
 
     public decimal SubTotal => Lines.Sum(l => l.LineSubtotal);
     public decimal TaxTotal => Lines.Sum(l => l.TaxAmount);
     public decimal GrandTotal => SubTotal + TaxTotal;
-    public decimal AmountPaid => Payments.Where(p => !p.IsDeleted).Sum(p => p.Amount);
+
+    public decimal AmountPaid
+    {
+        get
+        {
+            var fromAlloc = PaymentAllocations.Where(a => !a.IsDeleted).Sum(a => a.Amount);
+            if (fromAlloc > 0) return fromAlloc;
+            return Payments.Where(p => !p.IsDeleted).Sum(p => p.Amount);
+        }
+    }
+
     public decimal AmountDue => GrandTotal - AmountPaid;
 }
 
-public sealed class InvoiceLine : Entity
+public sealed class InvoiceLine : Entity, IBaseDocumentLine
 {
     public Guid InvoiceId { get; set; }
     public Invoice? Invoice { get; set; }
 
     public int LineNumber { get; set; }
+
+    public string? BaseDocumentType { get; set; }
+    public Guid? BaseDocumentId { get; set; }
+    public int? BaseLineNumber { get; set; }
+    public decimal? BaseQuantity { get; set; }
 
     public Guid? ItemId { get; set; }
     public Item? Item { get; set; }
@@ -54,6 +76,8 @@ public sealed class InvoiceLine : Entity
     public decimal Quantity { get; set; }
     public decimal UnitPrice { get; set; }
     public decimal DiscountPercent { get; set; }
+    public decimal Discount2Percent { get; set; }
+    public decimal Discount3Percent { get; set; }
     public decimal TaxPercent { get; set; }
 
     public decimal LineSubtotal => Quantity * UnitPrice * (1m - DiscountPercent / 100m);
