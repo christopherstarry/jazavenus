@@ -34,7 +34,7 @@ public sealed record ResolvedPermissions(
 
 public sealed record ModulePermission(bool CanEdit, bool CanDelete);
 
-public sealed record PreferencesDto(string Language, string TextSize, string Theme);
+public sealed record PreferencesDto(string Language, string TextSize, string Theme, string? Division);
 
 /// <summary>Full successful login response (also returned by /api/auth/refresh).</summary>
 public sealed record LoginResponse(
@@ -74,7 +74,7 @@ public sealed record MfaBackupCodesResponse(IReadOnlyList<string> Codes);
 
 // ─── Preferences ─────────────────────────────────────────────────────────────
 
-public sealed record UpdatePreferencesRequest(string? Language, string? TextSize, string? Theme);
+public sealed record UpdatePreferencesRequest(string? Language, string? TextSize, string? Theme, string? Division);
 
 // ─── User management ─────────────────────────────────────────────────────────
 
@@ -234,6 +234,11 @@ public sealed class UpdatePreferencesValidator : AbstractValidator<UpdatePrefere
         {
             RuleFor(x => x.Theme!).Must(v => v is "light" or "dark" or "system")
                 .WithMessage("Theme must be 'light', 'dark', or 'system'.");
+        });
+        When(x => x.Division is not null, () =>
+        {
+            RuleFor(x => x.Division!).Must(Divisions.IsValid)
+                .WithMessage("Division must be one of: DISTRIBUTIONBDG, DISTRIBUTIONCRB, TRADINGBDG, TRADINGCRB.");
         });
     }
 }

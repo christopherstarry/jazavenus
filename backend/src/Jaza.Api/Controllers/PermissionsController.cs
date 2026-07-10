@@ -14,6 +14,7 @@ namespace Jaza.Api.Controllers;
 /// Module + report permission management for an individual user. Developer + SuperAdmin only.
 /// </summary>
 [ApiController]
+[Tags("Users")]
 [Route("api/users/{userId:guid}/permissions")]
 [Authorize(Policy = Policies.RequireSuperAdmin)]
 [Produces("application/json")]

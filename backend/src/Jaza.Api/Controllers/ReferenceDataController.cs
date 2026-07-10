@@ -1,5 +1,6 @@
 using System.Reflection;
 using FluentValidation;
+using Jaza.Api.Security;
 using Jaza.Application.Common;
 using Jaza.Application.MasterData;
 using Jaza.Domain.MasterData;
@@ -11,7 +12,9 @@ using Microsoft.EntityFrameworkCore;
 namespace Jaza.Api.Controllers;
 
 [ApiController]
+[Tags("Reference")]
 [Authorize(Policy = Policies.RequireOperator)]
+[RequireModule(Modules.Master)]
 [Route("api/master")]
 public sealed class ReferenceDataController(AppDbContext db,
     IValidator<RefUpsertDto> refVal,

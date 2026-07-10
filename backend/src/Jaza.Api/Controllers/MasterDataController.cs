@@ -1,5 +1,7 @@
 using FluentValidation;
+using Jaza.Api.Security;
 using Jaza.Application.Common;
+using Jaza.Application.Credit;
 using Jaza.Application.MasterData;
 using Jaza.Domain.MasterData;
 using Jaza.Infrastructure.Persistence;
@@ -15,9 +17,12 @@ namespace Jaza.Api.Controllers;
 /// All write endpoints require an antiforgery token.
 /// </summary>
 [ApiController]
+[Tags("Master")]
 [Authorize(Policy = Policies.RequireOperator)]
+[RequireModule(Modules.Master)]
 [Route("api/master")]
 public sealed class MasterDataController(AppDbContext db,
+    ICreditControlService creditControl,
     IValidator<UnitUpsertDto> unitVal,
     IValidator<CategoryUpsertDto> catVal,
     IValidator<ItemUpsertDto> itemVal,
@@ -203,6 +208,10 @@ public sealed class MasterDataController(AppDbContext db,
         var x = await db.Customers.FirstOrDefaultAsync(c => c.Id == id, ct) ?? throw new KeyNotFoundException();
         return ProjectCustomer(x);
     }
+
+    [HttpGet("customers/{id:guid}/credit-status")]
+    public async Task<ActionResult<CreditCheckResult>> GetCustomerCreditStatus(Guid id, CancellationToken ct) =>
+        await creditControl.CheckAsync(id, 0m, adminOverride: false, ct);
 
     [HttpPost("customers"), Authorize(Policy = Policies.RequireAdmin)]
     public async Task<ActionResult<CustomerDto>> CreateCustomer([FromBody] CustomerUpsertDto dto, CancellationToken ct)

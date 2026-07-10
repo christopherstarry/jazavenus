@@ -1,3 +1,4 @@
+using Jaza.Api.Security;
 using Jaza.Application.Common;
 using Jaza.Application.Stock;
 using Jaza.Domain.Common;
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore;
 namespace Jaza.Api.Controllers;
 
 [ApiController]
+[Tags("Stock")]
 [Authorize(Policy = Policies.RequireOperator)]
+[RequireModule(Modules.Inventory)]
 [Route("api/stock")]
-public sealed class StockController(AppDbContext db, IStockService stock) : ControllerBase
+public sealed class StockController(AppDbContext db, IDivisionScopeService division, IStockService stock) : ControllerBase
 {
     public sealed record OnHandRow(Guid ItemId, string Sku, string Name, Guid WarehouseId,
         string WarehouseCode, Guid? LocationId, string? LocationCode, decimal Quantity, decimal AverageCost);
@@ -48,6 +51,7 @@ public sealed class StockController(AppDbContext db, IStockService stock) : Cont
     public async Task<IActionResult> Adjust([FromBody] AdjustmentDto dto, CancellationToken ct)
     {
         if (dto.Quantity == 0) throw new DomainException("Adjustment quantity cannot be zero.");
+        _ = division.RequireDivisionForWrite();
 
         await using var tx = await db.Database.BeginTransactionAsync(ct);
         await stock.PostMovementAsync(new StockMovement

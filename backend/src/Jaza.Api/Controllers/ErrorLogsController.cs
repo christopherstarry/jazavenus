@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Jaza.Api.Controllers;
 
 [ApiController]
+[Tags("System")]
 [Authorize(Policy = Policies.RequireDeveloper)]
 [Route("api/error-logs")]
 public sealed class ErrorLogsController(AppDbContext db) : ControllerBase

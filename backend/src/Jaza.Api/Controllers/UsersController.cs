@@ -16,6 +16,7 @@ namespace Jaza.Api.Controllers;
 /// SuperAdmin cannot modify Developer accounts.
 /// </summary>
 [ApiController]
+[Tags("Users")]
 [Route("api/users")]
 [Authorize(Policy = Policies.RequireSuperAdmin)]
 [Produces("application/json")]

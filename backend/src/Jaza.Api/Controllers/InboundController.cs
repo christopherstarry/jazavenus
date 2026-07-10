@@ -1,4 +1,5 @@
 using FluentValidation;
+using Jaza.Api.Security;
 using Jaza.Application.Common;
 using Jaza.Application.Inbound;
 using Jaza.Application.Stock;
@@ -13,9 +14,12 @@ using Microsoft.EntityFrameworkCore;
 namespace Jaza.Api.Controllers;
 
 [ApiController]
+[Tags("Inbound")]
 [Authorize(Policy = Policies.RequireOperator)]
+[RequireModule(Modules.Purchase)]
 [Route("api/inbound")]
 public sealed class InboundController(AppDbContext db,
+    IDivisionScopeService division,
     IDocumentNumberGenerator numberGen,
     IStockService stock,
     IValidator<PurchaseOrderUpsertDto> poVal,
@@ -26,8 +30,8 @@ public sealed class InboundController(AppDbContext db,
     public async Task<PagedResult<PurchaseOrderDto>> ListPOs([FromQuery] PagedRequest q, CancellationToken ct)
     {
         q = q.Normalized();
-        var src = db.PurchaseOrders.AsNoTracking()
-            .Include(p => p.Supplier).Include(p => p.Warehouse).Include(p => p.Lines).ThenInclude(l => l.Item)
+        var src = division.ApplyDivisionFilter(db.PurchaseOrders.AsNoTracking()
+            .Include(p => p.Supplier).Include(p => p.Warehouse).Include(p => p.Lines).ThenInclude(l => l.Item), x => x.Division)
             .OrderByDescending(p => p.OrderDate);
         var total = await src.CountAsync(ct);
         var items = await src.Skip((q.Page - 1) * q.PageSize).Take(q.PageSize).ToListAsync(ct);
@@ -37,9 +41,8 @@ public sealed class InboundController(AppDbContext db,
     [HttpGet("purchase-orders/{id:guid}")]
     public async Task<ActionResult<PurchaseOrderDto>> GetPO(Guid id, CancellationToken ct)
     {
-        var p = await db.PurchaseOrders.AsNoTracking()
-            .Include(p => p.Supplier).Include(p => p.Warehouse).Include(p => p.Lines).ThenInclude(l => l.Item)
-            .FirstOrDefaultAsync(p => p.Id == id, ct) ?? throw new KeyNotFoundException();
+        var p = await LoadPO(id, ct);
+        division.EnsureDivisionAccess(p.Division);
         return MapPo(p);
     }
 
@@ -51,6 +54,7 @@ public sealed class InboundController(AppDbContext db,
         var po = new PurchaseOrder
         {
             Number = await numberGen.NextAsync("PO", ct),
+            Division = division.RequireDivisionForWrite(),
             SupplierId = dto.SupplierId,
             WarehouseId = dto.WarehouseId,
             OrderDate = dto.OrderDate,
@@ -72,11 +76,42 @@ public sealed class InboundController(AppDbContext db,
         return await GetPO(po.Id, ct);
     }
 
+    [HttpPut("purchase-orders/{id:guid}")]
+    [Authorize(Policy = Policies.RequireAdmin)]
+    public async Task<IActionResult> UpdatePO(Guid id, [FromBody] PurchaseOrderUpsertDto dto, CancellationToken ct)
+    {
+        await poVal.ValidateAndThrowAsync(dto, ct);
+        var p = await db.PurchaseOrders.Include(x => x.Lines).FirstOrDefaultAsync(x => x.Id == id, ct)
+            ?? throw new KeyNotFoundException();
+        division.EnsureDivisionAccess(p.Division);
+        if (p.Status != DocumentStatus.Draft) throw new DomainException("Only draft POs can be updated.");
+
+        p.SupplierId = dto.SupplierId;
+        p.WarehouseId = dto.WarehouseId;
+        p.OrderDate = dto.OrderDate;
+        p.ExpectedDate = dto.ExpectedDate;
+        p.Currency = dto.Currency;
+        p.Notes = dto.Notes;
+        db.PurchaseOrderLines.RemoveRange(p.Lines);
+        p.Lines = dto.Lines.Select(l => new PurchaseOrderLine
+        {
+            LineNumber = l.LineNumber,
+            ItemId = l.ItemId,
+            Quantity = l.Quantity,
+            UnitPrice = l.UnitPrice,
+            DiscountPercent = l.DiscountPercent,
+            TaxPercent = l.TaxPercent,
+        }).ToList();
+        await db.SaveChangesAsync(ct);
+        return NoContent();
+    }
+
     [HttpPost("purchase-orders/{id:guid}/post")]
     [Authorize(Policy = Policies.RequireAdmin)]
     public async Task<IActionResult> PostPO(Guid id, CancellationToken ct)
     {
         var p = await db.PurchaseOrders.FirstOrDefaultAsync(x => x.Id == id, ct) ?? throw new KeyNotFoundException();
+        division.EnsureDivisionAccess(p.Division);
         if (p.Status != DocumentStatus.Draft) throw new DomainException("Only draft POs can be posted.");
         p.Status = DocumentStatus.Posted;
         await db.SaveChangesAsync(ct);
@@ -88,9 +123,9 @@ public sealed class InboundController(AppDbContext db,
     public async Task<PagedResult<GoodsReceiptDto>> ListGRNs([FromQuery] PagedRequest q, CancellationToken ct)
     {
         q = q.Normalized();
-        var src = db.GoodsReceiptNotes.AsNoTracking()
+        var src = division.ApplyDivisionFilter(db.GoodsReceiptNotes.AsNoTracking()
             .Include(g => g.Supplier).Include(g => g.Warehouse).Include(g => g.PurchaseOrder)
-            .Include(g => g.Lines).ThenInclude(l => l.Item)
+            .Include(g => g.Lines).ThenInclude(l => l.Item), x => x.Division)
             .OrderByDescending(g => g.ReceivedAt);
         var total = await src.CountAsync(ct);
         var items = await src.Skip((q.Page - 1) * q.PageSize).Take(q.PageSize).ToListAsync(ct);
@@ -100,10 +135,8 @@ public sealed class InboundController(AppDbContext db,
     [HttpGet("grns/{id:guid}")]
     public async Task<ActionResult<GoodsReceiptDto>> GetGRN(Guid id, CancellationToken ct)
     {
-        var g = await db.GoodsReceiptNotes.AsNoTracking()
-            .Include(x => x.Supplier).Include(x => x.Warehouse).Include(x => x.PurchaseOrder)
-            .Include(x => x.Lines).ThenInclude(l => l.Item)
-            .FirstOrDefaultAsync(x => x.Id == id, ct) ?? throw new KeyNotFoundException();
+        var g = await LoadGRN(id, ct);
+        division.EnsureDivisionAccess(g.Division);
         return MapGrn(g);
     }
 
@@ -114,6 +147,7 @@ public sealed class InboundController(AppDbContext db,
         var grn = new GoodsReceiptNote
         {
             Number = await numberGen.NextAsync("GRN", ct),
+            Division = division.RequireDivisionForWrite(),
             PurchaseOrderId = dto.PurchaseOrderId,
             SupplierId = dto.SupplierId,
             WarehouseId = dto.WarehouseId,
@@ -137,6 +171,37 @@ public sealed class InboundController(AppDbContext db,
         return await GetGRN(grn.Id, ct);
     }
 
+    [HttpPut("grns/{id:guid}")]
+    public async Task<IActionResult> UpdateGRN(Guid id, [FromBody] GoodsReceiptUpsertDto dto, CancellationToken ct)
+    {
+        await grnVal.ValidateAndThrowAsync(dto, ct);
+        var grn = await db.GoodsReceiptNotes.Include(x => x.Lines).FirstOrDefaultAsync(x => x.Id == id, ct)
+            ?? throw new KeyNotFoundException();
+        division.EnsureDivisionAccess(grn.Division);
+        if (grn.Status != DocumentStatus.Draft) throw new DomainException("Only draft GRNs can be updated.");
+
+        grn.PurchaseOrderId = dto.PurchaseOrderId;
+        grn.SupplierId = dto.SupplierId;
+        grn.WarehouseId = dto.WarehouseId;
+        grn.ReceivedAt = dto.ReceivedAt;
+        grn.SupplierDeliveryNote = dto.SupplierDeliveryNote;
+        grn.Notes = dto.Notes;
+        db.GoodsReceiptLines.RemoveRange(grn.Lines);
+        grn.Lines = dto.Lines.Select(l => new GoodsReceiptLine
+        {
+            LineNumber = l.LineNumber,
+            PurchaseOrderLineId = l.PurchaseOrderLineId,
+            ItemId = l.ItemId,
+            LocationId = l.LocationId,
+            Quantity = l.Quantity,
+            UnitCost = l.UnitCost,
+            BatchOrSerial = l.BatchOrSerial,
+            ExpiryDate = l.ExpiryDate,
+        }).ToList();
+        await db.SaveChangesAsync(ct);
+        return NoContent();
+    }
+
     /// <summary>Posting a GRN is the only way to bring stock into the system.</summary>
     [HttpPost("grns/{id:guid}/post")]
     public async Task<IActionResult> PostGRN(Guid id, CancellationToken ct)
@@ -144,6 +209,7 @@ public sealed class InboundController(AppDbContext db,
         await using var tx = await db.Database.BeginTransactionAsync(ct);
         var grn = await db.GoodsReceiptNotes.Include(g => g.Lines)
             .FirstOrDefaultAsync(g => g.Id == id, ct) ?? throw new KeyNotFoundException();
+        division.EnsureDivisionAccess(grn.Division);
         if (grn.Status != DocumentStatus.Draft) throw new DomainException("GRN already posted.");
 
         foreach (var l in grn.Lines)
@@ -174,6 +240,17 @@ public sealed class InboundController(AppDbContext db,
         await tx.CommitAsync(ct);
         return NoContent();
     }
+
+    private async Task<PurchaseOrder> LoadPO(Guid id, CancellationToken ct) =>
+        await db.PurchaseOrders.AsNoTracking()
+            .Include(p => p.Supplier).Include(p => p.Warehouse).Include(p => p.Lines).ThenInclude(l => l.Item)
+            .FirstOrDefaultAsync(p => p.Id == id, ct) ?? throw new KeyNotFoundException();
+
+    private async Task<GoodsReceiptNote> LoadGRN(Guid id, CancellationToken ct) =>
+        await db.GoodsReceiptNotes.AsNoTracking()
+            .Include(x => x.Supplier).Include(x => x.Warehouse).Include(x => x.PurchaseOrder)
+            .Include(x => x.Lines).ThenInclude(l => l.Item)
+            .FirstOrDefaultAsync(x => x.Id == id, ct) ?? throw new KeyNotFoundException();
 
     // ---------- Mappers ----------
     private static PurchaseOrderDto MapPo(PurchaseOrder p) => new(

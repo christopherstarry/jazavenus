@@ -20,6 +20,7 @@ namespace Jaza.Api.Controllers;
 /// See <c>docs/flow/auth/</c> for the human-friendly overview.
 /// </summary>
 [ApiController]
+[Tags("Auth")]
 [Route("api/auth")]
 [Produces("application/json")]
 public sealed class AuthController(
@@ -371,7 +372,7 @@ public sealed class AuthController(
         return Ok(await GetOrInitPreferencesAsync(user.Id, ct));
     }
 
-    /// <summary>Patch any subset of {language, textSize, theme}. Returns the new full snapshot.</summary>
+    /// <summary>Patch any subset of {language, textSize, theme, division}. Returns the new full snapshot.</summary>
     [HttpPut("preferences")]
     [Authorize]
     [ProducesResponseType(typeof(PreferencesDto), 200)]
@@ -387,12 +388,13 @@ public sealed class AuthController(
         if (req.Language is not null) pref.Language = req.Language;
         if (req.TextSize is not null) pref.TextSize = req.TextSize;
         if (req.Theme is not null) pref.Theme = req.Theme;
+        if (req.Division is not null) pref.Division = Divisions.Normalize(req.Division);
         pref.UpdatedAtUtc = DateTime.UtcNow;
 
         if (db.Entry(pref).State == EntityState.Detached) db.UserPreferences.Add(pref);
         await db.SaveChangesAsync(ct);
 
-        return Ok(new PreferencesDto(pref.Language, pref.TextSize, pref.Theme));
+        return Ok(new PreferencesDto(pref.Language, pref.TextSize, pref.Theme, pref.Division));
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────
@@ -406,7 +408,7 @@ public sealed class AuthController(
             db.UserPreferences.Add(p);
             await db.SaveChangesAsync(ct);
         }
-        return new PreferencesDto(p.Language, p.TextSize, p.Theme);
+        return new PreferencesDto(p.Language, p.TextSize, p.Theme, p.Division);
     }
 
     private static AuthUser ToAuthUser(AppUser user, ResolvedPermissions perms) =>

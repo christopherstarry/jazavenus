@@ -1,5 +1,7 @@
+using Jaza.Api.Security;
 using Jaza.Application.Common;
 using Jaza.Domain.Common;
+using Jaza.Domain.Invoicing;
 using Jaza.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Jaza.Api.Controllers;
 
 [ApiController]
+[Tags("Reports")]
 [Authorize(Policy = Policies.RequireOperator)]
 [Route("api/reports")]
 public sealed class ReportsController(AppDbContext db) : ControllerBase
@@ -16,6 +19,7 @@ public sealed class ReportsController(AppDbContext db) : ControllerBase
         decimal Quantity, decimal RunningBalance, decimal UnitCost);
 
     [HttpGet("stock-card")]
+    [RequireReport(ReportTypes.Inventory)]
     public async Task<ActionResult<IReadOnlyList<StockCardRow>>> StockCard(
         [FromQuery] Guid itemId, [FromQuery] Guid warehouseId, [FromQuery] DateTime? from, [FromQuery] DateTime? to,
         CancellationToken ct)
@@ -41,6 +45,7 @@ public sealed class ReportsController(AppDbContext db) : ControllerBase
     public sealed record LowStockRow(Guid ItemId, string Sku, string Name, decimal OnHand, decimal? ReorderLevel);
 
     [HttpGet("low-stock")]
+    [RequireReport(ReportTypes.Inventory)]
     public async Task<IReadOnlyList<LowStockRow>> LowStock(CancellationToken ct)
     {
         var grouped = await db.StockOnHand.AsNoTracking()
@@ -60,6 +65,7 @@ public sealed class ReportsController(AppDbContext db) : ControllerBase
     public sealed record DailyMovementRow(DateOnly Date, decimal InQty, decimal OutQty);
 
     [HttpGet("daily-movements")]
+    [RequireReport(ReportTypes.Inventory)]
     public async Task<IReadOnlyList<DailyMovementRow>> DailyMovements(
         [FromQuery] DateTime from, [FromQuery] DateTime to, [FromQuery] Guid? warehouseId, CancellationToken ct)
     {
@@ -85,6 +91,7 @@ public sealed class ReportsController(AppDbContext db) : ControllerBase
 
     [HttpGet("financial-summary")]
     [Authorize(Policy = Policies.RequireSuperAdmin)]
+    [RequireReport(ReportTypes.Ar)]
     public async Task<FinancialSummary> Financial(CancellationToken ct)
     {
         var today = DateTime.UtcNow.Date;
@@ -92,14 +99,14 @@ public sealed class ReportsController(AppDbContext db) : ControllerBase
         var yearStart = new DateTime(today.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         var mtd = await db.Invoices.AsNoTracking()
-            .Where(i => i.IssueDate >= monthStart && i.Status != Domain.Invoicing.InvoiceStatus.Voided)
+            .Where(i => i.IssueDate >= monthStart && i.Status != InvoiceStatus.Voided)
             .Include(i => i.Lines).ToListAsync(ct);
         var ytd = await db.Invoices.AsNoTracking()
-            .Where(i => i.IssueDate >= yearStart && i.Status != Domain.Invoicing.InvoiceStatus.Voided)
+            .Where(i => i.IssueDate >= yearStart && i.Status != InvoiceStatus.Voided)
             .Include(i => i.Lines).ToListAsync(ct);
         var open = await db.Invoices.AsNoTracking()
-            .Where(i => i.Status == Domain.Invoicing.InvoiceStatus.Posted
-                     || i.Status == Domain.Invoicing.InvoiceStatus.PartiallyPaid)
+            .Where(i => i.Status == InvoiceStatus.Posted
+                     || i.Status == InvoiceStatus.PartiallyPaid)
             .Include(i => i.Lines).Include(i => i.Payments).ToListAsync(ct);
 
         return new FinancialSummary(

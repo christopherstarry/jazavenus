@@ -1,4 +1,5 @@
 using ClosedXML.Excel;
+using Jaza.Api.Security;
 using Jaza.Application.Common;
 using Jaza.Domain.MasterData;
 using Jaza.Infrastructure.Persistence;
@@ -9,7 +10,9 @@ using Microsoft.EntityFrameworkCore;
 namespace Jaza.Api.Controllers;
 
 [ApiController]
+[Tags("IO")]
 [Authorize(Policy = Policies.RequireAdmin)]
+[RequireModule(Modules.Master)]
 [Route("api/io")]
 public sealed class ImportExportController(AppDbContext db) : ControllerBase
 {

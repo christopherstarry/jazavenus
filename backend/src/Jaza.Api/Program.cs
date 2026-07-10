@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Threading.RateLimiting;
 using FluentValidation;
+using Jaza.Api.OpenApi;
 using Jaza.Api.Security;
 using Jaza.Application.Auth;
 using Jaza.Application.Common;
@@ -115,8 +116,27 @@ builder.Services.AddAuthorization(o =>
         .RequireAuthenticatedUser()
         .RequireRole(Roles.Developer, Roles.SuperAdmin, Roles.Admin, Roles.Sales));
 
+    foreach (var module in Modules.All)
+    {
+        o.AddPolicy($"Module:{module}", p => p
+            .AddAuthenticationSchemes(multiScheme)
+            .RequireAuthenticatedUser()
+            .AddRequirements(new ModulePermissionRequirement(module)));
+    }
+
+    foreach (var report in ReportTypes.All)
+    {
+        o.AddPolicy($"Report:{report}", p => p
+            .AddAuthenticationSchemes(multiScheme)
+            .RequireAuthenticatedUser()
+            .AddRequirements(new ReportPermissionRequirement(report)));
+    }
+
     o.FallbackPolicy = o.DefaultPolicy;
 });
+
+builder.Services.AddScoped<IAuthorizationHandler, ModulePermissionHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, ReportPermissionHandler>();
 
 builder.Services.AddAntiforgery(o =>
 {
@@ -223,6 +243,8 @@ builder.Services.AddSwaggerGen(c =>
         [new OpenApiSecuritySchemeReference("Bearer", document)] = [],
         [new OpenApiSecuritySchemeReference("Cookie", document)] = [],
     });
+
+    c.DocumentFilter<ModuleTagDocumentFilter>();
 
     var apiXml = Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml");
     if (File.Exists(apiXml)) c.IncludeXmlComments(apiXml, includeControllerXmlComments: true);

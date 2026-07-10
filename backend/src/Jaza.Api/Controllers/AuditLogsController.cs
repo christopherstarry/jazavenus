@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Jaza.Api.Controllers;
 
 [ApiController]
+[Tags("Audit")]
 [Authorize(Policy = Policies.RequireSuperAdmin)]
 [Route("api/audit-logs")]
 public sealed class AuditLogsController(AppDbContext db) : ControllerBase
@@ -147,6 +148,16 @@ public sealed class AuditLogsController(AppDbContext db) : ControllerBase
             log.Notes ?? "", log.OccurredAtUtc, log.IpAddress,
             log.BeforeJson, log.AfterJson, log.ChangesJson);
     }
+
+    /// <summary>Shortcut for per-record audit history on master detail pages.</summary>
+    [HttpGet("by-entity")]
+    public Task<ActionResult<PagedResult<AuditLogDto>>> ListByEntity(
+        [FromQuery] string entity,
+        [FromQuery] Guid entityId,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20) =>
+        List(entity, entityId, action: null, module: null, search: null, userId: null,
+            from: null, to: null, page, pageSize);
 
     private static string EntityDisplayName(string raw) =>
         EntityDisplayNames.TryGetValue(raw, out var name) ? name : raw.ToLowerInvariant();
