@@ -82,8 +82,9 @@
 
 | Document | Purpose |
 |----------|---------|
+| [api/README.md](api/README.md) | **API documentation suite** — auth, authorization, modules, legacy map |
 | [development.md](development.md) | Local setup, tests, publishing frontend into API |
-| [http-api.md](http-api.md) | HTTP route map and role policies |
+| [http-api.md](http-api.md) | Full HTTP route map — 34 controllers, links to [api/modules/](api/modules/) |
 | [security.md](security.md) | Threat model, OWASP mapping, headers, MFA |
 | [security-performance-guide.md](security-performance-guide.md) | Combined security + performance notes |
 | [runbook.md](runbook.md) | Production deploy, backup/restore, rollback |

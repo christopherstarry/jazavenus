@@ -1,0 +1,1461 @@
+﻿{
+    "generatedAtUtc":  "2026-07-10T10:00:56.3522354Z",
+    "openApiPath":  "/openapi/v1.json",
+    "openApiUrl":  "https://localhost:5001/openapi/v1.json",
+    "controllerCount":  36,
+    "routeCount":  206,
+    "controllers":  [
+                        {
+                            "controller":  "AnalyticsController",
+                            "file":  "backend/src/Jaza.Api/Controllers/AnalyticsController.cs",
+                            "routePrefix":  "api/analytics",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:sales"
+                                     ],
+                            "routeCount":  1,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/analytics/penetration",
+                                               "template":  "penetration"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "ArAdjustmentsController",
+                            "file":  "backend/src/Jaza.Api/Controllers/ArAdjustmentsController.cs",
+                            "routePrefix":  "api/ar/adjustments",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:ar"
+                                     ],
+                            "routeCount":  6,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/ar/adjustments",
+                                               "template":  ""
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/ar/adjustments/{id}",
+                                               "template":  "{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/ar/adjustments",
+                                               "template":  ""
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/ar/adjustments/{id}",
+                                               "template":  "{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/ar/adjustments/{id}/post",
+                                               "template":  "{id:guid}/post"
+                                           },
+                                           {
+                                               "method":  "DELETE",
+                                               "path":  "/api/ar/adjustments/{id}",
+                                               "template":  "{id:guid}"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "ArClosingController",
+                            "file":  "backend/src/Jaza.Api/Controllers/ArClosingController.cs",
+                            "routePrefix":  "api/ar",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:ar"
+                                     ],
+                            "routeCount":  2,
+                            "routes":  [
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/ar/close-period",
+                                               "template":  "close-period"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/ar/recalculate-balance",
+                                               "template":  "recalculate-balance"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "ArPaymentsController",
+                            "file":  "backend/src/Jaza.Api/Controllers/ArPaymentsController.cs",
+                            "routePrefix":  "api/ar/payments",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:ar"
+                                     ],
+                            "routeCount":  1,
+                            "routes":  [
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/ar/payments",
+                                               "template":  ""
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "ArReportsController",
+                            "file":  "backend/src/Jaza.Api/Controllers/ArReportsController.cs",
+                            "routePrefix":  "api/reports/ar",
+                            "auth":  [
+                                         "RequireOperator"
+                                     ],
+                            "routeCount":  1,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/reports/ar/{reportKey}",
+                                               "template":  "{reportKey}"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "AuditLogsController",
+                            "file":  "backend/src/Jaza.Api/Controllers/AuditLogsController.cs",
+                            "routePrefix":  "api/audit-logs",
+                            "auth":  [
+                                         "RequireSuperAdmin"
+                                     ],
+                            "routeCount":  3,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/audit-logs",
+                                               "template":  ""
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/audit-logs/{id}",
+                                               "template":  "{id:guid}"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/audit-logs/by-entity",
+                                               "template":  "by-entity"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "AuthController",
+                            "file":  "backend/src/Jaza.Api/Controllers/AuthController.cs",
+                            "routePrefix":  "api/auth",
+                            "auth":  [
+                                         "RequireSuperAdmin"
+                                     ],
+                            "routeCount":  11,
+                            "routes":  [
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/auth/login",
+                                               "template":  "login"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/auth/logout",
+                                               "template":  "logout"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/auth/refresh",
+                                               "template":  "refresh"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/auth/me",
+                                               "template":  "me"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/auth/antiforgery",
+                                               "template":  "antiforgery"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/auth/change-password",
+                                               "template":  "change-password"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/auth/me/change-password",
+                                               "template":  "me/change-password"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/auth/mfa/init",
+                                               "template":  "mfa/init"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/auth/mfa/confirm",
+                                               "template":  "mfa/confirm"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/auth/preferences",
+                                               "template":  "preferences"
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/auth/preferences",
+                                               "template":  "preferences"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "ConsignmentsController",
+                            "file":  "backend/src/Jaza.Api/Controllers/ConsignmentsController.cs",
+                            "routePrefix":  "api/outbound/consignments",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:sales"
+                                     ],
+                            "routeCount":  1,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/outbound/consignments",
+                                               "template":  ""
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "CreditMemosController",
+                            "file":  "backend/src/Jaza.Api/Controllers/CreditMemosController.cs",
+                            "routePrefix":  "api/invoices/credit-memos",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:ar"
+                                     ],
+                            "routeCount":  5,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/invoices/credit-memos",
+                                               "template":  ""
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/invoices/credit-memos/{id}",
+                                               "template":  "{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/invoices/credit-memos",
+                                               "template":  ""
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/invoices/credit-memos/{id}",
+                                               "template":  "{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/invoices/credit-memos/{id}/post",
+                                               "template":  "{id:guid}/post"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "ErrorLogsController",
+                            "file":  "backend/src/Jaza.Api/Controllers/ErrorLogsController.cs",
+                            "routePrefix":  "api/error-logs",
+                            "auth":  [
+                                         "RequireDeveloper"
+                                     ],
+                            "routeCount":  2,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/error-logs",
+                                               "template":  ""
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/error-logs/{id}",
+                                               "template":  "{id:guid}"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "ExtraDiscountsController",
+                            "file":  "backend/src/Jaza.Api/Controllers/ExtraDiscountsController.cs",
+                            "routePrefix":  "api/master/extra-discounts",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:master"
+                                     ],
+                            "routeCount":  5,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/extra-discounts",
+                                               "template":  ""
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/extra-discounts/{id}",
+                                               "template":  "{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/master/extra-discounts",
+                                               "template":  ""
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/master/extra-discounts/{id}",
+                                               "template":  "{id:guid}"
+                                           },
+                                           {
+                                               "method":  "DELETE",
+                                               "path":  "/api/master/extra-discounts/{id}",
+                                               "template":  "{id:guid}"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "ImportExportController",
+                            "file":  "backend/src/Jaza.Api/Controllers/ImportExportController.cs",
+                            "routePrefix":  "api/io",
+                            "auth":  [
+                                         "RequireAdmin",
+                                         "Module:master"
+                                     ],
+                            "routeCount":  2,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/io/items.xlsx",
+                                               "template":  "items.xlsx"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/io/items.xlsx",
+                                               "template":  "items.xlsx"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "InboundController",
+                            "file":  "backend/src/Jaza.Api/Controllers/InboundController.cs",
+                            "routePrefix":  "api/inbound",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:purchase"
+                                     ],
+                            "routeCount":  10,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/inbound/purchase-orders",
+                                               "template":  "purchase-orders"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/inbound/purchase-orders/{id}",
+                                               "template":  "purchase-orders/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/inbound/purchase-orders",
+                                               "template":  "purchase-orders"
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/inbound/purchase-orders/{id}",
+                                               "template":  "purchase-orders/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/inbound/purchase-orders/{id}/post",
+                                               "template":  "purchase-orders/{id:guid}/post"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/inbound/grns",
+                                               "template":  "grns"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/inbound/grns/{id}",
+                                               "template":  "grns/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/inbound/grns",
+                                               "template":  "grns"
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/inbound/grns/{id}",
+                                               "template":  "grns/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/inbound/grns/{id}/post",
+                                               "template":  "grns/{id:guid}/post"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "IntegrationsController",
+                            "file":  "backend/src/Jaza.Api/Controllers/IntegrationsController.cs",
+                            "routePrefix":  "api/integrations",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:master"
+                                     ],
+                            "routeCount":  3,
+                            "routes":  [
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/integrations/semblog",
+                                               "template":  "semblog"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/integrations/clipper",
+                                               "template":  "clipper"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/integrations/sms-orders",
+                                               "template":  "sms-orders"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "InventoryDocumentsController",
+                            "file":  "backend/src/Jaza.Api/Controllers/InventoryDocumentsController.cs",
+                            "routePrefix":  "api/inventory",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:inventory"
+                                     ],
+                            "routeCount":  15,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/inventory/stock-receipts",
+                                               "template":  "stock-receipts"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/inventory/stock-receipts/{id}",
+                                               "template":  "stock-receipts/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/inventory/stock-receipts",
+                                               "template":  "stock-receipts"
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/inventory/stock-receipts/{id}",
+                                               "template":  "stock-receipts/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/inventory/stock-receipts/{id}/post",
+                                               "template":  "stock-receipts/{id:guid}/post"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/inventory/stock-issues",
+                                               "template":  "stock-issues"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/inventory/stock-issues/{id}",
+                                               "template":  "stock-issues/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/inventory/stock-issues",
+                                               "template":  "stock-issues"
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/inventory/stock-issues/{id}",
+                                               "template":  "stock-issues/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/inventory/stock-issues/{id}/post",
+                                               "template":  "stock-issues/{id:guid}/post"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/inventory/stock-transfers",
+                                               "template":  "stock-transfers"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/inventory/stock-transfers/{id}",
+                                               "template":  "stock-transfers/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/inventory/stock-transfers",
+                                               "template":  "stock-transfers"
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/inventory/stock-transfers/{id}",
+                                               "template":  "stock-transfers/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/inventory/stock-transfers/{id}/post",
+                                               "template":  "stock-transfers/{id:guid}/post"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "InventoryReportsController",
+                            "file":  "backend/src/Jaza.Api/Controllers/InventoryReportsController.cs",
+                            "routePrefix":  "api/reports/inventory",
+                            "auth":  [
+                                         "RequireOperator"
+                                     ],
+                            "routeCount":  1,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/reports/inventory/{reportKey}",
+                                               "template":  "{reportKey}"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "InvoicingController",
+                            "file":  "backend/src/Jaza.Api/Controllers/InvoicingController.cs",
+                            "routePrefix":  "api/invoices",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:ar"
+                                     ],
+                            "routeCount":  8,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/invoices",
+                                               "template":  ""
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/invoices/{id}",
+                                               "template":  "{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/invoices",
+                                               "template":  ""
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/invoices/{id}",
+                                               "template":  "{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/invoices/{id}/post",
+                                               "template":  "{id:guid}/post"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/invoices/{id}/void",
+                                               "template":  "{id:guid}/void"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/invoices/{id}/pdf",
+                                               "template":  "{id:guid}/pdf"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/invoices/{id}/payments",
+                                               "template":  "{id:guid}/payments"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "LookupController",
+                            "file":  "backend/src/Jaza.Api/Controllers/LookupController.cs",
+                            "routePrefix":  "api/lookup",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:master"
+                                     ],
+                            "routeCount":  2,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/lookup/types",
+                                               "template":  "types"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/lookup/{type}",
+                                               "template":  "{type}"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "MasterDataController",
+                            "file":  "backend/src/Jaza.Api/Controllers/MasterDataController.cs",
+                            "routePrefix":  "api/master",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:master"
+                                     ],
+                            "routeCount":  21,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/units",
+                                               "template":  "units"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/master/units",
+                                               "template":  "units"
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/master/units/{id}",
+                                               "template":  "units/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "DELETE",
+                                               "path":  "/api/master/units/{id}",
+                                               "template":  "units/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/categories",
+                                               "template":  "categories"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/master/categories",
+                                               "template":  "categories"
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/master/categories/{id}",
+                                               "template":  "categories/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "DELETE",
+                                               "path":  "/api/master/categories/{id}",
+                                               "template":  "categories/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/items",
+                                               "template":  "items"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/items/{id}",
+                                               "template":  "items/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/master/items",
+                                               "template":  "items"
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/master/items/{id}",
+                                               "template":  "items/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "DELETE",
+                                               "path":  "/api/master/items/{id}",
+                                               "template":  "items/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/suppliers",
+                                               "template":  "suppliers"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/customers",
+                                               "template":  "customers"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/customers/{id}",
+                                               "template":  "customers/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/customers/{id}/credit-status",
+                                               "template":  "customers/{id:guid}/credit-status"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/customers/{customerId}/addresses",
+                                               "template":  "customers/{customerId:guid}/addresses"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/customers/{customerId}/brand-discounts",
+                                               "template":  "customers/{customerId:guid}/brand-discounts"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/warehouses",
+                                               "template":  "warehouses"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/locations",
+                                               "template":  "locations"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "OutboundController",
+                            "file":  "backend/src/Jaza.Api/Controllers/OutboundController.cs",
+                            "routePrefix":  "api/outbound",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:sales"
+                                     ],
+                            "routeCount":  10,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/outbound/sales-orders",
+                                               "template":  "sales-orders"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/outbound/sales-orders/{id}",
+                                               "template":  "sales-orders/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/outbound/sales-orders",
+                                               "template":  "sales-orders"
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/outbound/sales-orders/{id}",
+                                               "template":  "sales-orders/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/outbound/sales-orders/{id}/post",
+                                               "template":  "sales-orders/{id:guid}/post"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/outbound/delivery-orders",
+                                               "template":  "delivery-orders"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/outbound/delivery-orders/{id}",
+                                               "template":  "delivery-orders/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/outbound/delivery-orders",
+                                               "template":  "delivery-orders"
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/outbound/delivery-orders/{id}",
+                                               "template":  "delivery-orders/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/outbound/delivery-orders/{id}/post",
+                                               "template":  "delivery-orders/{id:guid}/post"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "PdcController",
+                            "file":  "backend/src/Jaza.Api/Controllers/PdcController.cs",
+                            "routePrefix":  "api/ar/pdc",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:ar"
+                                     ],
+                            "routeCount":  7,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/ar/pdc",
+                                               "template":  ""
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/ar/pdc/{id}",
+                                               "template":  "{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/ar/pdc",
+                                               "template":  ""
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/ar/pdc/{id}",
+                                               "template":  "{id:guid}"
+                                           },
+                                           {
+                                               "method":  "DELETE",
+                                               "path":  "/api/ar/pdc/{id}",
+                                               "template":  "{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/ar/pdc/{id}/clear",
+                                               "template":  "{id:guid}/clear"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/ar/pdc/{id}/cancel-clearance",
+                                               "template":  "{id:guid}/cancel-clearance"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "PermissionsController",
+                            "file":  "backend/src/Jaza.Api/Controllers/PermissionsController.cs",
+                            "routePrefix":  "api/users/{userId:guid}/permissions",
+                            "auth":  [
+                                         "RequireSuperAdmin"
+                                     ],
+                            "routeCount":  2,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/users/{userId}/permissions",
+                                               "template":  ""
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/users/{userId}/permissions",
+                                               "template":  ""
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "PricingController",
+                            "file":  "backend/src/Jaza.Api/Controllers/PricingController.cs",
+                            "routePrefix":  "api/pricing",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:sales"
+                                     ],
+                            "routeCount":  1,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/pricing/resolve",
+                                               "template":  "resolve"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "ProcessesController",
+                            "file":  "backend/src/Jaza.Api/Controllers/ProcessesController.cs",
+                            "routePrefix":  "api/processes",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:sales"
+                                     ],
+                            "routeCount":  5,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/processes",
+                                               "template":  ""
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/processes/auto-delivery",
+                                               "template":  "auto-delivery"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/processes/auto-invoice",
+                                               "template":  "auto-invoice"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/processes/auto-delete",
+                                               "template":  "auto-delete"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/processes/auto-po-from-so",
+                                               "template":  "auto-po-from-so"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "PurchaseReportsController",
+                            "file":  "backend/src/Jaza.Api/Controllers/PurchaseReportsController.cs",
+                            "routePrefix":  "api/reports/purchase",
+                            "auth":  [
+                                         "RequireOperator"
+                                     ],
+                            "routeCount":  1,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/reports/purchase/{reportKey}",
+                                               "template":  "{reportKey}"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "PurchaseReturnsController",
+                            "file":  "backend/src/Jaza.Api/Controllers/PurchaseReturnsController.cs",
+                            "routePrefix":  "api/inbound/purchase-returns",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:purchase"
+                                     ],
+                            "routeCount":  5,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/inbound/purchase-returns",
+                                               "template":  ""
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/inbound/purchase-returns/{id}",
+                                               "template":  "{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/inbound/purchase-returns",
+                                               "template":  ""
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/inbound/purchase-returns/{id}",
+                                               "template":  "{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/inbound/purchase-returns/{id}/post",
+                                               "template":  "{id:guid}/post"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "ReferenceDataController",
+                            "file":  "backend/src/Jaza.Api/Controllers/ReferenceDataController.cs",
+                            "routePrefix":  "api/master",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:master"
+                                     ],
+                            "routeCount":  25,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/brands",
+                                               "template":  "brands"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/banks",
+                                               "template":  "banks"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/salesmen",
+                                               "template":  "salesmen"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/collectors",
+                                               "template":  "collectors"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/areas",
+                                               "template":  "areas"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/warehouse-types",
+                                               "template":  "warehouse-types"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/outlet-types",
+                                               "template":  "outlet-types"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/outlet-groups",
+                                               "template":  "outlet-groups"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/outlet-group-types",
+                                               "template":  "outlet-group-types"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/trade-types",
+                                               "template":  "trade-types"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/sub-trade-types",
+                                               "template":  "sub-trade-types"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/distribution-types",
+                                               "template":  "distribution-types"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/class-outlets",
+                                               "template":  "class-outlets"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/cost-types",
+                                               "template":  "cost-types"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/manufacturers",
+                                               "template":  "manufacturers"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/tax-registrations",
+                                               "template":  "tax-registrations"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/price-tiers",
+                                               "template":  "price-tiers"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/discount-codes",
+                                               "template":  "discount-codes"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/payment-terms",
+                                               "template":  "payment-terms"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/sub-categories",
+                                               "template":  "sub-categories"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/customer-addresses",
+                                               "template":  "customer-addresses"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/item-prices",
+                                               "template":  "item-prices"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/item-prices/{id}",
+                                               "template":  "item-prices/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/item-discounts",
+                                               "template":  "item-discounts"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/master/item-discounts/{id}",
+                                               "template":  "item-discounts/{id:guid}"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "ReportsController",
+                            "file":  "backend/src/Jaza.Api/Controllers/ReportsController.cs",
+                            "routePrefix":  "api/reports",
+                            "auth":  [
+                                         "RequireOperator"
+                                     ],
+                            "routeCount":  4,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/reports/stock-card",
+                                               "template":  "stock-card"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/reports/low-stock",
+                                               "template":  "low-stock"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/reports/daily-movements",
+                                               "template":  "daily-movements"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/reports/financial-summary",
+                                               "template":  "financial-summary"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "SalesReportsController",
+                            "file":  "backend/src/Jaza.Api/Controllers/SalesReportsController.cs",
+                            "routePrefix":  "api/reports/sales",
+                            "auth":  [
+                                         "RequireOperator"
+                                     ],
+                            "routeCount":  1,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/reports/sales/{reportKey}",
+                                               "template":  "{reportKey}"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "SalesReturnsController",
+                            "file":  "backend/src/Jaza.Api/Controllers/SalesReturnsController.cs",
+                            "routePrefix":  "api/outbound/sales-returns",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:sales"
+                                     ],
+                            "routeCount":  5,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/outbound/sales-returns",
+                                               "template":  ""
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/outbound/sales-returns/{id}",
+                                               "template":  "{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/outbound/sales-returns",
+                                               "template":  ""
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/outbound/sales-returns/{id}",
+                                               "template":  "{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/outbound/sales-returns/{id}/post",
+                                               "template":  "{id:guid}/post"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "SettingsController",
+                            "file":  "backend/src/Jaza.Api/Controllers/SettingsController.cs",
+                            "routePrefix":  "api/settings",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:master"
+                                     ],
+                            "routeCount":  17,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/settings/company",
+                                               "template":  "company"
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/settings/company",
+                                               "template":  "company"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/settings/fiscal-periods",
+                                               "template":  "fiscal-periods"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/settings/fiscal-periods/{id}",
+                                               "template":  "fiscal-periods/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/settings/fiscal-periods",
+                                               "template":  "fiscal-periods"
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/settings/fiscal-periods/{id}",
+                                               "template":  "fiscal-periods/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "DELETE",
+                                               "path":  "/api/settings/fiscal-periods/{id}",
+                                               "template":  "fiscal-periods/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/settings/order-codes",
+                                               "template":  "order-codes"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/settings/order-codes/{id}",
+                                               "template":  "order-codes/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/settings/order-codes",
+                                               "template":  "order-codes"
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/settings/order-codes/{id}",
+                                               "template":  "order-codes/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "DELETE",
+                                               "path":  "/api/settings/order-codes/{id}",
+                                               "template":  "order-codes/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/settings/return-codes",
+                                               "template":  "return-codes"
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/settings/return-codes/{id}",
+                                               "template":  "return-codes/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/settings/return-codes",
+                                               "template":  "return-codes"
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/settings/return-codes/{id}",
+                                               "template":  "return-codes/{id:guid}"
+                                           },
+                                           {
+                                               "method":  "DELETE",
+                                               "path":  "/api/settings/return-codes/{id}",
+                                               "template":  "return-codes/{id:guid}"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "StockController",
+                            "file":  "backend/src/Jaza.Api/Controllers/StockController.cs",
+                            "routePrefix":  "api/stock",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:inventory"
+                                     ],
+                            "routeCount":  2,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/stock/on-hand",
+                                               "template":  "on-hand"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/stock/adjustments",
+                                               "template":  "adjustments"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "StockTakeController",
+                            "file":  "backend/src/Jaza.Api/Controllers/StockTakeController.cs",
+                            "routePrefix":  "api/inventory/stock-takes",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:inventory"
+                                     ],
+                            "routeCount":  5,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/inventory/stock-takes",
+                                               "template":  ""
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/inventory/stock-takes/{id}",
+                                               "template":  "{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/inventory/stock-takes/prep",
+                                               "template":  "prep"
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/inventory/stock-takes/{id}/lines",
+                                               "template":  "{id:guid}/lines"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/inventory/stock-takes/{id}/post",
+                                               "template":  "{id:guid}/post"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "SystemController",
+                            "file":  "backend/src/Jaza.Api/Controllers/SystemController.cs",
+                            "routePrefix":  "api/system",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:master"
+                                     ],
+                            "routeCount":  5,
+                            "routes":  [
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/system/monthly-process",
+                                               "template":  "monthly-process"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/system/day-end",
+                                               "template":  "day-end"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/system/delete-cancelled-document",
+                                               "template":  "delete-cancelled-document"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/system/backup",
+                                               "template":  "backup"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/system/restore",
+                                               "template":  "restore"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "TaxSerialsController",
+                            "file":  "backend/src/Jaza.Api/Controllers/TaxSerialsController.cs",
+                            "routePrefix":  "api/tax/serials",
+                            "auth":  [
+                                         "RequireOperator",
+                                         "Module:sales"
+                                     ],
+                            "routeCount":  5,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/tax/serials",
+                                               "template":  ""
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/tax/serials/{id}",
+                                               "template":  "{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/tax/serials",
+                                               "template":  ""
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/tax/serials/{id}",
+                                               "template":  "{id:guid}"
+                                           },
+                                           {
+                                               "method":  "DELETE",
+                                               "path":  "/api/tax/serials/{id}",
+                                               "template":  "{id:guid}"
+                                           }
+                                       ]
+                        },
+                        {
+                            "controller":  "UsersController",
+                            "file":  "backend/src/Jaza.Api/Controllers/UsersController.cs",
+                            "routePrefix":  "api/users",
+                            "auth":  [
+                                         "RequireSuperAdmin"
+                                     ],
+                            "routeCount":  6,
+                            "routes":  [
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/users",
+                                               "template":  ""
+                                           },
+                                           {
+                                               "method":  "GET",
+                                               "path":  "/api/users/{id}",
+                                               "template":  "{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/users",
+                                               "template":  ""
+                                           },
+                                           {
+                                               "method":  "PUT",
+                                               "path":  "/api/users/{id}",
+                                               "template":  "{id:guid}"
+                                           },
+                                           {
+                                               "method":  "DELETE",
+                                               "path":  "/api/users/{id}",
+                                               "template":  "{id:guid}"
+                                           },
+                                           {
+                                               "method":  "POST",
+                                               "path":  "/api/users/{id}/reset-password",
+                                               "template":  "{id:guid}/reset-password"
+                                           }
+                                       ]
+                        }
+                    ]
+}
