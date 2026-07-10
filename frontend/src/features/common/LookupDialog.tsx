@@ -130,7 +130,7 @@ export function LookupDialog({ type, open, onOpenChange, onSelect, division, tit
     onOpenChange(false);
   };
 
-  const dialogTitle = title ?? t(`lookup.title.${type}`, { defaultValue: t("lookup.titleFallback") });
+  const dialogTitle = title ?? t(`title.${type}`, { defaultValue: t("titleFallback") });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -143,18 +143,18 @@ export function LookupDialog({ type, open, onOpenChange, onSelect, division, tit
           <div className="rounded-md border-2 bg-muted/30 px-4 py-3 space-y-2">
             <div className="flex flex-wrap items-end gap-3 sm:gap-4">
               <div className="space-y-1.5 min-w-[8.5rem]">
-                <Label className="text-xs uppercase tracking-wide">{t("lookup.field")}</Label>
+                <Label className="text-xs uppercase tracking-wide">{t("field")}</Label>
                 <select
                   value={condition}
                   onChange={(e) => setCondition(e.target.value as "contains" | "startsWith")}
                   className="flex h-11 w-full rounded-[var(--radius)] border-2 border-input bg-background px-3 text-base font-medium"
                 >
-                  <option value="contains">{t("lookup.condition.contains")}</option>
-                  <option value="startsWith">{t("lookup.condition.startsWith")}</option>
+                  <option value="contains">{t("condition.contains")}</option>
+                  <option value="startsWith">{t("condition.startsWith")}</option>
                 </select>
               </div>
               <Button type="button" variant="outline" size="sm" className="h-11 shrink-0" onClick={handleFind}>
-                {t("lookup.find")}
+                {t("find")}
               </Button>
               <label className="inline-flex items-center gap-2 min-h-[2.75rem] cursor-pointer shrink-0">
                 <input
@@ -163,7 +163,7 @@ export function LookupDialog({ type, open, onOpenChange, onSelect, division, tit
                   onChange={(e) => setAutoSearch(e.target.checked)}
                   className="h-5 w-5 rounded border-2 border-input accent-primary"
                 />
-                <span className="font-semibold text-base">{t("lookup.autoSearch")}</span>
+                <span className="font-semibold text-base">{t("autoSearch")}</span>
               </label>
               {query.isFetching && <RotateCw className="h-4 w-4 animate-spin text-muted-foreground" />}
             </div>
@@ -176,7 +176,7 @@ export function LookupDialog({ type, open, onOpenChange, onSelect, division, tit
                 onKeyDown={(e) => {
                   if (!autoSearch && e.key === "Enter") handleFind();
                 }}
-                placeholder={t("lookup.searchPlaceholder")}
+                placeholder={t("searchPlaceholder")}
                 className="text-base h-11 max-w-xl"
               />
             </div>
@@ -201,25 +201,25 @@ export function LookupDialog({ type, open, onOpenChange, onSelect, division, tit
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t("lookup.columnCode")}</TableHead>
-                  <TableHead>{t("lookup.columnName")}</TableHead>
-                  <TableHead>{t("lookup.columnExtra")}</TableHead>
+                  <TableHead>{t("columnCode")}</TableHead>
+                  <TableHead>{t("columnName")}</TableHead>
+                  <TableHead>{t("columnExtra")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {query.isError ? (
                   <TableRow>
                     <TableCell colSpan={3} className="text-center py-6">
-                      <p className="text-destructive mb-2">{t("lookup.loadError")}</p>
+                      <p className="text-destructive mb-2">{t("loadError")}</p>
                       <Button type="button" variant="outline" size="sm" onClick={() => query.refetch()}>
-                        {t("lookup.retry")}
+                        {t("retry")}
                       </Button>
                     </TableCell>
                   </TableRow>
                 ) : filteredRows.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={3} className="text-center text-muted-foreground py-6">
-                      {query.isLoading ? t("common:loading") : t("lookup.empty")}
+                      {query.isLoading ? t("common:loading") : t("empty")}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -261,7 +261,7 @@ export function LookupDialog({ type, open, onOpenChange, onSelect, division, tit
           </p>
           <div className="flex flex-wrap gap-3 w-full sm:w-auto justify-end">
             <Button type="button" variant="outline" size="lg" className="min-w-[8rem]" onClick={() => onOpenChange(false)}>
-              {t("lookup.cancel")}
+              {t("cancel")}
             </Button>
             <Button
               type="button"
@@ -273,7 +273,7 @@ export function LookupDialog({ type, open, onOpenChange, onSelect, division, tit
                 if (row) handleSelect(row);
               }}
             >
-              {t("lookup.select")}
+              {t("select")}
             </Button>
           </div>
         </DialogFooter>
