@@ -131,10 +131,10 @@ Tax = (HeaderTotal − ExtraDisc) × VAT%
 | Sales Confirmation | ✅ | ❌ not wired | ❌ credit |
 | Invoice | ✅ | ❌ not wired | ❌ Faktur serial |
 | Payment | ✅ | ❌ not wired | Partial |
-| Sales Return | ❌ | UI shell | ❌ |
-| Credit Memo | ❌ | ❌ | ❌ |
+| Sales Return | ✅ schema | UI shell | ❌ |
+| Credit Memo | ✅ schema | ❌ | ❌ |
 
-See [parity matrix](../../parity/legacy-to-new-parity-matrix.md) and transaction PRDs in [prds/transactions/](../../prds/transactions/).
+Persisted entities: [table-catalog](../../database/table-catalog.md). See [parity matrix](../../parity/legacy-to-new-parity-matrix.md) and transaction PRDs in [prds/transactions/](../../prds/transactions/).
 
 ---
 
@@ -143,3 +143,4 @@ See [parity matrix](../../parity/legacy-to-new-parity-matrix.md) and transaction
 - [Purchase flow](../purchase/overview.md)
 - [A/R flow](../ar/overview.md)
 - [PRD: Sales Order](../../prds/transactions/sales-order.md)
+- [Table catalog](../../database/table-catalog.md)

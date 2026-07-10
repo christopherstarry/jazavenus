@@ -73,6 +73,6 @@ Partial receiving: PO stays Open until all lines fully received.
 |------|---------|----------|
 | Purchase Order | ✅ | ❌ not wired |
 | Receiving (GRN) | ✅ | ❌ (`GrnsPage` exists, not routed) |
-| Purchase Return | ❌ | UI shell |
+| Purchase Return | ✅ schema | UI shell |
 
-See [PRDs](../../prds/purchase/).
+Persisted entities: [table-catalog](../../database/table-catalog.md). See [PRDs](../../prds/purchase/).

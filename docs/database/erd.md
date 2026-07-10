@@ -53,7 +53,7 @@ erDiagram
   credit_memos ||--|{ credit_memo_lines : contains
 ```
 
-*Dashed entities (`sales_returns`, `credit_memos`, `tax_invoice_serials`) are planned — not yet in EF.*
+*Entities `sales_returns`, `credit_memos`, `tax_invoice_serials`, and related Phase 2 tables are **implemented in EF** (migration `EnhanceAuditLogs`). API controllers and business services are not yet wired — see [implementation-status.md](implementation-status.md).*
 
 ---
 

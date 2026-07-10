@@ -107,11 +107,11 @@ Credit notes use separate CN serial pool (`SeriFakturCN`).
 | Feature | Backend | Frontend |
 |---------|---------|----------|
 | Invoice-level payment | ✅ | ❌ |
-| Batch payment receipt | ❌ | ❌ |
+| Batch payment receipt | ✅ schema (`payment_allocations`) | ❌ |
 | Bank transfer transaction | ❌ | UI shell |
-| PDC/Giro | ❌ | UI shell / Coming Soon |
-| Faktur serial | ❌ | ❌ |
-| Closing AR | ❌ | Coming Soon |
+| PDC/Giro | ✅ schema | UI shell / Coming Soon |
+| Faktur serial | ✅ schema | ❌ |
+| Closing AR | ✅ schema | Coming Soon |
 | Recalculate balance | ❌ | Coming Soon |
 
-See [PRDs](../../prds/ar/).
+Persisted entities: [table-catalog](../../database/table-catalog.md). See [PRDs](../../prds/ar/).

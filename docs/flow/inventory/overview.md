@@ -92,10 +92,10 @@ sequenceDiagram
 |---------|---------|----------|
 | Stock on-hand query | ✅ | Dashboard partial |
 | Manual adjustment | ✅ Admin | ❌ |
-| BPB document | ❌ | UI shell |
-| BBK document | ❌ | UI shell |
-| Transfer | ❌ | UI shell |
-| Stock taking | ❌ | UI shell |
+| BPB document | ✅ schema | UI shell |
+| BBK document | ✅ schema | UI shell |
+| Transfer | ✅ schema | UI shell |
+| Stock taking | ✅ schema | UI shell |
 | Planning | ❌ | UI shell |
 
-See [PRDs](../../prds/inventory/).
+Persisted entities: [table-catalog](../../database/table-catalog.md). See [PRDs](../../prds/inventory/).

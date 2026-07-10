@@ -1,0 +1,77 @@
+# Legacy SQL Server Schema Reference
+# Generated from docs/extract-sample-data.sql + docs/database/database-base-docs.md
+# Re-run docs/legacy-schema-extract.sql against a live legacy DB and replace this file before cutover.
+# Last updated: 2026-07-10
+
+== Tables (sales database — verified column names in extract-sample-data.sql) ==
+
+| Table | ~Rows | PK | Key FK columns (legacy codes, not SQL FKs) |
+|-------|-------|-----|---------------------------------------------|
+| Uom | 43 | UOM | — |
+| Category | 8 | CatgryCode | — |
+| SubCategory | 7 | SubCatCode | (no CategoryId — infer) |
+| Brand | 589 | BrandCode | — |
+| Bank | 35 | BankCode | — |
+| Area | 16 | AreaCode | — |
+| Salesman | 256 | SlPrsnCode | — |
+| Collector | 1 | ClctrCode | — |
+| Customer | 17,539 | CustmrCode | SlPrsnCode, ClctrCode, TermCode (codes) |
+| CustomerAddress | 17,576 | CustmrCode+AddrCode | CustmrCode |
+| Supplier | 173 | SuppCode | TermCode |
+| Item | 6,714 | ItemCode | CatgryCode, UOM, BrandCode |
+| Warehouse | 15 | WhsCode | WhsType |
+| ItemPrice | 147,708 | ItemCode+PriceCode | ItemCode, PriceCode |
+| ItemDiscount | 22,437 | ItemCode+DiscCode | ItemCode, DiscCode |
+| Order | 401K+ | DocEntry | CustmrCode, WhsCode, CompanyIDKu |
+| OrderDetail1 | 4M+ | DocEntry+LineNum | DocEntry, ItemCode |
+| Delivery | — | DocEntry | BaseEntry→Order, CustmrCode |
+| DeliveryDetail1 | — | DocEntry+LineNum | BaseEntry, ItemCode |
+| Invoice | 401K+ | DocEntry | CustmrCode, BaseEntry→Delivery |
+| InvoiceDetail1 | 4.9M+ | DocEntry+LineNum | ItemCode |
+| Receipt | — | DocEntry | CustmrCode |
+| ReceiptDetail1 | 412K+ | DocEntry+LineNum | BaseEntry→Invoice, SumApplied |
+| ReceiptDetail2 | — | DocEntry+LineNum | Giro/PDC lines |
+| PurchaseOrder | — | DocEntry | SuppCode, WhsCode |
+| PurchaseOrderDetail1 | 31K+ | DocEntry+LineNum | ItemCode |
+| PurchaseReceive | — | DocEntry | BaseEntry→PO |
+| Return | — | DocEntry | CustmrCode, ReturnCode |
+| Giro | — | DocEntry | CustmrCode, BankCode |
+| SeriFaktur | — | SeriNo | TaxNo, InvoiceNo |
+| ExtraDiscount | — | Code | Division |
+| Inventory | 106K+ | ItemCode+WhsCode | ItemCode, WhsCode |
+
+== Shared transaction header columns ==
+
+DocEntry (int identity), DocNum (int), DocDate, DocDueDate, DocStatus (char 1),
+CompanyIDKu, CustmrCode/SuppCode, WhsCode, AuditDate, AuditUser, ObjType
+
+== DocStatus truth table (legacy → new) ==
+
+| Legacy | Meaning in VB6 flows | DocumentStatus | InvoiceStatus |
+|--------|-------------------|----------------|---------------|
+| O | Open / draft | Draft | Draft |
+| C | Closed / posted | Posted | Posted |
+| B | Cancelled | Voided | Voided |
+| P | Posted (some tables) | Posted | Posted |
+| V | Voided (some tables) | Voided | Voided |
+
+== Division mapping (4-DB merge) ==
+
+| Source DB / CompanyIDKu | PostgreSQL Division column |
+|-----------------------|------------------------------|
+| DISTRIBUTIONBDG / BDG | DISTRIBUTIONBDG |
+| DISTRIBUTIONCRB / CRB | DISTRIBUTIONCRB |
+| TRADINGBDG | TRADINGBDG |
+| TRADINGCRB | TRADINGCRB |
+
+DocEntry is unique per division+table after merge (not globally).
+
+== ETL id-map keys ==
+
+- Master: (EntityName, Code) → Guid — e.g. ("Customer", "C001")
+- Document: (Division, TableName, DocEntry) → Guid — stored in Entity.LegacyId
+- Line: (Division, TableName, DocEntry, LineNum) → Guid
+
+== Regenerate full schema ==
+
+sqlcmd -S <server> -U <readonly> -d sales -i docs/legacy-schema-extract.sql -o docs/legacy-schema.txt

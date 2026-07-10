@@ -4,7 +4,8 @@ Print this. Tick boxes with a pen.
 
 ## T-7 days
 
-- [ ] Final dry-run of the migration completes with **zero unresolved errors**.
+- [ ] Final dry-run of the migration completes with **zero unresolved errors** in `etl-errors/` (see [schema-mapping.md](schema-mapping.md) load order).
+- [ ] Apply `FixForeignKeyBehaviors` migration to staging Neon before ETL wet-run.
 - [ ] Backup-and-restore drill on the new DB completes successfully.
 - [ ] Wife and team trained — they can complete: login + MFA, create item, post GRN, post DO, generate invoice, take payment, print PDF. Each ticked off in `docs/training-signoff.md`.
 - [ ] Off-site backup target tested (latest .bak restored on a second machine).

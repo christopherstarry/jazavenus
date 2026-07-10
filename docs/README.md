@@ -6,12 +6,17 @@
 |----------|---------|
 | [parity/legacy-to-new-parity-matrix.md](parity/legacy-to-new-parity-matrix.md) | **Feature-by-feature status** — Implemented / Partial / Missing / Dropped |
 | [brds/brd-parity-and-changes.md](brds/brd-parity-and-changes.md) | Legacy scope vs new app; phased delivery plan |
-| [database/database-review.md](database/database-review.md) | **DB verdict** — gaps vs legacy; required schema additions |
+| [database/database-review.md](database/database-review.md) | **DB verdict** — schema parity status; application gaps |
+| [database/implementation-status.md](database/implementation-status.md) | Table implementation tracker |
+| [database/table-catalog.md](database/table-catalog.md) | Column-level catalog from EF model |
+| [database/naming-conventions.md](database/naming-conventions.md) | Legacy → canonical → EF naming map |
+| [database/audit-and-history.md](database/audit-and-history.md) | Activity history schema and queries |
+| [database/migrations-changelog.md](database/migrations-changelog.md) | EF migration log |
 | [security/security-review.md](security/security-review.md) | Security audit findings and pre-go-live checklist |
 | [performance/performance-guide.md](performance/performance-guide.md) | Indexing, pagination, EF hygiene, Neon pooling |
 | [cutover-checklist.md](cutover-checklist.md) | Go-live checklist |
 
-**Current status:** Core backend skeleton (PO → GRN → SO → DO → Invoice → Payment) exists. Most transaction UIs and reports are not API-wired. Full legacy parity requires Phase 2–3 work — see parity matrix.
+**Current status:** Core backend skeleton (PO → GRN → SO → DO → Invoice → Payment) exists. Activity History now covers transactions (audit enhanced). Phase 2 parity **tables** migrated in EF; APIs still to wire. Most transaction UIs and reports are not API-wired.
 
 ---
 
@@ -23,6 +28,7 @@
 | [architecture/diagrams.md](architecture/diagrams.md) | C4 context/container, domain map, deployment diagrams |
 | [database/database-base-docs.md](database/database-base-docs.md) | Target PostgreSQL schema design |
 | [database/erd.md](database/erd.md) | Consolidated entity relationship diagram |
+| [database/implementation-status.md](database/implementation-status.md) | EF table implementation tracker |
 | [offline-architecture.md](offline-architecture.md) | Future offline design |
 
 ---

@@ -8,17 +8,16 @@
 
 ## Verdict
 
-**The current database design is NOT OK for full legacy parity deployment.**
+**The database schema now covers full legacy parity at the table level** (migration `EnhanceAuditLogs`, 2026-07-10).
 
-The PostgreSQL target schema in `database-base-docs.md` is a **strong foundation** for master data and core transactions, but:
+Remaining gaps are **application-layer**, not schema:
 
-1. Several **legacy-critical modules were marked DROP** that must be restored for parity.
-2. **Implemented EF entities lag the design doc** (missing returns, PDC, tax serial, transfers).
-3. **Multi-company/division** is under-modeled (string field only).
-4. **Stock document tables** use `LIKE ... INCLUDING ALL` without proper FK integrity.
-5. **`schema-mapping.md` is still a template** — ETL is not production-ready.
+1. Phase 2 entity **API controllers and business logic** not yet implemented.
+2. **Multi-company/division** filter enforcement in queries still required in application code.
+3. **`schema-mapping.md`** ETL column mappings need completion before cutover.
+4. Optional **PascalCase → snake_case** rename of Phase 1 tables deferred post-UAT.
 
-**Recommendation:** Adopt the design doc as baseline, apply the schema additions below, align EF entities, then complete ETL mapping before cutover.
+**Recommendation:** Apply migration to staging Neon, complete ETL mapping, then wire services per parity matrix.
 
 ---
 
@@ -27,21 +26,21 @@ The PostgreSQL target schema in `database-base-docs.md` is a **strong foundation
 | Design doc table | EF entity exists | Gap |
 |------------------|------------------|-----|
 | customers, products, brands, etc. | ✅ MasterData entities | Minor naming |
-| sales_orders, sales_order_lines | ✅ SalesOrder | — |
-| deliveries, delivery_lines | ✅ DeliveryOrder | — |
-| invoices, invoice_lines | ✅ Invoice | — |
-| payments, payment_allocations | ⚠️ Payment only | No allocation table |
-| purchase_orders, goods_receipts | ✅ | — |
-| sales_returns | ❌ | Missing |
-| credit_memos | ❌ | Missing |
-| purchase_returns | ❌ | Missing |
-| stock_transfers | ❌ | Missing |
-| post_dated_checks | ❌ | Missing |
-| tax_invoice_serials | ❌ | TaxRegistration is master only |
-| extra_discounts | ❌ | Marked DROP in design |
-| consignment | ❌ | Marked DROP |
-| ar_period_closings | ❌ | Missing |
-| company_settings | ❌ | Missing |
+| sales_orders, sales_order_lines | ✅ SalesOrder | Division + base link added |
+| deliveries, delivery_lines | ✅ DeliveryOrder | Division + base link added |
+| invoices, invoice_lines | ✅ Invoice | TaxSerial, Posted* added |
+| payments, payment_allocations | ✅ Both | Allocation API not wired |
+| purchase_orders, goods_receipts | ✅ | Division + base link added |
+| sales_returns | ✅ `SalesReturn` | API not wired |
+| credit_memos | ✅ `CreditMemo` | API not wired |
+| purchase_returns | ✅ `PurchaseReturn` | API not wired |
+| stock_transfers | ✅ `StockTransfer` | API not wired |
+| post_dated_checks | ✅ `PostDatedCheck` | API not wired |
+| tax_invoice_serials | ✅ `TaxInvoiceSerial` | Serial engine not wired |
+| extra_discounts | ✅ `ExtraDiscount` | API not wired |
+| consignment | ❌ | Low priority if Konsinyasi unused |
+| ar_period_closings | ✅ `ArPeriodClosing` | Service not wired |
+| company_settings | ✅ `CompanySettings` | API not wired |
 
 ---
 
@@ -159,14 +158,18 @@ Legacy has **592 stored procedures**. Key business logic SPs must become applica
 
 | Item | Status |
 |------|--------|
-| `Jaza.Migration` console | ✅ Exists |
-| `schema-mapping.md` | ❌ Template only |
-| `legacy-schema-extract.sql` | ✅ Reference script |
-| UUID mapping for codes | ❌ Not documented |
-| Division migration | ❌ Not documented |
-| 2.3M SistemLog rows | Plan: migrate subset or archive |
+| `Jaza.Migration` console | ✅ Runnable with `LegacyIdMap` + hydrator |
+| `schema-mapping.md` | ✅ Load order, division map, DocStatus, master + transaction FK rules |
+| `legacy-schema.txt` | ✅ Reference artifact (regenerate from live DB before cutover) |
+| `LegacyIdMap` | ✅ Code + DocEntry registry implemented |
+| Master migrators (Units–Items) | ✅ Implemented |
+| PO / SO / Invoice / Payment+Allocation | ✅ Implemented |
+| Line-level detail ETL | ⚠️ Pending |
+| UUID code maps | ✅ Via LegacyIdMap at runtime |
+| Division migration | ✅ Documented + `--division=` CLI flag |
+| Staging wet-run | 📋 Pending Neon apply + legacy SQL connection |
 
-**Blocker:** Complete `schema-mapping.md` with column-level mappings before cutover.
+**Next:** Apply `FixForeignKeyBehaviors` to staging; run `--dry-run` per tier in [schema-mapping.md](../schema-mapping.md); complete line-level migrators before cutover.
 
 ---
 
@@ -192,12 +195,13 @@ See [erd.md](erd.md) for consolidated diagram.
 
 ## 9. Sign-off checklist
 
-- [ ] DROP list revised; critical modules restored
-- [ ] EF entities match target schema
+- [x] DROP list revised; critical modules restored in EF
+- [x] EF entities match target schema (tables)
 - [ ] Migrations applied to staging Neon
 - [ ] ETL loads sample legacy data; counts match
 - [ ] Index strategy validated with EXPLAIN on top 10 queries
 - [ ] Division/doc_num uniqueness tested
+- [ ] Phase 2 API services implemented
 
 ---
 

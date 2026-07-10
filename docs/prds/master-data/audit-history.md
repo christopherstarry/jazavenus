@@ -12,25 +12,24 @@ Every create, update, or delete action on master data is logged with who did it,
 
 ## 3. Data Model
 
+> **Implementation note (2026-07-10):** The live schema is `AuditLogs` in EF with PascalCase columns. Actions use `Create`/`Update`/`Delete`/`Post`/`Void` (not lowercase). Field diffs are in `ChangesJson`; full snapshots in `BeforeJson`/`AfterJson`. See [audit-and-history.md](../../database/audit-and-history.md).
+
 ```ts
 interface AuditLog {
   id: string;                    // UUID
   userId: string;                // FK → app_users (who did it)
   userName: string;              // Denormalized for display (never changes even if user is deleted)
-  action: string;                // 'created' | 'updated' | 'deleted'
-  entity: string;                // Table name: 'customers', 'products', 'brands', 'suppliers', etc.
+  action: string;                // 'Create' | 'Update' | 'Delete' | 'Post' | 'Void'
+  entity: string;                // Entity type: 'Customer', 'SalesOrder', etc.
   entityId: string;              // UUID of the affected record
-  entityCode: string;            // Human-readable code (e.g. customer code, product code) for display
-  changes: ChangeLog[];          // Array of changed fields (only for 'updated')
-  ipAddress: string;             // Request IP
-  userAgent: string;             // Browser user agent
-  timestamp: string;             // ISO 8601
-}
-
-interface ChangeLog {
-  field: string;                 // Column name: 'name', 'address', 'price', etc.
-  oldValue: string | null;       // Previous value (null for creates)
-  newValue: string | null;       // New value (null for deletes)
+  entityCode: string;            // Human-readable code (e.g. PO-2026-0042)
+  module: string;                // 'master' | 'purchase' | 'sales' | 'inventory' | 'ar' | 'system'
+  changesJson: string | null;    // JSON array of { Field, OldValue, NewValue } for updates
+  beforeJson: string | null;
+  afterJson: string | null;
+  notes: string | null;
+  ipAddress: string;
+  occurredAtUtc: string;         // ISO 8601 UTC
 }
 ```
 
