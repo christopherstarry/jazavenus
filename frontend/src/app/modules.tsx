@@ -11,20 +11,20 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-/* ─────────────────────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  * The Module Tree
  *
  * Single source of truth that drives:
- *   • the sidebar
- *   • the router (every leaf becomes a route)
- *   • breadcrumbs
- *   • hub-page tile grids
- *   • the "recent screens" tracker
+ *   â€¢ the sidebar
+ *   â€¢ the router (every leaf becomes a route)
+ *   â€¢ breadcrumbs
+ *   â€¢ hub-page tile grids
+ *   â€¢ the "recent screens" tracker
  *
  * Labels match the legacy VB application exactly so existing users don't
  * have to relearn anything. New screens go here first; the rest of the
  * app picks them up automatically.
- * ───────────────────────────────────────────────────────────────────────── */
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 export type ChildLayout =
   /** Children appear in the sidebar AND on the parent's hub page as tiles. (default for sections) */
@@ -32,7 +32,7 @@ export type ChildLayout =
   /** Children are tabs at the top of the parent page. They do NOT clutter the sidebar. */
   | "tabs";
 
-/** Canonical module ids known to the auth API (PRD §6.1). */
+/** Canonical module ids known to the auth API (PRD Â§6.1). */
 export type ModuleKey = "master" | "purchase" | "sales" | "inventory" | "ar";
 export type ReportKey = "sales" | "inventory" | "purchase" | "ar";
 
@@ -47,14 +47,14 @@ export interface ModuleNode {
   description?: string;
   /** Optional Lucide icon. Top-level sections always have one. */
   icon?: LucideIcon;
-  /** "SuperAdmin" → only visible to SuperAdmins (legacy gate, kept for system tools). */
+  /** "SuperAdmin" â†’ only visible to SuperAdmins (legacy gate, kept for system tools). */
   superAdminOnly?: boolean;
-  /** "Developer" → only visible to Developer (error logs / dev-only diagnostics). */
+  /** "Developer" â†’ only visible to Developer (error logs / dev-only diagnostics). */
   developerOnly?: boolean;
   /**
    * The canonical permission module that gates this navigation item. When set, the sidebar
    * and routing only show the node when the resolved permissions include the module
-   * (PRD §6.1). Inherited by descendants.
+   * (PRD Â§6.1). Inherited by descendants.
    */
   moduleKey?: ModuleKey;
   /**
@@ -81,7 +81,7 @@ export interface ModuleNode {
   children?: ModuleNode[];
 }
 
-/* ── Helper: walk the tree ────────────────────────────────────────────────── */
+/* â”€â”€ Helper: walk the tree â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 export function flattenModules(nodes: ModuleNode[] = TREE): ModuleNode[] {
   const out: ModuleNode[] = [];
@@ -122,11 +122,11 @@ export function trailFor(pathname: string): ModuleNode[] {
   return path;
 }
 
-/* ── Lazy imports for the few real pages we already have ───────────────────
+/* â”€â”€ Lazy imports for the few real pages we already have â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  * Each leaf can either point to its real component or fall back to the
  * generic placeholder. We keep these refs at the bottom of the file so that
  * the navigation tree above stays purely declarative.
- * ───────────────────────────────────────────────────────────────────────── */
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 import { DashboardPage } from "#/features/dashboard/DashboardPage";
 import {
@@ -142,34 +142,34 @@ import {
 } from "#/features/sales/SalesTransactionFormPage";
 import { BankTransferTransactionPage } from "#/features/ar/BankTransferTransactionPage";
 import { PdcClearanceCancellationPage } from "#/features/ar/PdcClearanceCancellationPage";
-import { SettingsPanel } from "#/features/settings/SettingsPanel";
-import { ManageUsersPage } from "#/features/users/ManageUsersPage";
-import { AuditHistoryPage } from "#/features/audit/AuditHistoryPage";
-import { ErrorLogsPage } from "#/features/errors/ErrorLogsPage";
-import { TaxRegistrationPage } from "#/features/common/pages/TaxRegistrationPage";
-import { SupplierPage } from "#/features/common/pages/SupplierPage";
-import { CustomerPage } from "#/features/common/pages/CustomerPage";
-import { ItemPage } from "#/features/common/pages/ItemPage";
-import { BrandPage } from "#/features/common/pages/BrandPage";
-import { BankPage } from "#/features/common/pages/BankPage";
-import { SalesmanPage } from "#/features/common/pages/SalesmanPage";
-import { CollectorPage } from "#/features/common/pages/CollectorPage";
-import { SalesAreaPage } from "#/features/common/pages/SalesAreaPage";
-import { OutletTypePage } from "#/features/common/pages/OutletTypePage";
-import { GroupOutletPage } from "#/features/common/pages/GroupOutletPage";
-import { MarketTypePage } from "#/features/common/pages/MarketTypePage";
-import { ChannelOutletPage } from "#/features/common/pages/ChannelOutletPage";
-import { LocationOutletPage } from "#/features/common/pages/LocationOutletPage";
-import { ClassOutletPage } from "#/features/common/pages/ClassOutletPage";
-import { CategoryPage } from "#/features/common/pages/CategoryPage";
-import { SubCategoryPage } from "#/features/common/pages/SubCategoryPage";
-import { PriceTierPage } from "#/features/common/pages/PriceTierPage";
-import { DiscountCodePage } from "#/features/common/pages/DiscountCodePage";
-import { WarehouseTypePage } from "#/features/common/pages/WarehouseTypePage";
-import { UnitOfMeasurePage } from "#/features/common/pages/UnitOfMeasurePage";
-import { WarehousePage } from "#/features/common/pages/WarehousePage";
-import { PaymentTermPage } from "#/features/common/pages/PaymentTermPage";
-import { CostTypePage } from "#/features/common/pages/CostTypePage";
+import { SettingsPanel } from "#/features/system/settings/SettingsPanel";
+import { ManageUsersPage } from "#/features/system/users/ManageUsersPage";
+import { AuditHistoryPage } from "#/features/system/audit/AuditHistoryPage";
+import { ErrorLogsPage } from "#/features/system/errors/ErrorLogsPage";
+import { TaxRegistrationPage } from "#/features/master-data/pages/TaxRegistrationPage";
+import { SupplierPage } from "#/features/master-data/pages/SupplierPage";
+import { CustomerPage } from "#/features/master-data/pages/CustomerPage";
+import { ItemPage } from "#/features/master-data/pages/ItemPage";
+import { BrandPage } from "#/features/master-data/pages/BrandPage";
+import { BankPage } from "#/features/master-data/pages/BankPage";
+import { SalesmanPage } from "#/features/master-data/pages/SalesmanPage";
+import { CollectorPage } from "#/features/master-data/pages/CollectorPage";
+import { SalesAreaPage } from "#/features/master-data/pages/SalesAreaPage";
+import { OutletTypePage } from "#/features/master-data/pages/OutletTypePage";
+import { GroupOutletPage } from "#/features/master-data/pages/GroupOutletPage";
+import { MarketTypePage } from "#/features/master-data/pages/MarketTypePage";
+import { ChannelOutletPage } from "#/features/master-data/pages/ChannelOutletPage";
+import { LocationOutletPage } from "#/features/master-data/pages/LocationOutletPage";
+import { ClassOutletPage } from "#/features/master-data/pages/ClassOutletPage";
+import { CategoryPage } from "#/features/master-data/pages/CategoryPage";
+import { SubCategoryPage } from "#/features/master-data/pages/SubCategoryPage";
+import { PriceTierPage } from "#/features/master-data/pages/PriceTierPage";
+import { DiscountCodePage } from "#/features/master-data/pages/DiscountCodePage";
+import { WarehouseTypePage } from "#/features/master-data/pages/WarehouseTypePage";
+import { UnitOfMeasurePage } from "#/features/master-data/pages/UnitOfMeasurePage";
+import { WarehousePage } from "#/features/master-data/pages/WarehousePage";
+import { PaymentTermPage } from "#/features/master-data/pages/PaymentTermPage";
+import { CostTypePage } from "#/features/master-data/pages/CostTypePage";
 import {
   IncomingTransactionBpbPage,
   InterWarehouseTransactionPage,
@@ -180,18 +180,18 @@ import {
   StockTakingPreparationPage,
   StockTakingRecordPage,
 } from "#/features/inventory/StockTakingAndPlanningPages";
-import { ReportSelectorPage } from "#/features/reports/ReportSelectorPage";
-import { ProductSellingReportPage } from "#/features/reports/ProductSellingReportPage";
-import { DetailTransactionPenjualanReportPage } from "#/features/reports/DetailTransactionPenjualanReportPage";
+import { ReportSelectorPage } from "#/features/reports/sales/ReportSelectorPage";
+import { ProductSellingReportPage } from "#/features/reports/sales/ProductSellingReportPage";
+import { DetailTransactionPenjualanReportPage } from "#/features/reports/sales/DetailTransactionPenjualanReportPage";
 import {
   RecapitulationSalesReturnByBrandPage,
   RecapitulationSalesReturnByCustomerPage,
   RecapitulationSalesReturnByCustomerWithStatusPage,
   RecapitulationSalesReturnBySalesmanPage,
-} from "#/features/reports/RecapitulationSalesReturnVariants";
-import { StockPositionReportPage } from "#/features/reports/StockPositionReportPage";
+} from "#/features/reports/sales/RecapitulationSalesReturnVariants";
+import { StockPositionReportPage } from "#/features/reports/inventory/StockPositionReportPage";
 
-/* ── The actual tree ─────────────────────────────────────────────────────── */
+/* â”€â”€ The actual tree â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 export const TREE: ModuleNode[] = [
   {
@@ -203,7 +203,7 @@ export const TREE: ModuleNode[] = [
     Component: DashboardPage,
   },
 
-  /* ── System ──────────────────────────────────────────────────────────── */
+  /* â”€â”€ System â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   {
     id: "system",
     path: "/system",
@@ -277,12 +277,12 @@ export const TREE: ModuleNode[] = [
     ],
   },
 
-  /* ── Master Maintenance ──────────────────────────────────────────────── */
+  /* â”€â”€ Master Maintenance â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   {
     id: "master",
     path: "/master",
     label: "Master Maintenance",
-    description: "All master records — people, products, finance setup",
+    description: "All master records â€” people, products, finance setup",
     icon: Database,
     moduleKey: "master",
     children: [
@@ -381,7 +381,7 @@ export const TREE: ModuleNode[] = [
         id: "master.term-of-payment",
         path: "/master/term-of-payment",
         label: "Table of Term Of Payment",
-        description: "Payment terms (net 30, net 60, …)",
+        description: "Payment terms (net 30, net 60, â€¦)",
             Component: PaymentTermPage,
       },
       {
@@ -469,7 +469,7 @@ export const TREE: ModuleNode[] = [
     ],
   },
 
-  /* ── Purchase Transaction ────────────────────────────────────────────── */
+  /* â”€â”€ Purchase Transaction â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   {
     id: "purchase",
     path: "/purchase",
@@ -502,7 +502,7 @@ export const TREE: ModuleNode[] = [
     ],
   },
 
-  /* ── Sales Transaction ───────────────────────────────────────────────── */
+  /* â”€â”€ Sales Transaction â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   {
     id: "sales",
     path: "/sales",
@@ -542,12 +542,12 @@ export const TREE: ModuleNode[] = [
     ],
   },
 
-  /* ── A/R Transaction ─────────────────────────────────────────────────── */
+  /* â”€â”€ A/R Transaction â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   {
     id: "ar",
     path: "/ar",
     label: "A/R Transaction",
-    description: "Accounts receivable — money customers owe you",
+    description: "Accounts receivable â€” money customers owe you",
     icon: Wallet,
     moduleKey: "ar",
     children: [
@@ -574,7 +574,7 @@ export const TREE: ModuleNode[] = [
     ],
   },
 
-  /* ── Inventory Transaction ───────────────────────────────────────────── */
+  /* â”€â”€ Inventory Transaction â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   {
     id: "inventory",
     path: "/inventory",
@@ -630,12 +630,12 @@ export const TREE: ModuleNode[] = [
     ],
   },
 
-  /* ── Report ──────────────────────────────────────────────────────────── */
+  /* â”€â”€ Report â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   {
     id: "report",
     path: "/report",
     label: "Report",
-    description: "All reports — sales, inventory, purchasing, A/R",
+    description: "All reports â€” sales, inventory, purchasing, A/R",
     icon: BarChart3,
     children: [
       {
@@ -655,7 +655,7 @@ export const TREE: ModuleNode[] = [
             id: "report.sales.product-selling",
             path: "/report/sales-report/product-selling-report",
             label: "Product Selling Report",
-            description: "Selling analysis — enable breakdown axes with checkboxes",
+            description: "Selling analysis â€” enable breakdown axes with checkboxes",
             Component: ProductSellingReportPage,
           },
           {
@@ -895,7 +895,7 @@ export const TREE: ModuleNode[] = [
     ],
   },
 
-  /* ── Settings (kept off the main sidebar — opened from the user menu) ── */
+  /* â”€â”€ Settings (kept off the main sidebar â€” opened from the user menu) â”€â”€ */
   {
     id: "settings",
     path: "/settings",
@@ -905,7 +905,7 @@ export const TREE: ModuleNode[] = [
   },
 ];
 
-/* ── Permission gating helpers ────────────────────────────────────────────────
+/* â”€â”€ Permission gating helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  * Sidebar, hub tiles, tabs, and the router all share the same visibility logic
  * so a user can never see, deep-link, or be redirected into a screen they
  * are not authorized to view. */
