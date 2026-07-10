@@ -8,5 +8,5 @@ public interface ILookupService
 {
     IReadOnlyList<string> SupportedTypes { get; }
     Task<LookupResult> SearchAsync(string type, string? search, string? division, int page, int pageSize,
-        CancellationToken ct = default);
+        Guid? parentId = null, CancellationToken ct = default);
 }

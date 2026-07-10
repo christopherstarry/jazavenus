@@ -31,15 +31,19 @@ public sealed class InvoicingController(AppDbContext db,
     IValidator<PaymentCreateDto> payVal) : ControllerBase
 {
     [HttpGet]
-    public async Task<PagedResult<InvoiceDto>> List([FromQuery] PagedRequest q, CancellationToken ct)
+    public async Task<PagedResult<InvoiceDto>> List(
+        [FromQuery] PagedRequest q, [FromQuery] Guid? customerId, [FromQuery] bool? outstandingOnly, CancellationToken ct)
     {
         q = q.Normalized();
         var src = division.ApplyDivisionFilter(db.Invoices.AsNoTracking()
             .Include(i => i.Customer).Include(i => i.DeliveryOrder)
-            .Include(i => i.Lines).Include(i => i.Payments), x => x.Division)
-            .OrderByDescending(i => i.IssueDate);
-        var total = await src.CountAsync(ct);
-        var items = await src.Skip((q.Page - 1) * q.PageSize).Take(q.PageSize).ToListAsync(ct);
+            .Include(i => i.Lines).Include(i => i.Payments), x => x.Division);
+        if (customerId is not null) src = src.Where(i => i.CustomerId == customerId);
+        if (outstandingOnly == true)
+            src = src.Where(i => i.Status == InvoiceStatus.Posted || i.Status == InvoiceStatus.PartiallyPaid);
+        var ordered = src.OrderByDescending(i => i.IssueDate);
+        var total = await ordered.CountAsync(ct);
+        var items = await ordered.Skip((q.Page - 1) * q.PageSize).Take(q.PageSize).ToListAsync(ct);
         return new PagedResult<InvoiceDto>(items.Select(Map).ToList(), total, q.Page, q.PageSize);
     }
 

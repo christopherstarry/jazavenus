@@ -120,6 +120,34 @@ public sealed class OutboundController(AppDbContext db,
         return NoContent();
     }
 
+    /// <summary>Void a posted SO — releases the stock commitment reserved on post (legacy Cancel).</summary>
+    [HttpPost("sales-orders/{id:guid}/void")]
+    [Authorize(Policy = Policies.RequireAdmin)]
+    public async Task<IActionResult> VoidSO(Guid id, CancellationToken ct)
+    {
+        var s = await db.SalesOrders.FirstOrDefaultAsync(x => x.Id == id, ct) ?? throw new KeyNotFoundException();
+        division.EnsureDivisionAccess(s.Division);
+        if (s.Status != DocumentStatus.Posted) throw new DomainException("Only posted SOs can be voided.");
+        await stockCommitment.ReleaseAsync(id, ct);
+        s.Status = DocumentStatus.Voided;
+        await db.SaveChangesAsync(ct);
+        return NoContent();
+    }
+
+    /// <summary>Delete a draft SO outright (legacy F3 Undo on an unsaved/insert-state document).</summary>
+    [HttpDelete("sales-orders/{id:guid}")]
+    public async Task<IActionResult> DeleteSO(Guid id, CancellationToken ct)
+    {
+        var s = await db.SalesOrders.Include(x => x.Lines).FirstOrDefaultAsync(x => x.Id == id, ct)
+            ?? throw new KeyNotFoundException();
+        division.EnsureDivisionAccess(s.Division);
+        if (s.Status != DocumentStatus.Draft) throw new DomainException("Only draft SOs can be deleted.");
+        db.SalesOrderLines.RemoveRange(s.Lines);
+        db.SalesOrders.Remove(s);
+        await db.SaveChangesAsync(ct);
+        return NoContent();
+    }
+
     [HttpGet("delivery-orders")]
     public async Task<PagedResult<DeliveryOrderDto>> ListDOs([FromQuery] PagedRequest q, CancellationToken ct)
     {
@@ -233,6 +261,46 @@ public sealed class OutboundController(AppDbContext db,
         }
 
         doc.Status = DocumentStatus.Posted;
+        await db.SaveChangesAsync(ct);
+        await tx.CommitAsync(ct);
+        return NoContent();
+    }
+
+    /// <summary>Void a posted DO — reverses the goods-issue stock movement (legacy Cancel).</summary>
+    [HttpPost("delivery-orders/{id:guid}/void")]
+    [Authorize(Policy = Policies.RequireAdmin)]
+    public async Task<IActionResult> VoidDO(Guid id, CancellationToken ct)
+    {
+        await using var tx = await db.Database.BeginTransactionAsync(ct);
+        var doc = await db.DeliveryOrders.Include(d => d.Lines).FirstOrDefaultAsync(d => d.Id == id, ct)
+            ?? throw new KeyNotFoundException();
+        division.EnsureDivisionAccess(doc.Division);
+        if (doc.Status != DocumentStatus.Posted) throw new DomainException("Only posted DOs can be voided.");
+
+        foreach (var l in doc.Lines)
+        {
+            await stock.PostMovementAsync(new StockMovement
+            {
+                Type = StockMovementType.GoodsReceipt,
+                ItemId = l.ItemId,
+                WarehouseId = doc.WarehouseId,
+                LocationId = l.LocationId,
+                Quantity = l.Quantity,
+                UnitCost = l.UnitCost,
+                OccurredAtUtc = DateTime.UtcNow,
+                SourceDocumentType = nameof(DeliveryOrder) + ":Void",
+                SourceDocumentId = doc.Id,
+                SourceDocumentNumber = doc.Number,
+            }, ct);
+
+            if (l.SalesOrderLineId is not null)
+            {
+                var sol = await db.SalesOrderLines.FindAsync([l.SalesOrderLineId.Value], ct);
+                if (sol is not null) sol.QuantityDelivered -= l.Quantity;
+            }
+        }
+
+        doc.Status = DocumentStatus.Voided;
         await db.SaveChangesAsync(ct);
         await tx.CommitAsync(ct);
         return NoContent();

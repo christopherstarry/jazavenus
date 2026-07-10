@@ -22,9 +22,10 @@ public sealed class LookupController(ILookupService lookup, IDivisionScopeServic
         [FromQuery] string? search,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
+        [FromQuery] Guid? parentId = null,
         CancellationToken ct = default)
     {
         var div = division.EffectiveDivision;
-        return await lookup.SearchAsync(type, search, div, page, pageSize, ct);
+        return await lookup.SearchAsync(type, search, div, page, pageSize, parentId, ct);
     }
 }

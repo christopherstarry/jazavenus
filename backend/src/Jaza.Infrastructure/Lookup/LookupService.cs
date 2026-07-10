@@ -18,13 +18,13 @@ public sealed class LookupService(AppDbContext db, IDivisionScopeService divisio
         "delivery-orders", "invoices", "payments", "sales-returns", "purchase-returns",
         "credit-memos", "post-dated-checks", "stock-receipts", "stock-issues", "stock-transfers",
         "locations", "item-prices", "item-discounts", "customer-addresses", "warehouse-types",
-        "outlet-group-types", "fiscal-periods", "company-settings",
+        "outlet-group-types", "fiscal-periods", "company-settings", "grns", "ar-adjustments",
     ];
 
     public IReadOnlyList<string> SupportedTypes => Types;
 
     public async Task<LookupResult> SearchAsync(string type, string? search, string? division, int page, int pageSize,
-        CancellationToken ct = default)
+        Guid? parentId = null, CancellationToken ct = default)
     {
         var normalized = type.Trim().ToLowerInvariant();
         if (!Types.Contains(normalized))
@@ -53,6 +53,18 @@ public sealed class LookupService(AppDbContext db, IDivisionScopeService divisio
             "sales-orders" => await SearchSalesOrders(search, division, skip, pageSize, ct),
             "delivery-orders" => await SearchDeliveryOrders(search, division, skip, pageSize, ct),
             "invoices" => await SearchInvoices(search, division, skip, pageSize, ct),
+            "payment-terms" => await SearchPaymentTerms(search, skip, pageSize, ct),
+            "price-tiers" => await SearchPriceTiers(search, skip, pageSize, ct),
+            "extra-discounts" => await SearchExtraDiscounts(search, skip, pageSize, ct),
+            "customer-addresses" => await SearchCustomerAddresses(search, parentId, skip, pageSize, ct),
+            "stock-receipts" => await SearchStockReceipts(search, division, skip, pageSize, ct),
+            "stock-issues" => await SearchStockIssues(search, division, skip, pageSize, ct),
+            "stock-transfers" => await SearchStockTransfers(search, division, skip, pageSize, ct),
+            "grns" => await SearchGrns(search, division, skip, pageSize, ct),
+            "payments" => await SearchPayments(search, division, skip, pageSize, ct),
+            "post-dated-checks" => await SearchPostDatedChecks(search, division, skip, pageSize, ct),
+            "ar-adjustments" => await SearchArAdjustments(search, division, skip, pageSize, ct),
+            "discount-codes" => await SearchDiscountCodes(search, skip, pageSize, ct),
             _ => new LookupResult(normalized, [], 0),
         };
     }
@@ -237,5 +249,140 @@ public sealed class LookupService(AppDbContext db, IDivisionScopeService divisio
         var rows = await q.OrderByDescending(i => i.IssueDate).Skip(skip).Take(take)
             .Select(i => new LookupItem(i.Id, i.Number, i.Status.ToString(), i.IssueDate.ToString("yyyy-MM-dd"))).ToListAsync(ct);
         return new LookupResult("invoices", rows, total);
+    }
+
+    private async Task<LookupResult> SearchPaymentTerms(string? search, int skip, int take, CancellationToken ct)
+    {
+        var q = db.PaymentTerms.AsNoTracking().Where(p => p.IsActive);
+        if (!string.IsNullOrWhiteSpace(search)) q = q.Where(p => p.Code.Contains(search) || p.Name.Contains(search));
+        var total = await q.CountAsync(ct);
+        var rows = await q.OrderBy(p => p.Code).Skip(skip).Take(take)
+            .Select(p => new LookupItem(p.Id, p.Code, p.Name, $"{p.NetDays} days")).ToListAsync(ct);
+        return new LookupResult("payment-terms", rows, total);
+    }
+
+    private async Task<LookupResult> SearchPriceTiers(string? search, int skip, int take, CancellationToken ct)
+    {
+        var q = db.PriceTiers.AsNoTracking().Where(p => p.IsActive);
+        if (!string.IsNullOrWhiteSpace(search)) q = q.Where(p => p.Code.Contains(search) || p.Name.Contains(search));
+        var total = await q.CountAsync(ct);
+        var rows = await q.OrderBy(p => p.Code).Skip(skip).Take(take)
+            .Select(p => new LookupItem(p.Id, p.Code, p.Name, null)).ToListAsync(ct);
+        return new LookupResult("price-tiers", rows, total);
+    }
+
+    private async Task<LookupResult> SearchExtraDiscounts(string? search, int skip, int take, CancellationToken ct)
+    {
+        var q = db.ExtraDiscounts.AsNoTracking().Where(e => e.IsActive);
+        if (!string.IsNullOrWhiteSpace(search)) q = q.Where(e => e.Code.Contains(search) || e.Name.Contains(search));
+        var total = await q.CountAsync(ct);
+        var rows = await q.OrderBy(e => e.Code).Skip(skip).Take(take)
+            .Select(e => new LookupItem(e.Id, e.Code, e.Name, e.Division)).ToListAsync(ct);
+        return new LookupResult("extra-discounts", rows, total);
+    }
+
+    private async Task<LookupResult> SearchCustomerAddresses(string? search, Guid? customerId, int skip, int take, CancellationToken ct)
+    {
+        var q = db.CustomerAddresses.AsNoTracking().Where(a => a.IsActive);
+        if (customerId is not null) q = q.Where(a => a.CustomerId == customerId);
+        if (!string.IsNullOrWhiteSpace(search)) q = q.Where(a => a.Label.Contains(search) || a.Address.Contains(search));
+        var total = await q.CountAsync(ct);
+        var rows = await q.OrderBy(a => a.Label).Skip(skip).Take(take)
+            .Select(a => new LookupItem(a.Id, a.Label, a.Address, a.City)).ToListAsync(ct);
+        return new LookupResult("customer-addresses", rows, total);
+    }
+
+    private async Task<LookupResult> SearchStockReceipts(string? search, string? division, int skip, int take, CancellationToken ct)
+    {
+        var q = db.StockReceipts.AsNoTracking();
+        var div = division ?? divisionScope.EffectiveDivision;
+        if (div is not null) q = q.Where(r => r.Division == div);
+        if (!string.IsNullOrWhiteSpace(search)) q = q.Where(r => r.Number.Contains(search));
+        var total = await q.CountAsync(ct);
+        var rows = await q.OrderByDescending(r => r.ReceiptDate).Skip(skip).Take(take)
+            .Select(r => new LookupItem(r.Id, r.Number, r.Status.ToString(), r.ReceiptDate.ToString("yyyy-MM-dd"))).ToListAsync(ct);
+        return new LookupResult("stock-receipts", rows, total);
+    }
+
+    private async Task<LookupResult> SearchStockIssues(string? search, string? division, int skip, int take, CancellationToken ct)
+    {
+        var q = db.StockIssues.AsNoTracking();
+        var div = division ?? divisionScope.EffectiveDivision;
+        if (div is not null) q = q.Where(i => i.Division == div);
+        if (!string.IsNullOrWhiteSpace(search)) q = q.Where(i => i.Number.Contains(search));
+        var total = await q.CountAsync(ct);
+        var rows = await q.OrderByDescending(i => i.IssueDate).Skip(skip).Take(take)
+            .Select(i => new LookupItem(i.Id, i.Number, i.Status.ToString(), i.IssueDate.ToString("yyyy-MM-dd"))).ToListAsync(ct);
+        return new LookupResult("stock-issues", rows, total);
+    }
+
+    private async Task<LookupResult> SearchStockTransfers(string? search, string? division, int skip, int take, CancellationToken ct)
+    {
+        var q = db.StockTransfers.AsNoTracking();
+        var div = division ?? divisionScope.EffectiveDivision;
+        if (div is not null) q = q.Where(t => t.Division == div);
+        if (!string.IsNullOrWhiteSpace(search)) q = q.Where(t => t.Number.Contains(search));
+        var total = await q.CountAsync(ct);
+        var rows = await q.OrderByDescending(t => t.TransferDate).Skip(skip).Take(take)
+            .Select(t => new LookupItem(t.Id, t.Number, t.Status.ToString(), t.TransferDate.ToString("yyyy-MM-dd"))).ToListAsync(ct);
+        return new LookupResult("stock-transfers", rows, total);
+    }
+
+    private async Task<LookupResult> SearchGrns(string? search, string? division, int skip, int take, CancellationToken ct)
+    {
+        var q = db.GoodsReceiptNotes.AsNoTracking();
+        var div = division ?? divisionScope.EffectiveDivision;
+        if (div is not null) q = q.Where(g => g.Division == div);
+        if (!string.IsNullOrWhiteSpace(search)) q = q.Where(g => g.Number.Contains(search));
+        var total = await q.CountAsync(ct);
+        var rows = await q.OrderByDescending(g => g.ReceivedAt).Skip(skip).Take(take)
+            .Select(g => new LookupItem(g.Id, g.Number, g.Status.ToString(), g.ReceivedAt.ToString("yyyy-MM-dd"))).ToListAsync(ct);
+        return new LookupResult("grns", rows, total);
+    }
+
+    private async Task<LookupResult> SearchPayments(string? search, string? division, int skip, int take, CancellationToken ct)
+    {
+        var q = db.Payments.AsNoTracking().Where(p => p.Allocations.Count > 0);
+        var div = division ?? divisionScope.EffectiveDivision;
+        if (div is not null) q = q.Where(p => p.Division == div);
+        if (!string.IsNullOrWhiteSpace(search)) q = q.Where(p => p.Reference != null && p.Reference.Contains(search));
+        var total = await q.CountAsync(ct);
+        var rows = await q.OrderByDescending(p => p.ReceivedAt).Skip(skip).Take(take)
+            .Select(p => new LookupItem(p.Id, p.Reference ?? p.Id.ToString(), p.Method.ToString(), p.ReceivedAt.ToString("yyyy-MM-dd"))).ToListAsync(ct);
+        return new LookupResult("payments", rows, total);
+    }
+
+    private async Task<LookupResult> SearchPostDatedChecks(string? search, string? division, int skip, int take, CancellationToken ct)
+    {
+        var q = db.PostDatedChecks.AsNoTracking();
+        var div = division ?? divisionScope.EffectiveDivision;
+        if (div is not null) q = q.Where(c => c.Division == div);
+        if (!string.IsNullOrWhiteSpace(search)) q = q.Where(c => c.Number.Contains(search));
+        var total = await q.CountAsync(ct);
+        var rows = await q.OrderByDescending(c => c.ReceivedAt).Skip(skip).Take(take)
+            .Select(c => new LookupItem(c.Id, c.Number, c.Status.ToString(), c.Amount.ToString())).ToListAsync(ct);
+        return new LookupResult("post-dated-checks", rows, total);
+    }
+
+    private async Task<LookupResult> SearchArAdjustments(string? search, string? division, int skip, int take, CancellationToken ct)
+    {
+        var q = db.ArAdjustments.AsNoTracking();
+        var div = division ?? divisionScope.EffectiveDivision;
+        if (div is not null) q = q.Where(a => a.Division == div);
+        if (!string.IsNullOrWhiteSpace(search)) q = q.Where(a => a.Number.Contains(search));
+        var total = await q.CountAsync(ct);
+        var rows = await q.OrderByDescending(a => a.AdjustmentDate).Skip(skip).Take(take)
+            .Select(a => new LookupItem(a.Id, a.Number, a.Status.ToString(), a.Amount.ToString())).ToListAsync(ct);
+        return new LookupResult("ar-adjustments", rows, total);
+    }
+
+    private async Task<LookupResult> SearchDiscountCodes(string? search, int skip, int take, CancellationToken ct)
+    {
+        var q = db.DiscountCodes.AsNoTracking().Where(d => d.IsActive);
+        if (!string.IsNullOrWhiteSpace(search)) q = q.Where(d => d.Code.Contains(search) || d.Name.Contains(search));
+        var total = await q.CountAsync(ct);
+        var rows = await q.OrderBy(d => d.Code).Skip(skip).Take(take)
+            .Select(d => new LookupItem(d.Id, d.Code, d.Name, null)).ToListAsync(ct);
+        return new LookupResult("discount-codes", rows, total);
     }
 }
