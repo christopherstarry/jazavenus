@@ -1,11 +1,27 @@
+using Jaza.Application.Ar;
 using Jaza.Application.Auth;
 using Jaza.Application.Common;
+using Jaza.Application.Credit;
+using Jaza.Application.Inventory;
+using Jaza.Application.Lookup;
+using Jaza.Application.Pricing;
+using Jaza.Application.Reports;
+using Jaza.Application.Returns;
 using Jaza.Application.Stock;
+using Jaza.Application.Tax;
+using Jaza.Infrastructure.Ar;
 using Jaza.Infrastructure.Auth;
+using Jaza.Infrastructure.Credit;
 using Jaza.Infrastructure.Identity;
+using Jaza.Infrastructure.Inventory;
+using Jaza.Infrastructure.Lookup;
 using Jaza.Infrastructure.Persistence;
+using Jaza.Infrastructure.Pricing;
+using Jaza.Infrastructure.Reports;
+using Jaza.Infrastructure.Returns;
+using Jaza.Infrastructure.Security;
 using Jaza.Infrastructure.Stock;
-using Microsoft.AspNetCore.Identity;
+using Jaza.Infrastructure.Tax;using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -59,7 +75,19 @@ public static class DependencyInjection
         services.AddSingleton<IAccessTokenIssuer, JwtAccessTokenIssuer>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
         services.AddScoped<IPermissionService, PermissionService>();
+        services.AddScoped<IUserContextService, UserContextService>();
 
-        return services;
-    }
+        services.AddScoped<IDivisionScopeService, DivisionScopeService>();
+        services.AddScoped<ICreditControlService, CreditControlService>();
+        services.AddScoped<IStockCommitmentService, StockCommitmentService>();
+        services.AddScoped<IReturnsService, ReturnsService>();
+        services.AddScoped<IInventoryDocumentService, InventoryDocumentService>();
+        services.AddScoped<IPaymentReceiptService, PaymentReceiptService>();
+        services.AddScoped<IArClosingService, ArClosingService>();
+        services.AddScoped<IPricingService, PricingService>();
+        services.AddScoped<ILookupService, LookupService>();
+        services.AddScoped<ITaxSerialService, TaxSerialService>();
+        services.AddScoped<IReportQueryService, ReportQueryService>();
+
+        return services;    }
 }
