@@ -1,0 +1,284 @@
+import { useCallback, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router";
+import { useMutation } from "@tanstack/react-query";
+import type { ColumnDef } from "@tanstack/react-table";
+import { api } from "#/lib/api";
+import { describeApiError } from "#/lib/apiErrors";
+import { toast } from "#/components/ui/use-toast";
+import { useConfirm } from "#/components/ui/confirm";
+import { Input } from "#/components/ui/input";
+import { Label } from "#/components/ui/label";
+import { Textarea } from "#/components/ui/textarea";
+import { Card, CardContent } from "#/components/ui/card";
+import { Badge } from "#/components/ui/badge";
+import { LegacyDivisionFormNav } from "#/features/common/LegacyDivisionFormNav";
+import { LegacyTransactionToolbar, useLegacyShortcuts, type FormState } from "#/features/common/LegacyTransactionToolbar";
+import { LookupFieldInput } from "#/features/common/LookupFieldInput";
+import { LookupDialog, type LookupItem, type LookupType } from "#/features/common/LookupDialog";
+import { EditableLineGrid, toSubmitLines, type EditableLineRow } from "#/features/common/EditableLineGrid";
+import "#/features/inventory/inventoryI18n";
+
+const DocumentStatus = { Draft: 0, Posted: 10, Voided: 90 } as const;
+
+interface DocLineDto {
+  id?: string;
+  lineNumber: number;
+  itemId: string;
+  itemSku?: string | null;
+  itemName?: string | null;
+  quantity: number;
+  unitCost: number;
+}
+
+interface DocDto {
+  id: string;
+  number: string;
+  division: string;
+  status: number;
+  warehouseId: string;
+  warehouseCode?: string | null;
+  reasonCode?: string | null;
+  notes?: string | null;
+  lines: DocLineDto[];
+  // Date field name differs (receiptDate | issueDate) — read generically below.
+  [dateKey: string]: unknown;
+}
+
+interface LineRow extends EditableLineRow {
+  itemId: string;
+  itemCode: string;
+  itemName: string;
+  quantity: number;
+  unitCost: number;
+}
+
+function makeEmptyLine(lineNumber: number): LineRow {
+  return { lineNumber, _status: "insert", itemId: "", itemCode: "", itemName: "", quantity: 0, unitCost: 0 };
+}
+
+export interface StockDocumentPageConfig {
+  /** API resource segment under `/api/inventory/` (e.g. "stock-receipts"). */
+  resource: "stock-receipts" | "stock-issues";
+  /** DTO field name carrying the document date (`receiptDate` | `issueDate`). */
+  dateField: "receiptDate" | "issueDate";
+  lookupType: LookupType;
+  titleKey: string;
+  homeRoute: string;
+}
+
+/**
+ * Shared implementation for BPB (Incoming, `stock-receipts`) and BBK (Outgoing, `stock-issues`) —
+ * both are single-warehouse, reason-coded stock adjustment documents with an identical shape.
+ * See docs/modules/inventory/prds/incoming-bpb.md and outgoing-bbk.md.
+ */
+export function StockDocumentPage({ resource, dateField, lookupType, titleKey, homeRoute }: StockDocumentPageConfig) {
+  const { t } = useTranslation(["inventory", "dialog"]);
+  const navigate = useNavigate();
+  const { confirm, dialog } = useConfirm();
+
+  const [docId, setDocId] = useState<string | null>(null);
+  const [browseOpen, setBrowseOpen] = useState(false);
+  const [warehouse, setWarehouse] = useState<LookupItem | null>(null);
+  const [docDate, setDocDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [reasonCode, setReasonCode] = useState("");
+  const [notes, setNotes] = useState("");
+  const [lines, setLines] = useState<LineRow[]>([]);
+  const [status, setStatus] = useState<number>(DocumentStatus.Draft);
+  const [docNumber, setDocNumber] = useState<string | null>(null);
+  const [dirty, setDirty] = useState(false);
+
+  const isNew = docId === null;
+  const isPosted = status === DocumentStatus.Posted;
+  const readOnly = isPosted || status === DocumentStatus.Voided;
+  const formState: FormState = isNew ? (dirty ? "insert" : "init") : isPosted ? "posted" : status === DocumentStatus.Voided ? "voided" : "normal";
+  const markDirty = useCallback(() => setDirty(true), []);
+
+  const resetForm = useCallback(() => {
+    setDocId(null);
+    setWarehouse(null);
+    setDocDate(new Date().toISOString().slice(0, 10));
+    setReasonCode("");
+    setNotes("");
+    setLines([]);
+    setStatus(DocumentStatus.Draft);
+    setDocNumber(null);
+    setDirty(false);
+  }, []);
+
+  const loadDoc = useCallback(
+    (dto: DocDto) => {
+      setDocId(dto.id);
+      setWarehouse({ id: dto.warehouseId, code: dto.warehouseCode ?? "", name: "" });
+      setDocDate(String(dto[dateField]).slice(0, 10));
+      setReasonCode(dto.reasonCode ?? "");
+      setNotes(dto.notes ?? "");
+      setLines(
+        dto.lines.map((l) => ({
+          id: l.id, lineNumber: l.lineNumber, _status: "unchanged", itemId: l.itemId,
+          itemCode: l.itemSku ?? "", itemName: l.itemName ?? "", quantity: l.quantity, unitCost: l.unitCost,
+        })),
+      );
+      setStatus(dto.status);
+      setDocNumber(dto.number);
+      setDirty(false);
+    },
+    [dateField],
+  );
+
+  const openDoc = useCallback(async (id: string) => loadDoc(await api.get(`inventory/${resource}/${id}`).json<DocDto>()), [loadDoc, resource]);
+
+  const buildPayload = useCallback(
+    () => ({
+      warehouseId: warehouse?.id,
+      [dateField]: docDate ? new Date(docDate).toISOString() : null,
+      reasonCode: reasonCode || null,
+      notes: notes || null,
+      lines: toSubmitLines(lines).map((l) => ({
+        lineNumber: l.lineNumber, itemId: l.itemId, locationId: null, quantity: l.quantity, unitCost: l.unitCost,
+        ...(resource === "stock-receipts" ? { batchOrSerial: null } : {}),
+      })),
+    }),
+    [warehouse, dateField, docDate, reasonCode, notes, lines, resource],
+  );
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      const payload = buildPayload();
+      if (!payload.warehouseId) throw new Error(t("common:required"));
+      if (payload.lines.length === 0) throw new Error(t("grid:noLines"));
+      if (isNew) loadDoc(await api.post(`inventory/${resource}`, { json: payload }).json<DocDto>());
+      else {
+        await api.put(`inventory/${resource}/${docId}`, { json: payload });
+        await openDoc(docId!);
+      }
+    },
+    onSuccess: () => toast({ title: t("dialog:saveSuccess"), variant: "success" }),
+    onError: async (err) => toast({ title: t("dialog:genericError"), description: await describeApiError(err), variant: "destructive" }),
+  });
+
+  const postMutation = useMutation({
+    mutationFn: async () => {
+      await api.post(`inventory/${resource}/${docId}/post`);
+      await openDoc(docId!);
+    },
+    onSuccess: () => toast({ title: t("dialog:postSuccess"), variant: "success" }),
+    onError: async (err) => toast({ title: t("dialog:genericError"), description: await describeApiError(err), variant: "destructive" }),
+  });
+
+  const handleSave = useCallback(async () => {
+    if (!isNew) {
+      const ok = await confirm({ title: t("dialog:confirmSave"), description: "" });
+      if (!ok) return;
+    }
+    saveMutation.mutate();
+  }, [isNew, confirm, saveMutation, t]);
+
+  const handleNew = useCallback(async () => {
+    if (dirty) {
+      const ok = await confirm({ title: t("inventory:common.newDocPrompt"), description: "" });
+      if (!ok) return;
+    }
+    resetForm();
+  }, [dirty, confirm, resetForm, t]);
+
+  useLegacyShortcuts({
+    onNew: handleNew,
+    onSave: !readOnly ? handleSave : undefined,
+    onUndo: isNew ? resetForm : undefined,
+    onBrowse: () => setBrowseOpen(true),
+    onExecute: formState === "normal" ? () => postMutation.mutate() : undefined,
+    onClose: () => navigate(homeRoute),
+  });
+
+  const columns = useMemo<ColumnDef<LineRow>[]>(
+    () => [
+      {
+        accessorKey: "itemCode",
+        header: t("inventory:common.item"),
+        cell: ({ row }) => <ItemCell row={row.original} readOnly={readOnly} onChange={(next) => { setLines((prev) => prev.map((l, i) => (i === row.index ? next : l))); markDirty(); }} />,
+      },
+      {
+        accessorKey: "quantity",
+        header: t("inventory:common.qty"),
+        cell: ({ row }) => (
+          <Input type="number" className="h-9 w-24" value={row.original.quantity} disabled={readOnly}
+            onChange={(e) => { const v = Number(e.target.value); setLines((prev) => prev.map((l, i) => (i === row.index ? { ...l, quantity: v, _status: l._status === "unchanged" ? "update" : l._status } : l))); markDirty(); }} />
+        ),
+      },
+      {
+        accessorKey: "unitCost",
+        header: t("inventory:common.unitCost"),
+        cell: ({ row }) => (
+          <Input type="number" className="h-9 w-28" value={row.original.unitCost} disabled={readOnly}
+            onChange={(e) => { const v = Number(e.target.value); setLines((prev) => prev.map((l, i) => (i === row.index ? { ...l, unitCost: v, _status: l._status === "unchanged" ? "update" : l._status } : l))); markDirty(); }} />
+        ),
+      },
+    ],
+    [t, readOnly, markDirty],
+  );
+
+  return (
+    <div className="flex flex-col gap-3 p-3 sm:p-4">
+      <LegacyDivisionFormNav onPreviousForm={() => {}} onNextForm={() => {}} />
+      <div className="flex items-center justify-between">
+        <h1 className="text-lg font-bold">{t(titleKey)}</h1>
+        {docNumber && <Badge tone={isPosted ? "success" : status === DocumentStatus.Voided ? "destructive" : "neutral"}>{docNumber}</Badge>}
+      </div>
+
+      <LegacyTransactionToolbar
+        mode="transaction"
+        formState={formState}
+        canEdit
+        canDelete
+        isDirty={dirty}
+        isSaving={saveMutation.isPending}
+        onNew={handleNew}
+        onSave={handleSave}
+        onUndo={resetForm}
+        onExecute={() => postMutation.mutate()}
+        onClose={() => navigate(homeRoute)}
+      />
+
+      <Card>
+        <CardContent className="grid gap-3 pt-4 sm:grid-cols-2 lg:grid-cols-3">
+          <LookupFieldInput label={t("inventory:common.warehouse")} type="warehouses" code={warehouse?.code ?? ""} name={warehouse?.name} disabled={readOnly} required
+            onSelect={(item) => { setWarehouse(item); markDirty(); }} onClear={() => setWarehouse(null)} />
+          <div className="space-y-1.5">
+            <Label className="text-xs uppercase tracking-wide">{t("inventory:common.date")}</Label>
+            <Input type="date" value={docDate} disabled={readOnly} onChange={(e) => { setDocDate(e.target.value); markDirty(); }} />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs uppercase tracking-wide">{t("inventory:common.reasonCode")}</Label>
+            <Input value={reasonCode} disabled={readOnly} onChange={(e) => { setReasonCode(e.target.value); markDirty(); }} />
+          </div>
+          <div className="space-y-1.5 sm:col-span-2 lg:col-span-3">
+            <Label className="text-xs uppercase tracking-wide">{t("inventory:common.notes")}</Label>
+            <Textarea value={notes} disabled={readOnly} onChange={(e) => { setNotes(e.target.value); markDirty(); }} />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="pt-4">
+          <EditableLineGrid columns={columns} rows={lines} onRowsChange={(next) => { setLines(next); markDirty(); }} readOnly={readOnly} makeEmptyRow={makeEmptyLine} />
+        </CardContent>
+      </Card>
+
+      <LookupDialog type={lookupType} open={browseOpen} onOpenChange={setBrowseOpen} onSelect={(item) => item.id && void openDoc(item.id)} />
+      {dialog}
+    </div>
+  );
+}
+
+function ItemCell({ row, readOnly, onChange }: { row: LineRow; readOnly?: boolean; onChange: (next: LineRow) => void }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="flex min-w-[14rem] items-center gap-2">
+      <Input readOnly className="h-9 w-24 font-mono" value={row.itemCode} placeholder="—" onClick={() => !readOnly && setOpen(true)} disabled={readOnly} />
+      <span className="truncate text-sm text-muted-foreground">{row.itemName}</span>
+      <LookupDialog type="items" open={open} onOpenChange={setOpen}
+        onSelect={(item) => onChange({ ...row, itemId: item.id ?? "", itemCode: item.code, itemName: item.name, _status: row._status === "unchanged" ? "update" : row._status })} />
+    </div>
+  );
+}
