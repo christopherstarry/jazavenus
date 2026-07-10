@@ -1,0 +1,23 @@
+{
+  "appName": "Jaza Venus",
+  "loading": "Loading...",
+  "search": "Search",
+  "yes": "Yes",
+  "no": "No",
+  "save": "Save",
+  "cancel": "Cancel",
+  "close": "Close",
+  "back": "Back",
+  "required": "Required",
+  "all": "All",
+  "actions": "Actions",
+  "total": "Total",
+  "subtotal": "Subtotal",
+  "tax": "Tax",
+  "grandTotal": "Grand Total",
+  "date": "Date",
+  "status": "Status",
+  "code": "Code",
+  "name": "Name",
+  "description": "Description"
+}

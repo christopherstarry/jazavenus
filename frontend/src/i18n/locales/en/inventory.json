@@ -1,0 +1,41 @@
+{
+  "common": {
+    "warehouse": "Warehouse",
+    "fromWarehouse": "From Warehouse",
+    "toWarehouse": "To Warehouse",
+    "date": "Date",
+    "reasonCode": "Reason Code",
+    "notes": "Notes",
+    "item": "Item",
+    "qty": "Quantity",
+    "unitCost": "Unit Cost",
+    "newDocPrompt": "Entry new document?"
+  },
+  "bpb": { "title": "Incoming Stock (BPB)" },
+  "bbk": { "title": "Outgoing Stock (BBK)" },
+  "transfer": { "title": "Inter-Warehouse Transfer" },
+  "stockTaking": {
+    "preparationTitle": "Stock Take Preparation",
+    "recordTitle": "Stock Take Record",
+    "sessionDate": "Session Date",
+    "prepareButton": "Prepare Session",
+    "loadSession": "Load Session",
+    "systemQty": "System Qty",
+    "countedQty": "Counted Qty",
+    "variance": "Variance",
+    "saveCounts": "Save Counts",
+    "postAdjustments": "Post Adjustments",
+    "statusPosted": "Posted",
+    "statusCounting": "Counting"
+  },
+  "planning": {
+    "title": "Inventory Planning",
+    "warehouse": "Warehouse",
+    "run": "Run",
+    "empty": "No data. Click Run to load.",
+    "item": "Item",
+    "onHand": "On Hand",
+    "reorderLevel": "Reorder Level",
+    "suggestedQty": "Suggested Qty"
+  }
+}

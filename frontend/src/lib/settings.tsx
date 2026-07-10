@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import i18n from "#/i18n";
 import { api } from "#/lib/api";
 import { useAuth, type TextSize, type Theme, type UserPreferences } from "#/lib/auth";
 
@@ -72,6 +73,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     applyTheme(s.theme);
     applyTextSize(s.textSize);
     save(s);
+    if (i18n.language !== s.language) void i18n.changeLanguage(s.language);
 
     if (remoteSyncRef.current) {
       remoteSyncRef.current = false;

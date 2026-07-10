@@ -1,0 +1,52 @@
+{
+  "common": {
+    "customer": "Customer",
+    "warehouse": "Warehouse",
+    "orderDate": "Order Date",
+    "requestedDate": "Requested Date",
+    "currency": "Currency",
+    "notes": "Notes",
+    "docNum": "Document No.",
+    "item": "Item",
+    "qty": "Quantity",
+    "unitPrice": "Unit Price",
+    "discPercent": "Disc %",
+    "taxPercent": "Tax %",
+    "lineTotal": "Line Total",
+    "newDocPrompt": "Entry new document?",
+    "loadedDoc": "Loaded document: {{number}}",
+    "notFound": "Document not found."
+  },
+  "salesOrder": {
+    "title": "Sales Order",
+    "deliveredQty": "Delivered"
+  },
+  "salesConfirmation": {
+    "title": "Sales Confirmation",
+    "sourceOrder": "Source Order",
+    "pullFromSo": "Pull from Order",
+    "deliveredAt": "Delivery Date"
+  },
+  "salesReturn": {
+    "title": "Sales Return",
+    "returnCode": "Return Code",
+    "returnDate": "Return Date",
+    "sourceDelivery": "Source Delivery",
+    "sourceInvoice": "Source Invoice"
+  },
+  "invoicing": {
+    "title": "Invoicing Process",
+    "sourceDelivery": "Source Delivery",
+    "issueDate": "Invoice Date",
+    "dueDate": "Due Date",
+    "description": "Line Description"
+  },
+  "creditMemo": {
+    "title": "Credit Memo",
+    "issueDate": "Memo Date",
+    "sourceReturn": "Source Return",
+    "sourceInvoice": "Source Invoice",
+    "taxSerial": "Tax Invoice No.",
+    "description": "Line Description"
+  }
+}

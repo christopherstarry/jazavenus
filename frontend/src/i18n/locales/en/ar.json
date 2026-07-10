@@ -1,0 +1,59 @@
+{
+  "common": {
+    "customer": "Customer",
+    "receivedDate": "Received Date",
+    "method": "Method",
+    "reference": "Reference",
+    "notes": "Notes",
+    "amount": "Amount",
+    "newDocPrompt": "Entry new document?"
+  },
+  "paymentMethod": {
+    "cash": "Cash",
+    "bankTransfer": "Bank Transfer",
+    "card": "Card",
+    "cheque": "Cheque",
+    "other": "Other"
+  },
+  "paymentReceipt": {
+    "title": "Payment Receipt",
+    "bankTransferTitle": "Bank Transfer",
+    "openInvoices": "Open Invoices",
+    "invoice": "Invoice",
+    "outstanding": "Outstanding",
+    "applied": "Applied",
+    "totalApplied": "Total Applied",
+    "noInvoices": "No open invoices for this customer.",
+    "selectCustomerFirst": "Select a customer to load open invoices."
+  },
+  "pdcClearance": {
+    "title": "PDC Clearance",
+    "outstandingPdc": "Outstanding PDC",
+    "chequeNo": "Cheque No.",
+    "bank": "Bank",
+    "chequeDate": "Cheque Date",
+    "clear": "Clear"
+  },
+  "pdcCancellation": {
+    "title": "PDC Clearance Cancellation",
+    "clearedPdc": "Cleared PDC",
+    "cancel": "Cancel Clearance",
+    "reason": "Reason"
+  },
+  "adjustment": {
+    "title": "A/R Adjustment",
+    "adjustmentDate": "Adjustment Date",
+    "reasonCode": "Reason Code",
+    "debit": "Debit (+)",
+    "credit": "Credit (-)"
+  },
+  "closing": {
+    "title": "Closing A/R",
+    "year": "Year",
+    "month": "Month"
+  },
+  "recalculate": {
+    "title": "Recalculate AR Balance",
+    "description": "Rebuilds every customer's outstanding A/R total from posted invoices, payments, and credit memos for the active division."
+  }
+}

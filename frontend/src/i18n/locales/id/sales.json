@@ -1,0 +1,52 @@
+{
+  "common": {
+    "customer": "Pelanggan",
+    "warehouse": "Gudang",
+    "orderDate": "Tanggal Order",
+    "requestedDate": "Tanggal Kirim",
+    "currency": "Mata Uang",
+    "notes": "Keterangan",
+    "docNum": "No. Dokumen",
+    "item": "Barang",
+    "qty": "Kuantitas",
+    "unitPrice": "Harga Satuan",
+    "discPercent": "Disc %",
+    "taxPercent": "Pajak %",
+    "lineTotal": "Total Baris",
+    "newDocPrompt": "Buat dokumen baru?",
+    "loadedDoc": "Dokumen dimuat: {{number}}",
+    "notFound": "Dokumen tidak ditemukan."
+  },
+  "salesOrder": {
+    "title": "Sales Order",
+    "deliveredQty": "Terkirim"
+  },
+  "salesConfirmation": {
+    "title": "Konfirmasi Penjualan",
+    "sourceOrder": "Order Sumber",
+    "pullFromSo": "Ambil dari Order",
+    "deliveredAt": "Tanggal Kirim"
+  },
+  "salesReturn": {
+    "title": "Retur Penjualan",
+    "returnCode": "Kode Retur",
+    "returnDate": "Tanggal Retur",
+    "sourceDelivery": "Surat Jalan Sumber",
+    "sourceInvoice": "Faktur Sumber"
+  },
+  "invoicing": {
+    "title": "Proses Faktur",
+    "sourceDelivery": "Surat Jalan Sumber",
+    "issueDate": "Tanggal Faktur",
+    "dueDate": "Tanggal Jatuh Tempo",
+    "description": "Keterangan Baris"
+  },
+  "creditMemo": {
+    "title": "Nota Kredit",
+    "issueDate": "Tanggal Nota",
+    "sourceReturn": "Retur Sumber",
+    "sourceInvoice": "Faktur Sumber",
+    "taxSerial": "No. Faktur Pajak",
+    "description": "Keterangan Baris"
+  }
+}

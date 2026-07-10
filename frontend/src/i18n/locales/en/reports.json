@@ -1,0 +1,19 @@
+{
+  "common": {
+    "run": "Run",
+    "export": "Export CSV",
+    "dateFrom": "Date From",
+    "dateTo": "Date To",
+    "customer": "Customer",
+    "supplier": "Supplier",
+    "item": "Item",
+    "warehouse": "Warehouse",
+    "noData": "No data found for this filter.",
+    "beforeRun": "Set filters then click Run (F5).",
+    "autoRun": "Auto Run",
+    "rowsTotal": "rows",
+    "loadError": "Failed to load report.",
+    "prev": "Prev",
+    "next": "Next"
+  }
+}

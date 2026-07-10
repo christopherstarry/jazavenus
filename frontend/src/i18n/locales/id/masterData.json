@@ -1,0 +1,61 @@
+{
+  "extraDiscount": {
+    "title": "Diskon Ekstra",
+    "code": "Kode",
+    "name": "Nama",
+    "effectiveFrom": "Berlaku Dari",
+    "effectiveTo": "Berlaku Sampai",
+    "notes": "Keterangan",
+    "customer": "Pelanggan",
+    "brand": "Merek",
+    "item": "Barang",
+    "disc2": "Disc P2 %",
+    "disc3": "Disc P3 %",
+    "newDocPrompt": "Buat data baru?"
+  },
+  "orderCodes": {
+    "title": "Kode Order",
+    "codePlaceholder": "contoh: NOR",
+    "namePlaceholder": "contoh: Normal Order",
+    "descriptionPlaceholder": "Keterangan opsional"
+  },
+  "returnCodes": {
+    "title": "Kode Retur",
+    "codePlaceholder": "contoh: DMG",
+    "namePlaceholder": "contoh: Barang Rusak",
+    "descriptionPlaceholder": "Keterangan opsional"
+  },
+  "itemPricing": {
+    "title": "Harga & Diskon Barang",
+    "pricesTab": "Harga per Tingkat",
+    "discountsTab": "Diskon Barang",
+    "item": "Barang",
+    "priceTier": "Tingkat Harga",
+    "price": "Harga",
+    "discountCode": "Kode Diskon",
+    "discountPercent": "Diskon %",
+    "startDate": "Tanggal Mulai",
+    "endDate": "Tanggal Selesai",
+    "active": "Aktif",
+    "add": "Tambah",
+    "noRows": "Belum ada data."
+  },
+  "bpItem": {
+    "title": "BP Item",
+    "supplier": "Supplier",
+    "supplierItemCode": "Kode Barang Supplier",
+    "item": "Barang Internal",
+    "uom": "Satuan",
+    "conversionFactor": "Faktor Konversi"
+  },
+  "penetration": {
+    "title": "Penetrasi Pelanggan",
+    "customer": "Pelanggan",
+    "brand": "Merek",
+    "category": "Kategori",
+    "item": "Barang",
+    "targetSkuCount": "Target Jumlah SKU",
+    "periodYear": "Tahun",
+    "periodMonth": "Bulan"
+  }
+}

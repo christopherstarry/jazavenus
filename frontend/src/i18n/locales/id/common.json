@@ -1,0 +1,23 @@
+{
+  "appName": "Jaza Venus",
+  "loading": "Memuat...",
+  "search": "Cari",
+  "yes": "Ya",
+  "no": "Tidak",
+  "save": "Simpan",
+  "cancel": "Batal",
+  "close": "Tutup",
+  "back": "Kembali",
+  "required": "Wajib diisi",
+  "all": "Semua",
+  "actions": "Aksi",
+  "total": "Total",
+  "subtotal": "Subtotal",
+  "tax": "Pajak",
+  "grandTotal": "Total Keseluruhan",
+  "date": "Tanggal",
+  "status": "Status",
+  "code": "Kode",
+  "name": "Nama",
+  "description": "Keterangan"
+}

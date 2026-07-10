@@ -1,0 +1,63 @@
+{
+  "preferences": {
+    "title": "Preferensi Perusahaan",
+    "companyName": "Nama Perusahaan",
+    "address": "Alamat",
+    "city": "Kota",
+    "phone": "Telepon",
+    "fax": "Fax",
+    "npwp": "NPWP",
+    "pkp": "No. PKP",
+    "currency": "Mata Uang Default",
+    "save": "Simpan",
+    "fiscalPeriods": "Periode Fiskal",
+    "year": "Tahun",
+    "month": "Bulan",
+    "startDate": "Tanggal Mulai",
+    "endDate": "Tanggal Selesai",
+    "closed": "Ditutup",
+    "addPeriod": "Tambah Periode"
+  },
+  "periodEnd": {
+    "title": "Proses Akhir Periode",
+    "monthlyTab": "Proses Bulanan",
+    "dayEndTab": "Proses Akhir Hari",
+    "division": "Divisi",
+    "year": "Tahun",
+    "month": "Bulan",
+    "date": "Tanggal",
+    "run": "Jalankan",
+    "running": "Menjalankan..."
+  },
+  "deleteCancelled": {
+    "title": "Hapus Dokumen Dibatalkan",
+    "documentType": "Jenis Dokumen",
+    "dateFrom": "Dari Tanggal",
+    "dateTo": "Sampai Tanggal",
+    "division": "Divisi",
+    "preview": "Simulasi (Dry Run)",
+    "execute": "Hapus Permanen",
+    "matched": "Dokumen Cocok",
+    "confirmDelete": "Hapus permanen {{count}} dokumen? Tindakan ini tidak dapat dibatalkan.",
+    "types": {
+      "SO": "Sales Order",
+      "PO": "Purchase Order",
+      "DO": "Delivery Order",
+      "INV": "Invoice"
+    }
+  },
+  "backup": {
+    "title": "Backup & Restore",
+    "createBackup": "Buat Backup",
+    "history": "Riwayat Backup",
+    "fileName": "Nama File",
+    "size": "Ukuran",
+    "created": "Dibuat",
+    "download": "Unduh",
+    "restoreTitle": "Restore Database",
+    "restoreWarning": "PERINGATAN: Restore akan menimpa seluruh database saat ini. Tindakan ini tidak dapat dibatalkan.",
+    "selectFile": "Pilih File Dump",
+    "confirmPhrase": "Ketik RESTORE untuk melanjutkan",
+    "restore": "Restore"
+  }
+}

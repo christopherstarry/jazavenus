@@ -1,0 +1,61 @@
+{
+  "extraDiscount": {
+    "title": "Extra Discount",
+    "code": "Code",
+    "name": "Name",
+    "effectiveFrom": "Effective From",
+    "effectiveTo": "Effective To",
+    "notes": "Notes",
+    "customer": "Customer",
+    "brand": "Brand",
+    "item": "Item",
+    "disc2": "Disc P2 %",
+    "disc3": "Disc P3 %",
+    "newDocPrompt": "Create new record?"
+  },
+  "orderCodes": {
+    "title": "Order Codes",
+    "codePlaceholder": "e.g. NOR",
+    "namePlaceholder": "e.g. Normal Order",
+    "descriptionPlaceholder": "Optional description"
+  },
+  "returnCodes": {
+    "title": "Return Codes",
+    "codePlaceholder": "e.g. DMG",
+    "namePlaceholder": "e.g. Damaged Goods",
+    "descriptionPlaceholder": "Optional description"
+  },
+  "itemPricing": {
+    "title": "Item Pricing & Discount",
+    "pricesTab": "Prices by Tier",
+    "discountsTab": "Item Discounts",
+    "item": "Item",
+    "priceTier": "Price Tier",
+    "price": "Price",
+    "discountCode": "Discount Code",
+    "discountPercent": "Discount %",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "active": "Active",
+    "add": "Add",
+    "noRows": "No rows yet."
+  },
+  "bpItem": {
+    "title": "BP Item",
+    "supplier": "Supplier",
+    "supplierItemCode": "Supplier Item Code",
+    "item": "Internal Item",
+    "uom": "UOM",
+    "conversionFactor": "Conversion Factor"
+  },
+  "penetration": {
+    "title": "Customer Penetration",
+    "customer": "Customer",
+    "brand": "Brand",
+    "category": "Category",
+    "item": "Item",
+    "targetSkuCount": "Target SKU Count",
+    "periodYear": "Year",
+    "periodMonth": "Month"
+  }
+}

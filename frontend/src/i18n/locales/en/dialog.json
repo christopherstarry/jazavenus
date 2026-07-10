@@ -1,0 +1,19 @@
+{
+  "confirmDelete": "Do you want to delete this record?",
+  "confirmSave": "Do you want to update this record?",
+  "newDocument": "Entry new document?",
+  "creditLimit": "Customer exceeds credit limit. Continue?",
+  "overdue": "Customer has overdue invoices. Continue?",
+  "locked": "Data has been locked for transaction",
+  "yes": "Yes",
+  "no": "No",
+  "cancel": "Cancel",
+  "saveSuccess": "Data saved successfully",
+  "postSuccess": "Document posted successfully",
+  "deleteSuccess": "Data deleted successfully",
+  "genericError": "A Program Error Occurred",
+  "validationError": "Validation Error",
+  "accessDenied": "Access restricted",
+  "notFound": "Data not found",
+  "networkError": "Network error. Please try again."
+}

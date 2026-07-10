@@ -1,0 +1,14 @@
+{
+  "new": "New",
+  "save": "Save",
+  "delete": "Delete",
+  "undo": "Undo",
+  "print": "Print",
+  "execute": "Execute",
+  "close": "Close",
+  "first": "First",
+  "previous": "Previous",
+  "next": "Next",
+  "last": "Last",
+  "readOnly": "View-only mode"
+}

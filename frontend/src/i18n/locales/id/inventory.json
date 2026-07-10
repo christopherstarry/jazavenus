@@ -1,0 +1,41 @@
+{
+  "common": {
+    "warehouse": "Gudang",
+    "fromWarehouse": "Dari Gudang",
+    "toWarehouse": "Ke Gudang",
+    "date": "Tanggal",
+    "reasonCode": "Kode Alasan",
+    "notes": "Keterangan",
+    "item": "Barang",
+    "qty": "Kuantitas",
+    "unitCost": "Biaya Satuan",
+    "newDocPrompt": "Buat dokumen baru?"
+  },
+  "bpb": { "title": "BPB (Barang Masuk)" },
+  "bbk": { "title": "BBK (Barang Keluar)" },
+  "transfer": { "title": "Transfer Antar Gudang" },
+  "stockTaking": {
+    "preparationTitle": "Persiapan Stock Opname",
+    "recordTitle": "Pencatatan Stock Opname",
+    "sessionDate": "Tanggal Sesi",
+    "prepareButton": "Siapkan Sesi",
+    "loadSession": "Muat Sesi",
+    "systemQty": "Qty Sistem",
+    "countedQty": "Qty Dihitung",
+    "variance": "Selisih",
+    "saveCounts": "Simpan Hitungan",
+    "postAdjustments": "Posting Penyesuaian",
+    "statusPosted": "Diposting",
+    "statusCounting": "Menghitung"
+  },
+  "planning": {
+    "title": "Perencanaan Persediaan",
+    "warehouse": "Gudang",
+    "run": "Jalankan",
+    "empty": "Tidak ada data. Klik Jalankan untuk memuat.",
+    "item": "Barang",
+    "onHand": "Stok Ada",
+    "reorderLevel": "Batas Order Ulang",
+    "suggestedQty": "Qty Disarankan"
+  }
+}

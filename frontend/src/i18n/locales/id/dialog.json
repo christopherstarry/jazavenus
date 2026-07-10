@@ -1,0 +1,19 @@
+{
+  "confirmDelete": "Apakah Anda ingin menghapus data ini?",
+  "confirmSave": "Apakah Anda ingin memperbarui data ini?",
+  "newDocument": "Buat dokumen baru?",
+  "creditLimit": "Pelanggan melebihi batas kredit. Lanjutkan?",
+  "overdue": "Pelanggan memiliki faktur jatuh tempo. Lanjutkan?",
+  "locked": "Data telah dikunci untuk transaksi",
+  "yes": "Ya",
+  "no": "Tidak",
+  "cancel": "Batal",
+  "saveSuccess": "Data berhasil disimpan",
+  "postSuccess": "Dokumen berhasil diposting",
+  "deleteSuccess": "Data berhasil dihapus",
+  "genericError": "Terjadi Kesalahan Program",
+  "validationError": "Kesalahan Validasi",
+  "accessDenied": "Akses dibatasi",
+  "notFound": "Data tidak ditemukan",
+  "networkError": "Kesalahan jaringan. Silakan coba lagi."
+}

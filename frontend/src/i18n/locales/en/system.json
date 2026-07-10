@@ -1,0 +1,63 @@
+{
+  "preferences": {
+    "title": "Company Preferences",
+    "companyName": "Company Name",
+    "address": "Address",
+    "city": "City",
+    "phone": "Phone",
+    "fax": "Fax",
+    "npwp": "Tax ID (NPWP)",
+    "pkp": "PKP No.",
+    "currency": "Default Currency",
+    "save": "Save",
+    "fiscalPeriods": "Fiscal Periods",
+    "year": "Year",
+    "month": "Month",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "closed": "Closed",
+    "addPeriod": "Add Period"
+  },
+  "periodEnd": {
+    "title": "Period-End Processes",
+    "monthlyTab": "Monthly Process",
+    "dayEndTab": "Day-End Process",
+    "division": "Division",
+    "year": "Year",
+    "month": "Month",
+    "date": "Date",
+    "run": "Run",
+    "running": "Running..."
+  },
+  "deleteCancelled": {
+    "title": "Delete Cancelled Document",
+    "documentType": "Document Type",
+    "dateFrom": "Date From",
+    "dateTo": "Date To",
+    "division": "Division",
+    "preview": "Dry Run",
+    "execute": "Permanently Delete",
+    "matched": "Matched Documents",
+    "confirmDelete": "Permanently delete {{count}} documents? This cannot be undone.",
+    "types": {
+      "SO": "Sales Order",
+      "PO": "Purchase Order",
+      "DO": "Delivery Order",
+      "INV": "Invoice"
+    }
+  },
+  "backup": {
+    "title": "Backup & Restore",
+    "createBackup": "Create Backup",
+    "history": "Backup History",
+    "fileName": "File Name",
+    "size": "Size",
+    "created": "Created",
+    "download": "Download",
+    "restoreTitle": "Restore Database",
+    "restoreWarning": "WARNING: Restoring will overwrite the entire current database. This cannot be undone.",
+    "selectFile": "Select Dump File",
+    "confirmPhrase": "Type RESTORE to continue",
+    "restore": "Restore"
+  }
+}

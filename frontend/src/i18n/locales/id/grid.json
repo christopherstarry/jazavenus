@@ -1,0 +1,8 @@
+{
+  "addLine": "Tambah Baris",
+  "noLines": "Belum ada baris. Tekan Insert untuk menambah.",
+  "itemRequired": "Item wajib diisi",
+  "qtyRequired": "Kuantitas harus lebih dari 0",
+  "lineNumber": "No.",
+  "delete": "Hapus baris"
+}

@@ -1,6 +1,9 @@
 import "@testing-library/jest-dom/vitest";
 import { afterEach } from "vitest";
 import { cleanup } from "@testing-library/react";
+// Initializes the global i18next singleton so components using useTranslation() without an
+// explicit <I18nextProvider> (i.e. most unit tests) resolve real "id" strings, same as production.
+import "#/i18n";
 
 /* React Testing Library doesn't auto-clean between tests when running in
  * vitest's parallel mode, so we do it ourselves. Without this, leftover

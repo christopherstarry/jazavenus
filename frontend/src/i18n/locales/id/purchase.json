@@ -1,0 +1,32 @@
+{
+  "common": {
+    "supplier": "Supplier",
+    "warehouse": "Gudang",
+    "orderDate": "Tanggal Order",
+    "expectedDate": "Tanggal Perkiraan",
+    "currency": "Mata Uang",
+    "notes": "Keterangan",
+    "item": "Barang",
+    "qty": "Kuantitas",
+    "unitPrice": "Harga Satuan",
+    "unitCost": "Biaya Satuan",
+    "discPercent": "Disc %",
+    "taxPercent": "Pajak %",
+    "lineTotal": "Total Baris",
+    "newDocPrompt": "Buat dokumen baru?"
+  },
+  "purchaseOrder": { "title": "Purchase Order" },
+  "receiving": {
+    "title": "Penerimaan Barang",
+    "sourceOrder": "PO Sumber",
+    "pullFromPo": "Ambil dari PO",
+    "receivedAt": "Tanggal Terima",
+    "deliveryNote": "No. Surat Jalan Supplier"
+  },
+  "purchaseReturn": {
+    "title": "Retur Pembelian",
+    "returnCode": "Kode Retur",
+    "returnDate": "Tanggal Retur",
+    "sourceGrn": "GRN Sumber"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "common": {
+    "run": "Jalankan",
+    "export": "Ekspor CSV",
+    "dateFrom": "Dari Tanggal",
+    "dateTo": "Sampai Tanggal",
+    "customer": "Pelanggan",
+    "supplier": "Supplier",
+    "item": "Barang",
+    "warehouse": "Gudang",
+    "noData": "Tidak ada data untuk filter ini.",
+    "beforeRun": "Atur filter lalu klik Jalankan (F5).",
+    "autoRun": "Jalankan Otomatis",
+    "rowsTotal": "baris",
+    "loadError": "Gagal memuat laporan.",
+    "prev": "Sebelumnya",
+    "next": "Berikutnya"
+  }
+}

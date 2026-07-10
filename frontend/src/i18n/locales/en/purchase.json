@@ -1,0 +1,32 @@
+{
+  "common": {
+    "supplier": "Supplier",
+    "warehouse": "Warehouse",
+    "orderDate": "Order Date",
+    "expectedDate": "Expected Date",
+    "currency": "Currency",
+    "notes": "Notes",
+    "item": "Item",
+    "qty": "Quantity",
+    "unitPrice": "Unit Price",
+    "unitCost": "Unit Cost",
+    "discPercent": "Disc %",
+    "taxPercent": "Tax %",
+    "lineTotal": "Line Total",
+    "newDocPrompt": "Entry new document?"
+  },
+  "purchaseOrder": { "title": "Purchase Order" },
+  "receiving": {
+    "title": "Receiving Entry",
+    "sourceOrder": "Source PO",
+    "pullFromPo": "Pull from PO",
+    "receivedAt": "Received Date",
+    "deliveryNote": "Supplier Delivery Note No."
+  },
+  "purchaseReturn": {
+    "title": "Purchase Return",
+    "returnCode": "Return Code",
+    "returnDate": "Return Date",
+    "sourceGrn": "Source GRN"
+  }
+}

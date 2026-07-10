@@ -1,0 +1,59 @@
+{
+  "common": {
+    "customer": "Pelanggan",
+    "receivedDate": "Tanggal Terima",
+    "method": "Metode",
+    "reference": "Referensi",
+    "notes": "Keterangan",
+    "amount": "Jumlah",
+    "newDocPrompt": "Buat dokumen baru?"
+  },
+  "paymentMethod": {
+    "cash": "Tunai",
+    "bankTransfer": "Transfer Bank",
+    "card": "Kartu",
+    "cheque": "Giro",
+    "other": "Lainnya"
+  },
+  "paymentReceipt": {
+    "title": "Penerimaan Pembayaran",
+    "bankTransferTitle": "Transfer Bank",
+    "openInvoices": "Faktur Terbuka",
+    "invoice": "Faktur",
+    "outstanding": "Sisa Tagihan",
+    "applied": "Dialokasikan",
+    "totalApplied": "Total Dialokasikan",
+    "noInvoices": "Tidak ada faktur terbuka untuk pelanggan ini.",
+    "selectCustomerFirst": "Pilih pelanggan untuk memuat faktur terbuka."
+  },
+  "pdcClearance": {
+    "title": "Kliring Giro",
+    "outstandingPdc": "Giro Terbuka",
+    "chequeNo": "No. Giro",
+    "bank": "Bank",
+    "chequeDate": "Tanggal Giro",
+    "clear": "Kliring"
+  },
+  "pdcCancellation": {
+    "title": "Pembatalan Kliring Giro",
+    "clearedPdc": "Giro Terkliring",
+    "cancel": "Batalkan Kliring",
+    "reason": "Alasan"
+  },
+  "adjustment": {
+    "title": "Penyesuaian Piutang",
+    "adjustmentDate": "Tanggal Penyesuaian",
+    "reasonCode": "Kode Alasan",
+    "debit": "Debit (+)",
+    "credit": "Kredit (-)"
+  },
+  "closing": {
+    "title": "Tutup Piutang",
+    "year": "Tahun",
+    "month": "Bulan"
+  },
+  "recalculate": {
+    "title": "Hitung Ulang Saldo Piutang",
+    "description": "Membangun ulang total piutang terbuka setiap pelanggan dari faktur, pembayaran, dan nota kredit yang telah diposting untuk divisi aktif."
+  }
+}
