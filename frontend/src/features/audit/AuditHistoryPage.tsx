@@ -19,11 +19,14 @@ interface AuditLogDto {
   action: string;
   entity: string;
   entityId: string | null;
+  entityCode: string | null;
+  module: string | null;
   notes: string;
   occurredAtUtc: string;
   ipAddress: string | null;
   beforeJson: string | null;
   afterJson: string | null;
+  changesJson: string | null;
 }
 
 const ENTITY_GROUPS = [
@@ -48,13 +51,31 @@ const ENTITY_GROUPS = [
   { key: "discount_code", label: "Discount Codes" },
   { key: "unit_of_measure", label: "UOM" },
   { key: "tax_registration", label: "Tax Registrations" },
+  { key: "purchase_order", label: "Purchase Orders" },
+  { key: "goods_receipt", label: "Goods Receipts" },
+  { key: "sales_order", label: "Sales Orders" },
+  { key: "delivery", label: "Deliveries" },
+  { key: "invoice", label: "Invoices" },
+  { key: "payment", label: "Payments" },
+  { key: "stock_movement", label: "Stock Movements" },
   { key: "user", label: "Users" },
 ];
+
+const MODULE_LABELS: Record<string, string> = {
+  master: "Master Data",
+  purchase: "Purchase",
+  sales: "Sales",
+  inventory: "Inventory",
+  ar: "Accounts Receivable",
+  system: "System",
+};
 
 const ACTION_LABELS: Record<string, { label: string; icon: string; color: string }> = {
   Create: { label: "Created", icon: "➕", color: "text-green-600" },
   Update: { label: "Updated", icon: "✏️", color: "text-amber-600" },
   Delete: { label: "Deleted", icon: "🗑️", color: "text-red-600" },
+  Post: { label: "Posted", icon: "✅", color: "text-blue-600" },
+  Void: { label: "Voided", icon: "⛔", color: "text-red-700" },
 };
 
 function toISODateString(d: Date): string {
@@ -120,6 +141,8 @@ export function AuditHistoryPage() {
             { key: "Create", label: "➕ Created" },
             { key: "Update", label: "✏️ Updated" },
             { key: "Delete", label: "🗑️ Deleted" },
+            { key: "Post", label: "✅ Posted" },
+            { key: "Void", label: "⛔ Voided" },
           ].map((f) => (
             <button
               key={f.key}
@@ -233,11 +256,12 @@ export function AuditHistoryPage() {
                         </TableCell>
                         <TableCell>
                           <Badge tone="neutral" className="text-xs">
-                            {ENTITY_GROUPS.find((g) => g.key === log.entity)?.label ?? log.entity}
+                            {ENTITY_GROUPS.find((g) => g.key === log.entity)?.label
+                              ?? MODULE_LABELS[log.module ?? ""] ?? log.entity}
                           </Badge>
                         </TableCell>
                         <TableCell className="font-mono text-sm">
-                          {log.notes || (
+                          {log.entityCode || (
                             log.entityId ? <span className="text-muted-foreground text-xs">(ID: {log.entityId.slice(0, 8)}…)</span> : "—"
                           )}
                         </TableCell>

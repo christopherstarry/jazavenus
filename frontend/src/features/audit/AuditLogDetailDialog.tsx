@@ -11,11 +11,14 @@ interface AuditLogDto {
   action: string;
   entity: string;
   entityId: string | null;
+  entityCode: string | null;
+  module: string | null;
   notes: string;
   occurredAtUtc: string;
   ipAddress: string | null;
   beforeJson: string | null;
   afterJson: string | null;
+  changesJson: string | null;
 }
 
 interface Props {
@@ -166,13 +169,36 @@ const ENTITY_DISPLAY: Record<string, string> = {
 };
 
 export function AuditLogDetailDialog({ log, open, onClose }: Props) {
-  const changes = useMemo(
-    () => (log.action === "Update" ? parseChanges(log.beforeJson, log.afterJson) : []),
-    [log],
-  );
+  const changes = useMemo(() => {
+    if (log.changesJson) {
+      try {
+        const parsed = JSON.parse(log.changesJson) as Array<{ Field: string; OldValue?: string; NewValue?: string }>;
+        return parsed.map((c) => ({
+          field: c.Field,
+          oldValue: c.OldValue ?? "",
+          newValue: c.NewValue ?? "",
+        }));
+      } catch { /* fall through */ }
+    }
+    return log.action === "Update" ? parseChanges(log.beforeJson, log.afterJson) : [];
+  }, [log]);
 
-  const actionLabel = log.action === "Create" ? "➕ Created" : log.action === "Update" ? "✏️ Updated" : "🗑️ Deleted";
-  const actionColor = log.action === "Create" ? "text-green-600" : log.action === "Update" ? "text-amber-600" : "text-red-600";
+  const actionLabels: Record<string, string> = {
+    Create: "➕ Created",
+    Update: "✏️ Updated",
+    Delete: "🗑️ Deleted",
+    Post: "✅ Posted",
+    Void: "⛔ Voided",
+  };
+  const actionColors: Record<string, string> = {
+    Create: "text-green-600",
+    Update: "text-amber-600",
+    Delete: "text-red-600",
+    Post: "text-blue-600",
+    Void: "text-red-700",
+  };
+  const actionLabel = actionLabels[log.action] ?? log.action;
+  const actionColor = actionColors[log.action] ?? "";
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
@@ -193,7 +219,7 @@ export function AuditLogDetailDialog({ log, open, onClose }: Props) {
             </div>
             <div>
               <span className="text-muted-foreground">Code:</span>
-              <span className="ml-2 font-mono font-medium">{log.notes || "—"}</span>
+              <span className="ml-2 font-mono font-medium">{log.entityCode || log.notes || "—"}</span>
             </div>
             <div>
               <span className="text-muted-foreground">When:</span>

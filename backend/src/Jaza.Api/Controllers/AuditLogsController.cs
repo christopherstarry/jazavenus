@@ -54,11 +54,16 @@ public sealed class AuditLogsController(AppDbContext db) : ControllerBase
         ["AppRole"] = "role",
     };
 
+    private static readonly string[] DefaultActions =
+        ["Create", "Update", "Delete", "Post", "Void"];
+
     [HttpGet]
     public async Task<ActionResult<PagedResult<AuditLogDto>>> List(
         [FromQuery] string? entity,
         [FromQuery] Guid? entityId,
         [FromQuery] string? action,
+        [FromQuery] string? module,
+        [FromQuery] string? search,
         [FromQuery] Guid? userId,
         [FromQuery] DateTime? from,
         [FromQuery] DateTime? to,
@@ -79,9 +84,19 @@ public sealed class AuditLogsController(AppDbContext db) : ControllerBase
         if (!string.IsNullOrWhiteSpace(action))
             q = q.Where(a => a.Action == action);
         else
-            q = q.Where(a => a.Action == "Create" || a.Action == "Update" || a.Action == "Delete");
+            q = q.Where(a => DefaultActions.Contains(a.Action));
+        if (!string.IsNullOrWhiteSpace(module))
+            q = q.Where(a => a.Module == module);
         if (userId.HasValue)
             q = q.Where(a => a.UserId == userId.Value);
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            q = q.Where(a =>
+                (a.UserName != null && EF.Functions.ILike(a.UserName, $"%{term}%")) ||
+                (a.EntityCode != null && EF.Functions.ILike(a.EntityCode, $"%{term}%")) ||
+                (a.Notes != null && EF.Functions.ILike(a.Notes, $"%{term}%")));
+        }
         if (from.HasValue)
         {
             var fromUtc = DateTime.SpecifyKind(from.Value, DateTimeKind.Utc);
@@ -106,11 +121,14 @@ public sealed class AuditLogsController(AppDbContext db) : ControllerBase
                 a.Action,
                 EntityDisplayName(a.Entity),
                 a.EntityId,
+                a.EntityCode,
+                a.Module,
                 a.Notes ?? "",
                 a.OccurredAtUtc,
                 a.IpAddress,
                 a.BeforeJson,
-                a.AfterJson))
+                a.AfterJson,
+                a.ChangesJson))
             .ToListAsync();
 
         return new PagedResult<AuditLogDto>(items, total, paged.Page, paged.PageSize);
@@ -125,8 +143,9 @@ public sealed class AuditLogsController(AppDbContext db) : ControllerBase
         return new AuditLogDto(
             log.Id, log.UserId, log.UserName ?? "(unknown)",
             log.Action, EntityDisplayName(log.Entity), log.EntityId,
+            log.EntityCode, log.Module,
             log.Notes ?? "", log.OccurredAtUtc, log.IpAddress,
-            log.BeforeJson, log.AfterJson);
+            log.BeforeJson, log.AfterJson, log.ChangesJson);
     }
 
     private static string EntityDisplayName(string raw) =>
@@ -143,8 +162,11 @@ public sealed record AuditLogDto(
     string Action,
     string Entity,
     Guid? EntityId,
+    string? EntityCode,
+    string? Module,
     string Notes,
     DateTime OccurredAtUtc,
     string? IpAddress,
     string? BeforeJson,
-    string? AfterJson);
+    string? AfterJson,
+    string? ChangesJson);

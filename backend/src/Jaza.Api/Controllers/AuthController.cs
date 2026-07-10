@@ -428,6 +428,8 @@ public sealed class AuthController(
             Action = action,
             Entity = "User",
             EntityId = uid,
+            EntityCode = email,
+            Module = "system",
             UserId = uid,
             UserName = email,
             IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),

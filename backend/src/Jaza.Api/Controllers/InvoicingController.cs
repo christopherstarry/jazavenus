@@ -15,6 +15,7 @@ namespace Jaza.Api.Controllers;
 [Route("api/invoices")]
 public sealed class InvoicingController(AppDbContext db,
     IDocumentNumberGenerator numberGen,
+    ICurrentUser currentUser,
     IValidator<InvoiceUpsertDto> invVal,
     IValidator<PaymentCreateDto> payVal) : ControllerBase
 {
@@ -77,6 +78,8 @@ public sealed class InvoicingController(AppDbContext db,
         var inv = await db.Invoices.FirstOrDefaultAsync(x => x.Id == id, ct) ?? throw new KeyNotFoundException();
         if (inv.Status != InvoiceStatus.Draft) throw new DomainException("Only draft invoices can be posted.");
         inv.Status = InvoiceStatus.Posted;
+        inv.PostedAtUtc = DateTime.UtcNow;
+        inv.PostedByUserId = currentUser.UserId;
         await db.SaveChangesAsync(ct);
         return NoContent();
     }
@@ -106,13 +109,15 @@ public sealed class InvoicingController(AppDbContext db,
     public async Task<ActionResult<PaymentDto>> AddPayment(Guid id, [FromBody] PaymentCreateDto dto, CancellationToken ct)
     {
         await payVal.ValidateAndThrowAsync(dto, ct);
-        var inv = await db.Invoices.Include(x => x.Payments)
+        var inv = await db.Invoices.Include(x => x.Payments).Include(x => x.PaymentAllocations)
             .FirstOrDefaultAsync(x => x.Id == id, ct) ?? throw new KeyNotFoundException();
         if (inv.Status is not (InvoiceStatus.Posted or InvoiceStatus.PartiallyPaid))
             throw new DomainException("Cannot add a payment to a draft or voided invoice.");
 
         var payment = new Payment
         {
+            Division = inv.Division,
+            CustomerId = inv.CustomerId,
             InvoiceId = id,
             ReceivedAt = dto.ReceivedAt,
             Method = dto.Method,
@@ -122,6 +127,16 @@ public sealed class InvoicingController(AppDbContext db,
             Notes = dto.Notes,
         };
         db.Payments.Add(payment);
+
+        db.PaymentAllocations.Add(new Domain.Ar.PaymentAllocation
+        {
+            Payment = payment,
+            InvoiceId = id,
+            Amount = dto.Amount,
+            Currency = dto.Currency,
+            AllocatedAt = dto.ReceivedAt,
+            Notes = dto.Notes,
+        });
 
         var newPaid = inv.AmountPaid + dto.Amount;
         if (newPaid >= inv.GrandTotal) inv.Status = InvoiceStatus.Paid;
