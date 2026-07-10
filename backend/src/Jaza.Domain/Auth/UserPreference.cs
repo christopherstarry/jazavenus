@@ -17,5 +17,8 @@ public sealed class UserPreference
     /// <summary>"light" (default) | "dark".</summary>
     public string Theme { get; set; } = "light";
 
+    /// <summary>Data division scope for non-admin users (e.g. DISTRIBUTIONBDG).</summary>
+    public string? Division { get; set; }
+
     public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;
 }
