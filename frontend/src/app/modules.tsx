@@ -129,19 +129,25 @@ export function trailFor(pathname: string): ModuleNode[] {
  * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 import { DashboardPage } from "#/features/dashboard/DashboardPage";
-import {
-  PurchaseOrderPage,
-  ReceivingEntryPage,
-  PurchaseReturnPage,
-} from "#/features/purchase/PurchaseTransactionFormPage";
-import {
-  InvoicingProcessPage,
-  SalesConfirmationPage,
-  SalesOrderPage,
-  SalesReturnPage,
-} from "#/features/sales/SalesTransactionFormPage";
+import { PurchaseOrderPage } from "#/features/purchase/PurchaseOrderPage";
+import { ReceivingEntryPage } from "#/features/purchase/ReceivingEntryPage";
+import { PurchaseReturnPage } from "#/features/purchase/PurchaseReturnPage";
+import { SalesOrderPage } from "#/features/sales/SalesOrderPage";
+import { SalesConfirmationPage } from "#/features/sales/SalesConfirmationPage";
+import { SalesReturnPage } from "#/features/sales/SalesReturnPage";
+import { InvoicingProcessPage } from "#/features/sales/InvoicingProcessPage";
+import { CreditMemoPage } from "#/features/sales/CreditMemoPage";
+import { PaymentReceiptPage } from "#/features/ar/PaymentReceiptPage";
 import { BankTransferTransactionPage } from "#/features/ar/BankTransferTransactionPage";
+import { PdcClearanceTransactionPage } from "#/features/ar/PdcClearanceTransactionPage";
 import { PdcClearanceCancellationPage } from "#/features/ar/PdcClearanceCancellationPage";
+import { ArAdjustmentPage } from "#/features/ar/ArAdjustmentPage";
+import { ClosingArPage } from "#/features/ar/ClosingArPage";
+import { RecalculateArBalancePage } from "#/features/ar/RecalculateArBalancePage";
+import { CompanyPreferencesPage } from "#/features/system/CompanyPreferencesPage";
+import { PeriodEndProcessesPage } from "#/features/system/PeriodEndProcessesPage";
+import { DeleteCancelledDocumentPage } from "#/features/system/DeleteCancelledDocumentPage";
+import { BackupRestorePage } from "#/features/system/BackupRestorePage";
 import { SettingsPanel } from "#/features/system/settings/SettingsPanel";
 import { ManageUsersPage } from "#/features/system/users/ManageUsersPage";
 import { AuditHistoryPage } from "#/features/system/audit/AuditHistoryPage";
@@ -170,16 +176,19 @@ import { UnitOfMeasurePage } from "#/features/master-data/pages/UnitOfMeasurePag
 import { WarehousePage } from "#/features/master-data/pages/WarehousePage";
 import { PaymentTermPage } from "#/features/master-data/pages/PaymentTermPage";
 import { CostTypePage } from "#/features/master-data/pages/CostTypePage";
-import {
-  IncomingTransactionBpbPage,
-  InterWarehouseTransactionPage,
-  OutgoingTransactionBbkPage,
-} from "#/features/inventory/InventoryTransactionFormPage";
-import {
-  InventoryPlanningPage,
-  StockTakingPreparationPage,
-  StockTakingRecordPage,
-} from "#/features/inventory/StockTakingAndPlanningPages";
+import { OrderCodePage } from "#/features/master-data/pages/OrderCodePage";
+import { ReturnCodePage } from "#/features/master-data/pages/ReturnCodePage";
+import { ExtraDiscountPage } from "#/features/master-data/ExtraDiscountPage";
+import { ItemPricingAndDiscountPage } from "#/features/master-data/ItemPricingAndDiscountPage";
+import { BpItemPage } from "#/features/master-data/BpItemPage";
+import { PenetrationPage } from "#/features/master-data/PenetrationPage";
+import { IncomingTransactionBpbPage } from "#/features/inventory/IncomingTransactionBpbPage";
+import { OutgoingTransactionBbkPage } from "#/features/inventory/OutgoingTransactionBbkPage";
+import { InterWarehouseTransactionPage } from "#/features/inventory/InterWarehouseTransactionPage";
+import { StockTakingPreparationPage } from "#/features/inventory/StockTakingPreparationPage";
+import { StockTakingRecordPage } from "#/features/inventory/StockTakingRecordPage";
+import { InventoryPlanningPage } from "#/features/inventory/InventoryPlanningPage";
+import { legacyReport } from "#/features/reports/LegacyReportPage";
 import { ReportSelectorPage } from "#/features/reports/sales/ReportSelectorPage";
 import { ProductSellingReportPage } from "#/features/reports/sales/ProductSellingReportPage";
 import { DetailTransactionPenjualanReportPage } from "#/features/reports/sales/DetailTransactionPenjualanReportPage";
@@ -243,6 +252,7 @@ export const TREE: ModuleNode[] = [
         description: "Close the period for accounts receivable",
         divider: true,
         superAdminOnly: true,
+        Component: ClosingArPage,
       },
       {
         id: "system.recalc-ar",
@@ -250,6 +260,7 @@ export const TREE: ModuleNode[] = [
         label: "Recalculate AR Balance",
         description: "Rebuild outstanding A/R totals from the ledger",
         superAdminOnly: true,
+        Component: RecalculateArBalancePage,
       },
       {
         id: "system.delete-cancelled",
@@ -257,6 +268,23 @@ export const TREE: ModuleNode[] = [
         label: "Delete Cancelled Document",
         description: "Permanently remove cancelled documents",
         superAdminOnly: true,
+        Component: DeleteCancelledDocumentPage,
+      },
+      {
+        id: "system.period-end",
+        path: "/system/period-end-processes",
+        label: "Period-End Processes",
+        description: "Monthly and day-end batch processes",
+        superAdminOnly: true,
+        Component: PeriodEndProcessesPage,
+      },
+      {
+        id: "system.backup-restore",
+        path: "/system/backup-restore",
+        label: "Backup & Restore",
+        description: "Database backup and restore",
+        superAdminOnly: true,
+        Component: BackupRestorePage,
       },
 
       {
@@ -265,6 +293,7 @@ export const TREE: ModuleNode[] = [
         label: "Preferences",
         description: "Application-wide settings",
         divider: true,
+        Component: CompanyPreferencesPage,
       },
 
       {
@@ -466,6 +495,49 @@ export const TREE: ModuleNode[] = [
           },
         ],
       },
+      {
+        id: "master.extra-discount",
+        path: "/master/extra-discount",
+        label: "Extra Discount",
+        description: "P2/P3 customer extra discount rules",
+        divider: true,
+        Component: ExtraDiscountPage,
+      },
+      {
+        id: "master.order-codes",
+        path: "/master/order-codes",
+        label: "Order Codes",
+        description: "Order reason codes used on Sales Order headers",
+        Component: OrderCodePage,
+      },
+      {
+        id: "master.return-codes",
+        path: "/master/return-codes",
+        label: "Return Codes",
+        description: "Return reason codes used on Sales Return headers",
+        Component: ReturnCodePage,
+      },
+      {
+        id: "master.item-pricing",
+        path: "/master/item-pricing-and-discount",
+        label: "Item Pricing & Discount",
+        description: "Per-item price tiers and discount codes",
+        Component: ItemPricingAndDiscountPage,
+      },
+      {
+        id: "master.bp-item",
+        path: "/master/bp-item",
+        label: "BP Item",
+        description: "Supplier item code cross-reference",
+        Component: BpItemPage,
+      },
+      {
+        id: "master.penetration",
+        path: "/master/penetration",
+        label: "Penetration",
+        description: "Customer SKU-coverage penetration targets",
+        Component: PenetrationPage,
+      },
     ],
   },
 
@@ -539,6 +611,13 @@ export const TREE: ModuleNode[] = [
         description: "Bill customers for delivered goods",
         Component: InvoicingProcessPage,
       },
+      {
+        id: "sales.credit-memo",
+        path: "/sales/credit-memo",
+        label: "Credit Memo",
+        description: "Issue credit notes to reduce customer A/R",
+        Component: CreditMemoPage,
+      },
     ],
   },
 
@@ -552,6 +631,13 @@ export const TREE: ModuleNode[] = [
     moduleKey: "ar",
     children: [
       {
+        id: "ar.payment-receipt",
+        path: "/ar/payment-receipt",
+        label: "Payment Receipt",
+        description: "Batch customer payment against open invoices",
+        Component: PaymentReceiptPage,
+      },
+      {
         id: "ar.bank-transfer",
         path: "/ar/bank-transfer-transaction",
         label: "Bank Transfer Transaction",
@@ -563,6 +649,7 @@ export const TREE: ModuleNode[] = [
         path: "/ar/pdc-clearance-transaction",
         label: "PDC Clearance Transaction",
         description: "Clear post-dated cheques",
+        Component: PdcClearanceTransactionPage,
       },
       {
         id: "ar.pdc-cancellation",
@@ -570,6 +657,13 @@ export const TREE: ModuleNode[] = [
         label: "PDC Clearance Cancellation",
         description: "Reverse a PDC clearance",
         Component: PdcClearanceCancellationPage,
+      },
+      {
+        id: "ar.adjustment",
+        path: "/ar/ar-adjustment",
+        label: "A/R Adjustment",
+        description: "Manual debit/credit adjustments to customer balance",
+        Component: ArAdjustmentPage,
       },
     ],
   },
@@ -662,6 +756,7 @@ export const TREE: ModuleNode[] = [
             id: "report.sales.sales",
             path: "/report/sales-report/sales-report",
             label: "Sales Report",
+            Component: legacyReport("sales", "sales-report", "Sales Report", { customer: true, item: true, warehouse: true }),
           },
           {
             id: "report.sales.detail",
@@ -710,71 +805,85 @@ export const TREE: ModuleNode[] = [
             id: "report.sales.return",
             path: "/report/sales-report/sales-return-report",
             label: "Sales Return Report",
+            Component: legacyReport("sales", "sales-return-report", "Sales Return Report", { customer: true }),
           },
           {
             id: "report.sales.bonus",
             path: "/report/sales-report/sales-bonus-report",
             label: "Sales Bonus Report",
+            Component: legacyReport("sales", "sales-bonus", "Sales Bonus Report", { customer: true }),
           },
           {
             id: "report.sales.purchase-return",
             path: "/report/sales-report/sales-purchase-return-report",
             label: "Sales Purchase Return Report",
+            Component: legacyReport("sales", "sales-purchase-return", "Sales Purchase Return Report"),
           },
           {
             id: "report.sales.time-series",
             path: "/report/sales-report/sales-report-time-series",
             label: "Sales Report (Time Series)",
+            Component: legacyReport("sales", "sales-time-series", "Sales Report (Time Series)", { customer: true }),
           },
           {
             id: "report.sales.daily",
             path: "/report/sales-report/daily-sales-report",
             label: "Daily Sales Report",
+            Component: legacyReport("sales", "daily-sales", "Daily Sales Report"),
           },
           {
             id: "report.sales.gross-margin",
             path: "/report/sales-report/gross-margin-report",
             label: "Gross Margin Report",
+            Component: legacyReport("sales", "gross-margin", "Gross Margin Report", { item: true }),
           },
           {
             id: "report.sales.makarizo",
             path: "/report/sales-report/makarizo-report",
             label: "Makarizo Report",
+            Component: legacyReport("sales", "makarizo", "Makarizo Report", { customer: true }),
           },
           {
             id: "report.sales.cust-by-ca",
             path: "/report/sales-report/customer-by-ca",
             label: "Customer By CA",
+            Component: legacyReport("sales", "customer-by-ca", "Customer By CA", { customer: true }),
           },
           {
             id: "report.sales.cust-num-outlet",
             path: "/report/sales-report/cust-report-number-of-outlet",
             label: "Cust Report Number Of Outlet (X)",
+            Component: legacyReport("sales", "cust-number-of-outlet", "Cust Report Number Of Outlet"),
           },
           {
             id: "report.sales.by-sales-market",
             path: "/report/sales-report/sales-report-by-sales-market",
             label: "Sales Report By Sales Market (X)",
+            Component: legacyReport("sales", "sales-by-market", "Sales Report By Sales Market"),
           },
           {
             id: "report.sales.order-plan",
             path: "/report/sales-report/order-plan-report",
             label: "Order Plan Report",
+            Component: legacyReport("sales", "order-plan", "Order Plan Report", { customer: true, warehouse: true }),
           },
           {
             id: "report.sales.service-level",
             path: "/report/sales-report/service-level",
             label: "Service Level",
+            Component: legacyReport("sales", "service-level", "Service Level", { customer: true }),
           },
           {
             id: "report.sales.order-vs-invoice",
             path: "/report/sales-report/check-order-vs-invoice",
             label: "Check order Vs Invoice",
+            Component: legacyReport("sales", "check-order-vs-invoice", "Check Order Vs Invoice", { customer: true }),
           },
           {
             id: "report.sales.discount-per-cust",
             path: "/report/sales-report/laporan-discount-per-customer",
             label: "Laporan Discount Per Costumer",
+            Component: legacyReport("sales", "discount-per-customer", "Laporan Discount Per Customer", { customer: true }),
           },
         ],
       },
@@ -785,7 +894,12 @@ export const TREE: ModuleNode[] = [
         description: "Stock and movement reports",
         reportKey: "inventory",
         children: [
-          { id: "report.inv.process", path: "/report/inventory-report/process", label: "Process" },
+          {
+            id: "report.inv.process",
+            path: "/report/inventory-report/process",
+            label: "Process",
+            Component: legacyReport("inventory", "inventory-process", "Process"),
+          },
           {
             id: "report.inv.stock-position",
             path: "/report/inventory-report/stock-position-report",
@@ -796,36 +910,43 @@ export const TREE: ModuleNode[] = [
             id: "report.inv.stock-mutation",
             path: "/report/inventory-report/stock-mutation-report",
             label: "Stock Mutation Report",
+            Component: legacyReport("inventory", "stock-mutation", "Stock Mutation Report", { item: true, warehouse: true }),
           },
           {
             id: "report.inv.product",
             path: "/report/inventory-report/product-report-price-list",
             label: "Product Report ( Price List )",
+            Component: legacyReport("inventory", "product-price-list", "Product Report (Price List)", { item: true }),
           },
           {
             id: "report.inv.sku-stock",
             path: "/report/inventory-report/sku-stock-report",
             label: "SKU Stock Report",
+            Component: legacyReport("inventory", "sku-stock", "SKU Stock Report", { item: true, warehouse: true }),
           },
           {
             id: "report.inv.stock-opname",
             path: "/report/inventory-report/stock-opname-report",
             label: "Stock Opname Report",
+            Component: legacyReport("inventory", "stock-opname", "Stock Opname Report", { warehouse: true }),
           },
           {
             id: "report.inv.bpb",
             path: "/report/inventory-report/bpb-report",
             label: "BPB Report",
+            Component: legacyReport("inventory", "bpb-report", "BPB Report", { warehouse: true }),
           },
           {
             id: "report.inv.bbk",
             path: "/report/inventory-report/bbk-report",
             label: "BBK Report",
+            Component: legacyReport("inventory", "bbk-report", "BBK Report", { warehouse: true }),
           },
           {
             id: "report.inv.transfer",
             path: "/report/inventory-report/transfer-report",
             label: "Transfer Report",
+            Component: legacyReport("inventory", "transfer-report", "Transfer Report", { warehouse: true }),
           },
         ],
       },
@@ -840,21 +961,25 @@ export const TREE: ModuleNode[] = [
             id: "report.pur.purchase",
             path: "/report/purchase-reports/purchase-report",
             label: "Purchase Report",
+            Component: legacyReport("purchase", "purchase-report", "Purchase Report", { supplier: true, warehouse: true }),
           },
           {
             id: "report.pur.bonus",
             path: "/report/purchase-reports/purchase-bonus-report",
             label: "Purchase Bonus Report",
+            Component: legacyReport("purchase", "purchase-bonus", "Purchase Bonus Report", { supplier: true }),
           },
           {
             id: "report.pur.daily",
             path: "/report/purchase-reports/daily-purchase-report",
             label: "Daily Purchase Report",
+            Component: legacyReport("purchase", "daily-purchase", "Daily Purchase Report"),
           },
           {
             id: "report.pur.service-level",
             path: "/report/purchase-reports/purchase-service-level",
             label: "Purchase Service level",
+            Component: legacyReport("purchase", "purchase-service-level", "Purchase Service Level", { supplier: true }),
           },
         ],
       },
@@ -869,26 +994,31 @@ export const TREE: ModuleNode[] = [
             id: "report.ar.collection",
             path: "/report/account-receivable-reports/collection-report",
             label: "Collection Report",
+            Component: legacyReport("ar", "collection", "Collection Report", { customer: true }),
           },
           {
             id: "report.ar.outstanding",
             path: "/report/account-receivable-reports/outstanding-invoice-report",
             label: "Outstanding Invoice Report",
+            Component: legacyReport("ar", "outstanding-invoice", "Outstanding Invoice Report", { customer: true }),
           },
           {
             id: "report.ar.receipt",
             path: "/report/account-receivable-reports/receipt-report",
             label: "Receipt Report",
+            Component: legacyReport("ar", "receipt-report", "Receipt Report", { customer: true }),
           },
           {
             id: "report.ar.doar",
             path: "/report/account-receivable-reports/doar-report",
             label: "DOAR Report",
+            Component: legacyReport("ar", "doar", "DOAR Report", { customer: true }),
           },
           {
             id: "report.ar.pdc",
             path: "/report/account-receivable-reports/outstanding-pdc-report",
             label: "Outstanding PDC Report",
+            Component: legacyReport("ar", "outstanding-pdc", "Outstanding PDC Report", { customer: true }),
           },
         ],
       },
