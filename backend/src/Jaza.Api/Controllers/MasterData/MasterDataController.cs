@@ -64,7 +64,7 @@ public sealed class MasterDataController(AppDbContext db,
     }
 
     [HttpDelete("units/{id:guid}")]
-    [Authorize(Policy = Policies.RequireSuperAdmin)]
+    [RequireCanDelete(Modules.Master)]
     public async Task<IActionResult> DeleteUnit(Guid id, CancellationToken ct) => await SoftDelete<Unit>(id, ct);
 
     // ---------- Categories ----------
@@ -99,7 +99,7 @@ public sealed class MasterDataController(AppDbContext db,
     }
 
     [HttpDelete("categories/{id:guid}")]
-    [Authorize(Policy = Policies.RequireSuperAdmin)]
+    [RequireCanDelete(Modules.Master)]
     public async Task<IActionResult> DeleteCategory(Guid id, CancellationToken ct) => await SoftDelete<ItemCategory>(id, ct);
 
     // ---------- Items ----------
@@ -162,7 +162,7 @@ public sealed class MasterDataController(AppDbContext db,
     }
 
     [HttpDelete("items/{id:guid}")]
-    [Authorize(Policy = Policies.RequireSuperAdmin)]
+    [RequireCanDelete(Modules.Master)]
     public async Task<IActionResult> DeleteItem(Guid id, CancellationToken ct) => await SoftDelete<Item>(id, ct);
 
     // ---------- Suppliers / Customers / Warehouses / Locations (compact) ----------
@@ -192,7 +192,7 @@ public sealed class MasterDataController(AppDbContext db,
         dto.Adapt(e); await db.SaveChangesAsync(ct); return NoContent();
     }
 
-    [HttpDelete("suppliers/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
+    [HttpDelete("suppliers/{id:guid}"), RequireCanDelete(Modules.Master)]
     public async Task<IActionResult> DeleteSupplier(Guid id, CancellationToken ct) => await SoftDelete<Supplier>(id, ct);
 
     [HttpGet("customers")]
@@ -239,7 +239,7 @@ public sealed class MasterDataController(AppDbContext db,
         dto.Adapt(e); await db.SaveChangesAsync(ct); return NoContent();
     }
 
-    [HttpDelete("customers/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
+    [HttpDelete("customers/{id:guid}"), RequireCanDelete(Modules.Master)]
     public async Task<IActionResult> DeleteCustomer(Guid id, CancellationToken ct) => await SoftDelete<Customer>(id, ct);
 
     // ---------- Customer Addresses ----------
@@ -265,7 +265,7 @@ public sealed class MasterDataController(AppDbContext db,
         await db.SaveChangesAsync(ct); return NoContent();
     }
 
-    [HttpDelete("customers/{customerId:guid}/addresses/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
+    [HttpDelete("customers/{customerId:guid}/addresses/{id:guid}"), RequireCanDelete(Modules.Master)]
     public async Task<IActionResult> DeleteAddress(Guid customerId, Guid id, CancellationToken ct)
     {
         var e = await db.CustomerAddresses.FirstOrDefaultAsync(a => a.Id == id && a.CustomerId == customerId, ct);
@@ -295,7 +295,7 @@ public sealed class MasterDataController(AppDbContext db,
         await db.SaveChangesAsync(ct); return NoContent();
     }
 
-    [HttpDelete("customers/{customerId:guid}/brand-discounts/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
+    [HttpDelete("customers/{customerId:guid}/brand-discounts/{id:guid}"), RequireCanDelete(Modules.Master)]
     public async Task<IActionResult> DeleteBrandDiscount(Guid customerId, Guid id, CancellationToken ct)
     {
         var e = await db.Set<BrandDiscount>().FirstOrDefaultAsync(b => b.Id == id && b.CustomerId == customerId, ct);
@@ -326,7 +326,7 @@ public sealed class MasterDataController(AppDbContext db,
         dto.Adapt(e); await db.SaveChangesAsync(ct); return NoContent();
     }
 
-    [HttpDelete("warehouses/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
+    [HttpDelete("warehouses/{id:guid}"), RequireCanDelete(Modules.Master)]
     public async Task<IActionResult> DeleteWarehouse(Guid id, CancellationToken ct) => await SoftDelete<Warehouse>(id, ct);
 
     [HttpGet("locations")]
@@ -354,7 +354,7 @@ public sealed class MasterDataController(AppDbContext db,
         dto.Adapt(e); await db.SaveChangesAsync(ct); return NoContent();
     }
 
-    [HttpDelete("locations/{id:guid}"), Authorize(Policy = Policies.RequireSuperAdmin)]
+    [HttpDelete("locations/{id:guid}"), RequireCanDelete(Modules.Master)]
     public async Task<IActionResult> DeleteLocation(Guid id, CancellationToken ct) => await SoftDelete<Location>(id, ct);
 
     private static IQueryable<T> SearchRef<T>(IQueryable<T> src, string? search) where T : class

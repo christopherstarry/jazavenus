@@ -5,12 +5,14 @@ import { Trash2 } from "lucide-react";
 import { api } from "#/lib/api";
 import { describeApiError } from "#/lib/apiErrors";
 import { toast } from "#/components/ui/use-toast";
+import { useConfirm } from "#/components/ui/confirm";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
 import { LookupFieldInput } from "#/features/common/LookupFieldInput";
 import type { LookupItem } from "#/features/common/LookupDialog";
+import { useMasterDataAccess } from "#/features/master-data/useMasterDataAccess";
 import "#/features/master-data/masterDataI18n";
 
 interface BpItemDto {
@@ -27,6 +29,8 @@ interface BpItemDto {
 /** BP Item — supplier item cross-reference. See docs/modules/master-data/prds/bp-item.md. */
 export function BpItemPage() {
   const { t } = useTranslation(["masterData", "dialog"]);
+  const { confirm, dialog: confirmDialog } = useConfirm();
+  const { canEdit, canDelete } = useMasterDataAccess();
   const queryClient = useQueryClient();
   const [supplier, setSupplier] = useState<LookupItem | null>(null);
   const [supplierItemCode, setSupplierItemCode] = useState("");
@@ -61,7 +65,13 @@ export function BpItemPage() {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => api.delete(`master/bp-items/${id}`),
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["bp-items"] }),
+    onError: async (err) => toast({ title: t("dialog:genericError"), description: await describeApiError(err), variant: "destructive" }),
   });
+
+  async function handleDelete(id: string) {
+    const ok = await confirm({ title: t("dialog:confirmDelete"), description: "", destructive: true });
+    if (ok) deleteMutation.mutate(id);
+  }
 
   return (
     <div className="p-3 sm:p-4">
@@ -85,7 +95,7 @@ export function BpItemPage() {
               <label className="text-xs uppercase tracking-wide text-muted-foreground">{t("masterData:bpItem.conversionFactor")}</label>
               <div className="flex gap-2">
                 <Input type="number" value={conversionFactor} onChange={(e) => setConversionFactor(Number(e.target.value))} />
-                <Button type="button" onClick={() => addMutation.mutate()} disabled={addMutation.isPending}>
+                <Button type="button" onClick={() => addMutation.mutate()} disabled={addMutation.isPending || !canEdit}>
                   {t("masterData:itemPricing.add")}
                 </Button>
               </div>
@@ -114,9 +124,11 @@ export function BpItemPage() {
                     <TableCell>{row.uom}</TableCell>
                     <TableCell className="font-mono">{row.conversionFactor}</TableCell>
                     <TableCell>
-                      <Button type="button" variant="ghost" size="iconsm" onClick={() => deleteMutation.mutate(row.id)}>
+                      {canDelete && (
+                      <Button type="button" variant="ghost" size="iconsm" onClick={() => handleDelete(row.id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))
@@ -125,6 +137,7 @@ export function BpItemPage() {
           </Table>
         </CardContent>
       </Card>
+      {confirmDialog}
     </div>
   );
 }

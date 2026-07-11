@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Search, Plus, ChevronLeft, ChevronRight, Pencil, Trash2, Database, Lock } from "lucide-react";
 import { api } from "#/lib/api";
-import { useAuth } from "#/lib/auth";
 import { Badge } from "#/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { Input } from "#/components/ui/input";
@@ -14,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Label } from "#/components/ui/label";
 import { useConfirm } from "#/components/ui/confirm";
 import type { PagedResult } from "#/features/common/CrudPage";
+import { useMasterDataAccess } from "#/features/master-data/useMasterDataAccess";
 
 interface ItemDto {
   id: string; sku: string; name: string; barcode: string | null;
@@ -103,8 +103,7 @@ export function ItemPage() {
   }
 
   const isPending = createMut.isPending || updateMut.isPending;
-  const { user } = useAuth();
-  const canDelete = user?.isDeveloper || user?.roles.includes("SuperAdmin");
+  const { canEdit, canDelete } = useMasterDataAccess();
   const catOptions = cats.data?.items ?? [];
   const unitOptions = units.data?.items ?? [];
 
@@ -112,9 +111,11 @@ export function ItemPage() {
     <Card>
       <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <CardTitle className="text-2xl sm:text-3xl font-bold">Products / Items</CardTitle>
+        {canEdit && (
         <Button onClick={openCreate} size="lg" className="w-full sm:w-auto text-base min-h-[48px]">
           <Plus className="h-5 w-5 mr-2" /> New Item
         </Button>
+        )}
       </CardHeader>
       <CardContent>
         <div className="relative mb-4 max-w-md">
@@ -123,7 +124,7 @@ export function ItemPage() {
         </div>
 
         {q.isLoading && <Spinner label="Loading items…" />}
-        {q.data && q.data.items.length === 0 && <EmptyState icon={Database} title="No items" description="No records found." action={<Button onClick={openCreate} size="lg" className="text-base"><Plus className="h-5 w-5 mr-2" /> New Item</Button>} />}
+        {q.data && q.data.items.length === 0 && <EmptyState icon={Database} title="No items" description="No records found." action={canEdit ? <Button onClick={openCreate} size="lg" className="text-base"><Plus className="h-5 w-5 mr-2" /> New Item</Button> : undefined} />}
 
         {q.data && q.data.items.length > 0 && (
           <>

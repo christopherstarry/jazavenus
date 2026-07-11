@@ -5,12 +5,14 @@ import { Trash2 } from "lucide-react";
 import { api } from "#/lib/api";
 import { describeApiError } from "#/lib/apiErrors";
 import { toast } from "#/components/ui/use-toast";
+import { useConfirm } from "#/components/ui/confirm";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#/components/ui/table";
 import { LookupFieldInput } from "#/features/common/LookupFieldInput";
 import type { LookupItem } from "#/features/common/LookupDialog";
+import { useMasterDataAccess } from "#/features/master-data/useMasterDataAccess";
 import "#/features/master-data/masterDataI18n";
 
 interface PenetrationDto {
@@ -31,6 +33,8 @@ interface PenetrationDto {
 /** Customer Penetration — SKU-coverage targets. See docs/modules/master-data/prds/penetration.md. */
 export function PenetrationPage() {
   const { t } = useTranslation(["masterData", "dialog"]);
+  const { confirm, dialog: confirmDialog } = useConfirm();
+  const { canEdit, canDelete } = useMasterDataAccess();
   const queryClient = useQueryClient();
   const [customer, setCustomer] = useState<LookupItem | null>(null);
   const [brand, setBrand] = useState<LookupItem | null>(null);
@@ -69,7 +73,13 @@ export function PenetrationPage() {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => api.delete(`master/penetrations/${id}`),
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["penetrations"] }),
+    onError: async (err) => toast({ title: t("dialog:genericError"), description: await describeApiError(err), variant: "destructive" }),
   });
+
+  async function handleDelete(id: string) {
+    const ok = await confirm({ title: t("dialog:confirmDelete"), description: "", destructive: true });
+    if (ok) deleteMutation.mutate(id);
+  }
 
   return (
     <div className="p-3 sm:p-4">
@@ -94,7 +104,7 @@ export function PenetrationPage() {
               <label className="text-xs uppercase tracking-wide text-muted-foreground">{t("masterData:penetration.periodMonth")}</label>
               <div className="flex gap-2">
                 <Input type="number" min={1} max={12} value={periodMonth} onChange={(e) => setPeriodMonth(Number(e.target.value))} />
-                <Button type="button" onClick={() => addMutation.mutate()} disabled={addMutation.isPending}>
+                <Button type="button" onClick={() => addMutation.mutate()} disabled={addMutation.isPending || !canEdit}>
                   {t("masterData:itemPricing.add")}
                 </Button>
               </div>
@@ -123,9 +133,11 @@ export function PenetrationPage() {
                     <TableCell className="font-mono">{row.targetSkuCount}</TableCell>
                     <TableCell className="font-mono">{row.periodYear}-{String(row.periodMonth).padStart(2, "0")}</TableCell>
                     <TableCell>
-                      <Button type="button" variant="ghost" size="iconsm" onClick={() => deleteMutation.mutate(row.id)}>
+                      {canDelete && (
+                      <Button type="button" variant="ghost" size="iconsm" onClick={() => handleDelete(row.id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))
@@ -134,6 +146,7 @@ export function PenetrationPage() {
           </Table>
         </CardContent>
       </Card>
+      {confirmDialog}
     </div>
   );
 }

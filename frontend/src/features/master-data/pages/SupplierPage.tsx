@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Search, Plus, ChevronLeft, ChevronRight, Pencil, Trash2, Database } from "lucide-react";
 import { api } from "#/lib/api";
-import { useAuth } from "#/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { Input } from "#/components/ui/input";
 import { Button } from "#/components/ui/button";
@@ -13,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Label } from "#/components/ui/label";
 import { useConfirm } from "#/components/ui/confirm";
 import type { PagedResult } from "#/features/common/CrudPage";
+import { useMasterDataAccess } from "#/features/master-data/useMasterDataAccess";
 
 interface SupplierDto {
   id: string; code: string; name: string; taxId: string | null;
@@ -68,14 +68,13 @@ export function SupplierPage() {
   }
 
   const isPending = createMut.isPending || updateMut.isPending;
-  const { user } = useAuth();
-  const canDelete = user?.isDeveloper || user?.roles.includes("SuperAdmin");
+  const { canEdit, canDelete } = useMasterDataAccess();
 
   return (
     <Card>
       <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <CardTitle className="text-xl sm:text-2xl">Suppliers</CardTitle>
-        <Button onClick={openCreate} size="sm" className="w-full sm:w-auto"><Plus className="h-4 w-4 mr-1" /> New</Button>
+        {canEdit && <Button onClick={openCreate} size="sm" className="w-full sm:w-auto"><Plus className="h-4 w-4 mr-1" /> New</Button>}
       </CardHeader>
       <CardContent>
         <div className="relative mb-4 max-w-sm">
@@ -84,7 +83,7 @@ export function SupplierPage() {
         </div>
 
         {q.isLoading && <Spinner label="Loading suppliers…" />}
-        {q.data && q.data.items.length === 0 && <EmptyState icon={Database} title="No suppliers" description="No records found." action={<Button onClick={openCreate}><Plus className="h-4 w-4 mr-1" /> New</Button>} />}
+        {q.data && q.data.items.length === 0 && <EmptyState icon={Database} title="No suppliers" description="No records found." action={canEdit ? <Button onClick={openCreate}><Plus className="h-4 w-4 mr-1" /> New</Button> : undefined} />}
 
         {q.data && q.data.items.length > 0 && (
           <>

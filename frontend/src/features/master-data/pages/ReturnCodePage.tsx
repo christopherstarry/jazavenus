@@ -1,14 +1,11 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useAuth } from "#/lib/auth";
 import { ReferenceDataPage, type RefColumn, type RefField } from "#/features/master-data/ReferenceDataPage";
 import "#/features/master-data/masterDataI18n";
 
 /** Return Code master — legacy Return Code reason lookup. See docs/modules/master-data/prds/order-and-return-codes.md. */
 export function ReturnCodePage() {
   const { t } = useTranslation(["masterData", "common"]);
-  const { user } = useAuth();
-  const canDelete = user?.isDeveloper || user?.roles.includes("SuperAdmin");
 
   const columns: RefColumn[] = useMemo(
     () => [
@@ -34,7 +31,7 @@ export function ReturnCodePage() {
       apiPath="settings/return-codes"
       columns={columns}
       fields={fields}
-      canDelete={canDelete}
+     
     />
   );
 }

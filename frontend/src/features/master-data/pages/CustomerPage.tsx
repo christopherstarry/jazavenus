@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Search, Plus, ChevronLeft, ChevronRight, Pencil, Trash2, Database, Lock, MapPin, Tag, Calendar } from "lucide-react";
 import { api } from "#/lib/api";
-import { useAuth } from "#/lib/auth";
+import { describeApiError } from "#/lib/apiErrors";
 import { Badge } from "#/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { Input } from "#/components/ui/input";
@@ -13,7 +13,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "#/components/ui/dialog";
 import { Label } from "#/components/ui/label";
 import { useConfirm } from "#/components/ui/confirm";
+import { toast } from "#/components/ui/use-toast";
 import type { PagedResult } from "#/features/common/CrudPage";
+import { useMasterDataAccess } from "#/features/master-data/useMasterDataAccess";
 
 interface CustomerDto {
   id: string; code: string; name: string; idNo: string | null;
@@ -46,8 +48,7 @@ function F({ label, children }: { label: string; children: React.ReactNode }) {
 export function CustomerPage() {
   const queryClient = useQueryClient();
   const { confirm, dialog: confirmDialog } = useConfirm();
-  const { user } = useAuth();
-  const canDelete = user?.isDeveloper || user?.roles.includes("SuperAdmin");
+  const { canEdit, canDelete } = useMasterDataAccess();
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -189,8 +190,13 @@ export function CustomerPage() {
 
   async function handleDelete(row: CustomerDto) {
     const ok = await confirm({ title: "Delete Customer?", description: `Delete ${row.name}?`, destructive: true });
-    if (ok) await api.delete(`master/customers/${row.id}`).catch(() => {});
-    queryClient.invalidateQueries({ queryKey: ["master/customers"] });
+    if (!ok) return;
+    try {
+      await api.delete(`master/customers/${row.id}`);
+      queryClient.invalidateQueries({ queryKey: ["master/customers"] });
+    } catch (err) {
+      toast({ title: "Delete failed", description: await describeApiError(err), variant: "destructive" });
+    }
   }
 
   // Address handlers
@@ -204,8 +210,14 @@ export function CustomerPage() {
   }
   async function delAddr(a: AddressDto) {
     if (!editing) return;
-    await api.delete(`master/customers/${editing.id}/addresses/${a.id}`).catch(() => {});
-    loadAddresses(editing.id);
+    const ok = await confirm({ title: "Delete address?", description: "", destructive: true });
+    if (!ok) return;
+    try {
+      await api.delete(`master/customers/${editing.id}/addresses/${a.id}`);
+      loadAddresses(editing.id);
+    } catch (err) {
+      toast({ title: "Delete failed", description: await describeApiError(err), variant: "destructive" });
+    }
   }
 
   // Brand discount handlers
@@ -220,17 +232,25 @@ export function CustomerPage() {
   }
   async function delBd(b: BrandDiscDto) {
     if (!editing) return;
-    await api.delete(`master/customers/${editing.id}/brand-discounts/${b.id}`).catch(() => {});
-    loadBrandDiscs(editing.id);
+    const ok = await confirm({ title: "Delete brand discount?", description: "", destructive: true });
+    if (!ok) return;
+    try {
+      await api.delete(`master/customers/${editing.id}/brand-discounts/${b.id}`);
+      loadBrandDiscs(editing.id);
+    } catch (err) {
+      toast({ title: "Delete failed", description: await describeApiError(err), variant: "destructive" });
+    }
   }
 
   return (
     <Card>
       <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <CardTitle className="text-2xl sm:text-3xl font-bold">Customers</CardTitle>
+        {canEdit && (
         <Button onClick={openCreate} size="lg" className="w-full sm:w-auto text-base min-h-[48px]">
           <Plus className="h-5 w-5 mr-2" /> New Customer
         </Button>
+        )}
       </CardHeader>
       <CardContent>
         <div className="relative mb-4 max-w-md">
@@ -238,7 +258,7 @@ export function CustomerPage() {
           <Input type="search" placeholder="Search by code or name…" className="pl-10 h-12 text-base" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
         </div>
         {q.isLoading && <Spinner label="Loading customers…" />}
-        {q.data && q.data.items.length === 0 && <EmptyState icon={Database} title="No customers" description="No records found." action={<Button onClick={openCreate} size="lg" className="text-base"><Plus className="h-5 w-5 mr-2" /> New Customer</Button>} />}
+        {q.data && q.data.items.length === 0 && <EmptyState icon={Database} title="No customers" description="No records found." action={canEdit ? <Button onClick={openCreate} size="lg" className="text-base"><Plus className="h-5 w-5 mr-2" /> New Customer</Button> : undefined} />}
         {q.data && q.data.items.length > 0 && (
           <>
             {/* Mobile cards */}

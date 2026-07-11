@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Search, Plus, ChevronLeft, ChevronRight, Pencil, Trash2, Database } from "lucide-react";
 import { api } from "#/lib/api";
+import { describeApiError } from "#/lib/apiErrors";
 import { Badge } from "#/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { Input } from "#/components/ui/input";
@@ -12,7 +13,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "#
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "#/components/ui/dialog";
 import { Label } from "#/components/ui/label";
 import { useConfirm } from "#/components/ui/confirm";
+import { toast } from "#/components/ui/use-toast";
 import type { PagedResult } from "#/features/common/CrudPage";
+import { useMasterDataAccess } from "#/features/master-data/useMasterDataAccess";
 
 export interface RefField {
   key: string;
@@ -35,16 +38,18 @@ interface Props {
   apiPath: string;
   columns: RefColumn[];
   fields: RefField[];
-  extraFields?: (dto: Record<string, unknown>, set: (k: string, v: unknown) => void) => React.ReactNode;
+  /** Extra form keys copied from the row on edit and included in save payload. */
+  rowFormKeys?: string[];
+  extraFields?: (form: Record<string, string>, set: (k: string, v: unknown) => void) => React.ReactNode;
   transformDto?: (dto: Record<string, unknown>) => Record<string, unknown>;
   emptyMessage?: string;
   hideStatus?: boolean;
-  canDelete?: boolean;
 }
 
-export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields, transformDto, emptyMessage, hideStatus, canDelete = true }: Props) {
+export function ReferenceDataPage({ title, apiPath, columns, fields, rowFormKeys, extraFields, transformDto, emptyMessage, hideStatus }: Props) {
   const queryClient = useQueryClient();
   const { confirm, dialog: confirmDialog } = useConfirm();
+  const { canEdit, canDelete } = useMasterDataAccess();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -64,12 +69,17 @@ export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields
     placeholderData: (prev) => prev,
   });
 
+  const onMutError = async (err: unknown) => {
+    toast({ title: "Save failed", description: await describeApiError(err), variant: "destructive" });
+  };
+
   const createMut = useMutation({
     mutationFn: async (dto: Record<string, unknown>) => {
       const payload = transformDto ? transformDto(dto) : dto;
       await api.post(apiPath, { json: payload });
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: [apiPath] }); setDialogOpen(false); },
+    onError: onMutError,
   });
 
   const updateMut = useMutation({
@@ -78,16 +88,19 @@ export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields
       await api.put(`${apiPath}/${id}`, { json: payload });
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: [apiPath] }); setDialogOpen(false); },
+    onError: onMutError,
   });
 
   const deleteMut = useMutation({
     mutationFn: async (id: string) => { await api.delete(`${apiPath}/${id}`); },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: [apiPath] }); },
+    onError: onMutError,
   });
 
   function resetForm() {
     const init: Record<string, string> = {};
     fields.forEach((f) => { if (f.type !== "checkbox") init[f.key] = ""; });
+    rowFormKeys?.forEach((k) => { init[k] = ""; });
     setForm(init);
     setIsActive(true);
     setEditing(null);
@@ -101,6 +114,7 @@ export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields
   function openEdit(row: Record<string, unknown>) {
     const init: Record<string, string> = {};
     fields.forEach((f) => { if (f.type !== "checkbox") init[f.key] = String(row[f.key] ?? ""); });
+    rowFormKeys?.forEach((k) => { init[k] = String(row[k] ?? ""); });
     setForm(init);
     setIsActive(row.isActive !== false);
     setEditing(row);
@@ -118,6 +132,7 @@ export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields
       if (f.type === "checkbox") return;
       dto[f.key] = f.type === "number" ? Number(form[f.key]) : form[f.key];
     });
+    rowFormKeys?.forEach((k) => { if (form[k]) dto[k] = form[k]; });
     dto.isActive = isActive;
     if (editing) {
       updateMut.mutate({ id: String(editing.id), dto });
@@ -127,14 +142,17 @@ export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields
   }
 
   const isPending = createMut.isPending || updateMut.isPending;
+  const newButton = canEdit ? (
+    <Button onClick={openCreate} size="sm" className="w-full sm:w-auto">
+      <Plus className="h-4 w-4 mr-1" /> New
+    </Button>
+  ) : null;
 
   return (
     <Card>
       <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <CardTitle className="text-xl sm:text-2xl">{title}</CardTitle>
-        <Button onClick={openCreate} size="sm" className="w-full sm:w-auto">
-          <Plus className="h-4 w-4 mr-1" /> New
-        </Button>
+        {newButton}
       </CardHeader>
       <CardContent>
         <div className="relative mb-4 max-w-sm">
@@ -151,26 +169,25 @@ export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields
         {q.isLoading && <Spinner label={`Loading ${title.toLowerCase()}…`} />}
 
         {q.data && q.data.items.length === 0 && (
-          <EmptyState icon={Database} title={`No ${title.toLowerCase()}`} description={emptyMessage ?? `No records found. Create one to get started.`} action={<Button onClick={openCreate}><Plus className="h-4 w-4 mr-1" /> New</Button>} />
+          <EmptyState icon={Database} title={`No ${title.toLowerCase()}`} description={emptyMessage ?? `No records found. Create one to get started.`} action={newButton} />
         )}
 
         {q.data && q.data.items.length > 0 && (
           <>
-            {/* Mobile card layout */}
             <div className="flex flex-col gap-3 sm:hidden">
               {q.data.items.map((row) => (
                 <div key={String(row.id)} className="rounded-lg border-2 border-border bg-card p-4 space-y-2">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
                       {columns.length > 0 && (
-                        <div className="font-bold text-base truncate">
+                        <div className="font-bold text-base break-words">
                           {columns[0]!.render
                             ? columns[0]!.render(row[columns[0]!.key], row)
                             : String(row[columns[0]!.key] ?? "")}
                         </div>
                       )}
                       {columns.slice(1).map((col) => (
-                        <div key={col.key} className="text-sm text-muted-foreground truncate mt-0.5">
+                        <div key={col.key} className="text-sm text-muted-foreground break-words mt-0.5">
                           {col.label}: {col.render ? col.render(row[col.key], row) : String(row[col.key] ?? "")}
                         </div>
                       ))}
@@ -181,21 +198,24 @@ export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields
                       </Badge>
                     )}
                   </div>
-                  <div className="flex gap-2 pt-1">
-                    <Button variant="outline" size="sm" className="h-10 flex-1 text-sm" onClick={() => openEdit(row)}>
-                      <Pencil className="h-4 w-4 mr-1" /> Edit
-                    </Button>
-                    {canDelete && (
-                      <Button variant="outline" size="sm" className="h-10 flex-1 text-sm text-destructive border-destructive/40 hover:bg-destructive/10" onClick={() => handleDelete(row)}>
-                        <Trash2 className="h-4 w-4 mr-1" /> Delete
-                      </Button>
-                    )}
-                  </div>
+                  {(canEdit || canDelete) && (
+                    <div className="flex gap-2 pt-1">
+                      {canEdit && (
+                        <Button variant="outline" size="sm" className="h-10 flex-1 text-sm" onClick={() => openEdit(row)}>
+                          <Pencil className="h-4 w-4 mr-1" /> Edit
+                        </Button>
+                      )}
+                      {canDelete && (
+                        <Button variant="outline" size="sm" className="h-10 flex-1 text-sm text-destructive border-destructive/40 hover:bg-destructive/10" onClick={() => handleDelete(row)}>
+                          <Trash2 className="h-4 w-4 mr-1" /> Delete
+                        </Button>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
 
-            {/* Desktop table layout */}
             <div className="hidden sm:block overflow-x-auto -mx-4 sm:mx-0">
               <div className="inline-block min-w-full align-middle">
                 <Table>
@@ -205,7 +225,7 @@ export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields
                         <TableHead key={col.key} className={col.className ?? ""}>{col.label}</TableHead>
                       ))}
                       {!hideStatus && <TableHead className="w-[80px]">Status</TableHead>}
-                      <TableHead className="w-[80px]"></TableHead>
+                      {(canEdit || canDelete) && <TableHead className="w-[80px]"></TableHead>}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -223,18 +243,22 @@ export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields
                             </Badge>
                           </TableCell>
                         )}
-                        <TableCell>
-                          <div className="flex gap-1">
-                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(row)} title="Edit">
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            {canDelete && (
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDelete(row)} title="Delete">
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </div>
-                        </TableCell>
+                        {(canEdit || canDelete) && (
+                          <TableCell>
+                            <div className="flex gap-1">
+                              {canEdit && (
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(row)} title="Edit">
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                              )}
+                              {canDelete && (
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDelete(row)} title="Delete">
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
+                          </TableCell>
+                        )}
                       </TableRow>
                     ))}
                   </TableBody>
@@ -258,7 +282,7 @@ export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields
           </>
         )}
 
-          <Dialog open={dialogOpen} onOpenChange={(o) => { if (!o) resetForm(); setDialogOpen(o); }}>
+        <Dialog open={dialogOpen} onOpenChange={(o) => { if (!o) resetForm(); setDialogOpen(o); }}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>{editing ? `Edit ${title}` : `New ${title}`}</DialogTitle>
@@ -276,6 +300,7 @@ export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields
                     placeholder={f.placeholder}
                     className={f.className}
                     autoComplete="off"
+                    readOnly={!canEdit}
                   />
                 </div>
               ))}
@@ -286,6 +311,7 @@ export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields
                     type="checkbox"
                     checked={isActive}
                     onChange={(e) => setIsActive(e.target.checked)}
+                    disabled={!canEdit}
                     className="h-5 w-5 rounded border-2 border-input accent-primary"
                   />
                   <span className="text-sm font-medium">{isActive ? "Active" : "Locked"}</span>
@@ -294,9 +320,11 @@ export function ReferenceDataPage({ title, apiPath, columns, fields, extraFields
             </div>
             <DialogFooter className="flex-col sm:flex-row gap-2">
               <Button variant="outline" onClick={() => setDialogOpen(false)} className="w-full sm:w-auto">Cancel</Button>
-              <Button onClick={handleSave} disabled={isPending} className="w-full sm:w-auto">
-                {isPending ? "Saving…" : editing ? "Update" : "Create"}
-              </Button>
+              {canEdit && (
+                <Button onClick={handleSave} disabled={isPending} className="w-full sm:w-auto">
+                  {isPending ? "Saving…" : editing ? "Update" : "Create"}
+                </Button>
+              )}
             </DialogFooter>
           </DialogContent>
         </Dialog>

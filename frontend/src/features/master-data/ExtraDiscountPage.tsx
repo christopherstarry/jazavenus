@@ -14,6 +14,7 @@ import { Card, CardContent } from "#/components/ui/card";
 import { LegacyTransactionToolbar, useLegacyShortcuts, type FormState } from "#/features/common/LegacyTransactionToolbar";
 import { LookupDialog, type LookupItem } from "#/features/common/LookupDialog";
 import { EditableLineGrid, toSubmitLines, type EditableLineRow } from "#/features/common/EditableLineGrid";
+import { useMasterDataAccess } from "#/features/master-data/useMasterDataAccess";
 import "#/features/master-data/masterDataI18n";
 
 interface ExtraDiscountLineDto {
@@ -65,6 +66,7 @@ export function ExtraDiscountPage() {
   const { t } = useTranslation(["masterData", "dialog"]);
   const navigate = useNavigate();
   const { confirm, dialog } = useConfirm();
+  const { canEdit, canDelete: canDeleteMaster } = useMasterDataAccess();
 
   const [browseOpen, setBrowseOpen] = useState(false);
   const [docId, setDocId] = useState<string | null>(null);
@@ -270,8 +272,8 @@ export function ExtraDiscountPage() {
       <LegacyTransactionToolbar
         mode="master"
         formState={formState}
-        canEdit
-        canDelete
+        canEdit={canEdit}
+        canDelete={canDeleteMaster}
         isDirty={dirty}
         isSaving={saveMutation.isPending}
         onNew={handleNew}

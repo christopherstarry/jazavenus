@@ -185,7 +185,7 @@ public sealed class SettingsController(
     }
 
     [HttpDelete("order-codes/{id:guid}")]
-    [Authorize(Policy = Policies.RequireAdmin)]
+    [RequireCanDelete(Modules.Master)]
     public async Task<IActionResult> DeleteOrderCode(Guid id, CancellationToken ct)
     {
         var o = await db.OrderCodes.FirstOrDefaultAsync(x => x.Id == id, ct) ?? throw new KeyNotFoundException();
@@ -244,7 +244,7 @@ public sealed class SettingsController(
     }
 
     [HttpDelete("return-codes/{id:guid}")]
-    [Authorize(Policy = Policies.RequireAdmin)]
+    [RequireCanDelete(Modules.Master)]
     public async Task<IActionResult> DeleteReturnCode(Guid id, CancellationToken ct)
     {
         var r = await db.ReturnCodes.FirstOrDefaultAsync(x => x.Id == id, ct) ?? throw new KeyNotFoundException();

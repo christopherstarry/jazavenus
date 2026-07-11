@@ -81,7 +81,7 @@ public sealed class PenetrationsController(AppDbContext db, IValidator<Penetrati
     }
 
     [HttpDelete("{id:guid}")]
-    [Authorize(Policy = Policies.RequireAdmin)]
+    [RequireCanDelete(Modules.Master)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
         var e = await db.Penetrations.FirstOrDefaultAsync(x => x.Id == id, ct) ?? throw new KeyNotFoundException();

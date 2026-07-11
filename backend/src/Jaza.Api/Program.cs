@@ -132,11 +132,20 @@ builder.Services.AddAuthorization(o =>
             .AddRequirements(new ReportPermissionRequirement(report)));
     }
 
+    foreach (var module in Modules.All)
+    {
+        o.AddPolicy($"CanDelete:{module}", p => p
+            .AddAuthenticationSchemes(multiScheme)
+            .RequireAuthenticatedUser()
+            .AddRequirements(new ModuleDeletePermissionRequirement(module)));
+    }
+
     o.FallbackPolicy = o.DefaultPolicy;
 });
 
 builder.Services.AddScoped<IAuthorizationHandler, ModulePermissionHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, ReportPermissionHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, ModuleDeletePermissionHandler>();
 
 builder.Services.AddAntiforgery(o =>
 {

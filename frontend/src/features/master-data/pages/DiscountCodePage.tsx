@@ -1,4 +1,3 @@
-import { useAuth } from "#/lib/auth";
 import { ReferenceDataPage, type RefColumn, type RefField } from "#/features/master-data/ReferenceDataPage";
 
 function genCode(): string { return crypto.randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase(); }
@@ -15,7 +14,5 @@ const fields: RefField[] = [
 ];
 
 export function DiscountCodePage() {
-  const { user } = useAuth();
-  const canDelete = user?.isDeveloper || user?.roles.includes("SuperAdmin");
-  return <ReferenceDataPage title="Discount Codes" apiPath="master/discount-codes" columns={columns} fields={fields} transformDto={(dto) => ({ ...dto, code: genCode() })} canDelete={canDelete} />;
+  return <ReferenceDataPage title="Discount Codes" apiPath="master/discount-codes" columns={columns} fields={fields} transformDto={(dto) => ({ ...dto, code: genCode() })} />;
 }

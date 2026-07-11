@@ -101,7 +101,7 @@ public sealed class ExtraDiscountsController(
     }
 
     [HttpDelete("{id:guid}")]
-    [Authorize(Policy = Policies.RequireAdmin)]
+    [RequireCanDelete(Modules.Master)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
         var e = await db.ExtraDiscounts.FirstOrDefaultAsync(x => x.Id == id, ct) ?? throw new KeyNotFoundException();
