@@ -1,5 +1,13 @@
 # Jaza Venus â€” documentation index
 
+## Project goals
+
+| Document | Purpose |
+|----------|---------|
+| [project-goals.md](project-goals.md) | **Consolidated goals** â€” north star, must-haves, scope, business rules, phases, success metrics |
+
+---
+
 ## Deployment readiness & parity
 
 | Document | Purpose |

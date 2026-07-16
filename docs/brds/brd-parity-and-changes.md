@@ -3,6 +3,8 @@
 **Audience:** Engineering, product, deployment stakeholders  
 **Purpose:** Reconcile legacy VB6 Sales Inventory scope with the new Jaza Venus app. Documents what must run the same, what is intentionally different, and what remains to build.
 
+**See also:** [project-goals.md](../project-goals.md) for the consolidated goal list.
+
 ---
 
 ## 1. Executive summary

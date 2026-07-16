@@ -1,5 +1,7 @@
 # BRD: Jaza Venus — Warehouse Management System
 
+**See also:** [project-goals.md](../project-goals.md) for a consolidated, cross-linked goal index.
+
 ## 1. Executive Summary
 
 Jaza currently runs a warehouse and distribution management application built on **Windows XP**, written in **VB** with **SQL Server**. The system cannot be updated, cannot run on modern operating systems, and has no path forward for maintenance. We are replacing it with **Jaza Venus** — a modern web-based application that replicates every existing feature, improves critical workflows, and is built on technology that can be maintained indefinitely.

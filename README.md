@@ -70,7 +70,7 @@ one on first boot and prints it in the startup log. Demo users are seeded only w
 
 ## Documentation
 
-Structured docs live under [`docs/`](docs/). Start from [`docs/README.md`](docs/README.md) for the index (architecture, HTTP API shape, development, security, runbook, migration).
+Structured docs live under [`docs/`](docs/). Start from [`docs/README.md`](docs/README.md) for the index; [`docs/project-goals.md`](docs/project-goals.md) summarizes all project goals.
 
 ## Production deployment
 
