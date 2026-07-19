@@ -1,0 +1,29 @@
+---
+description: EF Core and PostgreSQL naming for Jaza Venus — Phase 1 PascalCase vs Phase 2 snake_case, entity conventions. Applies to Persistence and Migrations.
+globs: backend/**/Persistence/**/*.{cs},backend/**/Migrations/**/*.cs
+alwaysApply: false
+---
+
+# Database Naming
+
+Follow [docs/database/naming-conventions.md](docs/database/naming-conventions.md).
+
+## Rules
+
+1. **C# entities** — PascalCase singular (`SalesOrder`, `Item`)
+2. **Phase 1 tables** — keep PascalCase physical names (`SalesOrders`, `Items`) — do not rename running tables
+3. **Phase 2+ new tables** — canonical `snake_case` via `.ToTable("sales_returns")` in `AppDbContext`
+4. **Docs** — use `snake_case` plural in markdown (`sales_orders`)
+5. **Status codes** — store language-neutral strings (`Draft`, `Posted`, `Voided`); labels via i18n
+6. **No `NameEn` / `NameId` columns** on master tables
+
+## Document headers
+
+- Composite uniqueness: `(division, number)` on transaction headers
+- Line base linking: `BaseDocumentType`, `BaseDocumentId`, `BaseLineNumber`, `BaseQuantity`
+
+## When adding tables
+
+- Update `docs/database/naming-conventions.md` mapping row if new legacy parity table
+- Update `docs/schema-mapping.md` if ETL-relevant
+- Update parity matrix if user-visible feature

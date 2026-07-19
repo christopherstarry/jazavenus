@@ -1,0 +1,42 @@
+---
+description: Jaza Venus project goals G1-G5 and non-negotiable business rules. Use for all work in this repo.
+alwaysApply: true
+---
+
+# Jaza Venus Project Goals
+
+Read [docs/project-goals.md](docs/project-goals.md) for full context. Enforce:
+
+## Must-have goals
+
+- **G1** Full feature migration — parity matrix shows no required gaps before cutover
+- **G2** Zero workflow breakage — preserve legacy labels from `frontend/src/app/modules.tsx`
+- **G3** Fast and secure — follow security and performance docs
+- **G4** Complete data migration — schema-mapping and ETL stay aligned
+- **G5** Production cutover — Phase 1 UAT passes per cutover checklist
+
+## Improvements (do not revert to legacy)
+
+I2 one-step invoice, I3 RBAC, I4 audit trail, I5 i18n (id default), I7 web access.
+
+## Non-negotiable business rules (§5)
+
+- Document chain: PO→GRN; SO→Delivery→Invoice→Payment
+- P1/P2/P3 discounts; credit plafond + overdue blocking with admin override
+- Stock: Available = OnHand − Committed
+- Faktur Pajak serial pool for PKP customers
+- Payments: Cash, Transfer, Check/Giro, Others, Return, Adjustment
+- Division scoping on all queries
+- Status: legacy O/B/C vs new Draft/Posted/Voided — map correctly
+
+## Do
+
+- Prefer Phase 1 cutover blockers over Phase 3 polish
+- Reuse existing Application services and `businessRuleFlow.ts` before inventing rules
+- Preserve user-facing legacy screen titles unless PRD explicitly changes them
+
+## Don't
+
+- Invent business rules not in PRD, BRD §2, or legacy reference
+- Rename navigation labels to “modern” English without approval
+- Mark features done when only API or UI shell exists

@@ -1,0 +1,49 @@
+---
+description: .NET backend conventions for Jaza Venus — clean architecture, document lifecycle, division scope, validation. Applies when editing C# under backend/.
+globs: backend/**/*.cs
+alwaysApply: false
+---
+
+# Backend (.NET 10)
+
+## Layer boundaries
+
+- **Domain** — entities, enums, invariants (no dependencies)
+- **Application** — DTOs, FluentValidation, service interfaces, use cases
+- **Infrastructure** — EF Core, Identity, service implementations, migrations
+- **Api** — thin controllers, middleware, auth attributes
+
+`TreatWarningsAsErrors` is on — fix warnings. Add NuGet versions in `Directory.Packages.props` only.
+
+## Controllers
+
+```csharp
+// ✅ Thin controller — logic in Application service
+[HttpPost("{id:guid}/post")]
+public async Task<ActionResult<InvoiceDto>> Post(Guid id, CancellationToken ct)
+    => Ok(await invoicing.PostAsync(id, ct));
+
+// ❌ Business logic, EF queries, or validation in controller
+```
+
+- Apply `[Authorize]`, role policies, and `[RequireModule(...)]`
+- Document lifecycle: `POST .../{id}/post`, `POST .../{id}/void` per [docs/api/conventions.md](docs/api/conventions.md)
+- Use `IDivisionScopeService` for division-scoped queries and writes
+- List endpoints return `PagedResult<T>` with normalized page/pageSize
+
+## Application layer
+
+- DTOs + validators colocated under `Jaza.Application/{Module}/`
+- `ValidateAndThrowAsync()` before persistence
+- Complex logic → interface in Application, implementation in Infrastructure
+
+## Database changes
+
+```powershell
+dotnet ef migrations add Name --project src/Jaza.Infrastructure --startup-project src/Jaza.Api
+```
+
+## Tests
+
+- Unit: `backend/tests/Jaza.Application.Tests/`
+- Integration: `backend/tests/Jaza.Api.IntegrationTests/` — Testcontainers PostgreSQL (**Docker required**)

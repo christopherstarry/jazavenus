@@ -1,0 +1,44 @@
+---
+description: React/TypeScript frontend conventions for Jaza Venus — modules.tsx, i18n, shared UI components, TanStack Query. Applies when editing frontend/.
+globs: frontend/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Frontend (React 19 + TypeScript)
+
+## Structure
+
+- Feature code: `frontend/src/features/{module}/`
+- Register routes in `frontend/src/app/modules.tsx` (sidebar, breadcrumbs, permissions)
+- Import alias: `#/*` → `src/*` — not deep relative paths
+
+## API and state
+
+- HTTP: `api` from `#/lib/api.ts` (ky, cookie auth, CSRF)
+- Server state: TanStack Query
+- Forms: react-hook-form + zod
+- Errors: `describeApiError()` from `#/lib/apiErrors.ts`
+
+## i18n
+
+- No hardcoded user-facing strings on gap screens
+- Add keys to `frontend/src/i18n/locales/id/` and `en/` — **Indonesian is default locale**
+- Use existing namespaces (`documentStatus.*`, `invoiceStatus.*`, module helpers)
+
+## Shared UI (mandatory for parity)
+
+| Pattern | Components |
+|---------|------------|
+| Transaction screens | `LegacyTransactionToolbar`, `EditableLineGrid`, `LookupFieldInput`, `LookupDialog` |
+| Master CRUD | `CrudPage` |
+| Credit/overdue confirms | `runWithBusinessRuleConfirm` from `#/features/common/businessRuleFlow` |
+
+See [docs/modules/shared/ui-foundation/](docs/modules/shared/ui-foundation/).
+
+## Permissions
+
+Gate actions with `useModuleAccess`, `usePermissions` from `#/lib/auth.tsx`.
+
+## Tests
+
+Co-locate `*.test.tsx`; Vitest setup in `frontend/src/test/setup.ts`.

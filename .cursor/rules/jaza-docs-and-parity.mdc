@@ -1,0 +1,47 @@
+---
+description: Doc-first development and parity matrix updates for Jaza Venus features. Use before and after implementing any module screen or API.
+alwaysApply: true
+---
+
+# Docs and Parity
+
+## Before coding
+
+1. Open matching PRD: `docs/modules/{module}/prds/`
+2. Read flow overview: `docs/modules/{module}/flow/overview.md` (when present)
+3. Read API module doc under `docs/api/modules/` — feature module names often differ from API file names:
+
+   | Feature area | API doc |
+   |--------------|---------|
+   | sales | `outbound.md` (+ `invoicing.md` for invoices) |
+   | purchase | `inbound.md` |
+   | inventory | `inventory.md` |
+   | ar | `ar.md` |
+   | master-data | `master-data.md` |
+   | auth / users | `auth.md`, `users.md` |
+   | reports | `reports.md` |
+   | system | `system.md`, `settings.md`, `audit.md` |
+
+4. Check current status: `docs/parity/legacy-to-new-parity-matrix.md`
+5. Do not contradict [brd-parity-and-changes.md §2](docs/brds/brd-parity-and-changes.md)
+
+## Parity status legend
+
+| Status | Meaning |
+|--------|---------|
+| **Implemented** | Entity + API + frontend wired and usable |
+| **Partial** | Some layers missing or not API-connected |
+| **Missing** | Not built |
+| **Dropped** | Intentionally excluded (document reason) |
+
+## After coding
+
+- Update the parity matrix row: status, backend, frontend, gap notes
+- Link new PRDs from [docs/modules/README.md](docs/modules/README.md) if added
+- Cross-check [docs/README.md](docs/README.md) deployment section when wiring status changes
+
+## Don't
+
+- Label **Implemented** when UI exists but is not API-connected
+- Skip parity matrix updates “for later”
+- Duplicate full PRD content in code comments — link the doc

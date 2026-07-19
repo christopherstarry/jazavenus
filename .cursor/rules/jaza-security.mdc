@@ -1,0 +1,29 @@
+---
+description: Security rules for Jaza Venus — no secrets in repo, cookie auth, CSRF, MFA. Applies when editing backend config, deploy files, or env templates.
+globs: backend/**/*.{cs,json},deploy/**/*,**/.env*
+alwaysApply: false
+---
+
+# Security
+
+Follow [docs/security.md](docs/security.md) and [docs/security/security-review.md](docs/security/security-review.md).
+
+## Never commit
+
+- Database passwords, connection strings with credentials, API keys, JWT secrets
+- Real values in `appsettings.json`, `appsettings.Production.json`, `.env`, or deploy configs
+
+Use user secrets (local), Fly secrets (staging/prod), or environment variables.
+
+## Auth (do not weaken)
+
+- SPA: cookie sessions + CSRF on mutating requests
+- External/mobile: JWT bearer where documented
+- SuperAdmin: TOTP MFA required
+- Division-scoped data via `IDivisionScopeService` — no cross-division leaks in new endpoints
+
+## Don't
+
+- Disable `[Authorize]` or module checks to “unblock” development
+- Log sensitive fields (passwords, full payment details)
+- Copy example credentials from security-review into rules or code
